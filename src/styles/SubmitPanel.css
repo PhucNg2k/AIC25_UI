@@ -1,0 +1,63 @@
+/* SubmitPanel.css - Styles for the submission panel */
+
+.submit-panel {
+    flex: 0 0 300px;
+    background: #f8f9fa;
+    border-left: 1px solid #e9ecef;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+
+
+.submit-content {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+
+
+.submit-actions {
+    margin-top: 15px;
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.clear-btn {
+    width: 100%;
+    padding: 10px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #c82333;
+}
+
+.clear-btn:active {
+    transform: translateY(1px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .submit-panel {
+        flex: 1 1 auto;
+        border-left: none;
+        border-top: 1px solid #e9ecef;
+        max-height: 300px;
+    }
+    
+
+}

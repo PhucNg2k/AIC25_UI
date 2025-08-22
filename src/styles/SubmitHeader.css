@@ -1,0 +1,149 @@
+/* SubmitHeader.css - Styles for the submission header component */
+
+.submit-header {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.submit-header h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.query-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.query-input-group label {
+    font-size: 0.9em;
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Display mode styles */
+.query-display-container {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.query-display {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 0.9em;
+    line-height: 1.4;
+    min-height: 60px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.query-display:empty::before {
+    content: "No query set. Click Edit to add a query.";
+    color: #6c757d;
+    font-style: italic;
+}
+
+.edit-query-btn {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.edit-query-btn:hover {
+    background: #0056b3;
+}
+
+/* Edit mode styles */
+.query-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.query-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #495057;
+    background: white;
+    font-family: inherit;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.query-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.query-textarea::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.query-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.save-query-btn {
+    padding: 8px 16px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.save-query-btn:hover:not(:disabled) {
+    background: #218838;
+}
+
+.save-query-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cancel-query-btn {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.cancel-query-btn:hover {
+    background: #5a6268;
+}

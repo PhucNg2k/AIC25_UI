@@ -1,0 +1,87 @@
+/* SubmitBoard.css - Styles for the submit board component */
+
+.submit-board {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.empty-state {
+    text-align: center;
+    color: #6c757d;
+    padding: 40px 20px;
+}
+
+.empty-state p {
+    margin: 0 0 10px 0;
+}
+
+.hint {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.frames-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.frames-table thead th {
+    background: #007bff;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9em;
+    padding: 12px 8px;
+    text-align: center;
+    border: none;
+}
+
+.frames-table tbody {
+    max-height: none;
+    overflow-y: visible;
+    display: block;
+}
+
+.frames-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-bottom: 1px solid #e9ecef;
+    background: white;
+    transition: background-color 0.2s ease;
+}
+
+
+
+.frames-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.frames-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.frame-name {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #2c3e50;
+    font-weight: 600;
+    word-break: break-all;
+    text-align: center;
+    padding: 12px 8px;
+    border: none;
+}
+
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .frames-table thead th,
+    .frame-name {
+        padding: 8px 6px;
+        font-size: 0.8em;
+    }
+}

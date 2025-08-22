@@ -7,6 +7,7 @@ import VideoPlayerPanel from './components/video_player/VideoPlayerPanel'
 import FrameModal from './components/frame/FrameModal'
 import { loadVideoMetadata } from './utils/metadata'
 import { searchImagesMock, searchImagesAPI } from './utils/searching'
+import SubmitPanel from "./components/submit_panel/SubmitPanel"
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
   const [showFrameModal, setShowFrameModal] = useState(false)
   const [selectedFrame, setSelectedFrame] = useState(null)
   const [videoMetadata, setVideoMetadata] = useState({})
+  const [submittedFrames, setSubmittedFrames] = useState([])
 
   // Load video metadata on component mount
   useEffect(() => {
@@ -84,6 +86,28 @@ function App() {
     setShowFrameModal(true)
   }
 
+  // Submit frame handler
+  const handleSubmitFrame = (frameData) => {
+    // Check if frame is already submitted to avoid duplicates
+    const isAlreadySubmitted = submittedFrames.some(
+      frame => frame.video_name === frameData.video_name && frame.frame_idx === frameData.frame_idx
+    )
+    
+    if (!isAlreadySubmitted) {
+      // Only keep the essential data for export: video_name and frame_idx
+      const essentialFrameData = {
+        video_name: frameData.video_name,
+        frame_idx: frameData.frame_idx
+      }
+      setSubmittedFrames(prev => [...prev, essentialFrameData])
+    }
+  }
+
+  // Clear submitted frames
+  const handleClearSubmissions = () => {
+    setSubmittedFrames([])
+  }
+
   return (
     <div className="main-container">
       <SearchPanel
@@ -106,7 +130,10 @@ function App() {
         currentFramesList={currentFramesList}
       />
 
-        
+      <SubmitPanel 
+        submittedFrames={submittedFrames}
+        onClearSubmissions={handleClearSubmissions}
+      />
 
       {showVideoPlayer && selectedFrame && (
         <VideoPlayerPanel
@@ -114,6 +141,7 @@ function App() {
           videoMetadata={videoMetadata}
           framesList={currentFramesList}
           onClose={() => setShowVideoPlayer(false)}
+          onSubmitFrame={handleSubmitFrame}
         />
       )}
       

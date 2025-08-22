@@ -12,7 +12,8 @@ function VideoPlayerModal({
   currentIndex, 
   currentFramesList, 
   onClose, 
-  onNavigate 
+  onNavigate,
+  onSubmitFrame
 }) {
   const videoRef = useRef(null)
   const [currentFrame, setCurrentFrame] = useState(0)
@@ -41,7 +42,7 @@ function VideoPlayerModal({
 
     const handleTimeUpdate = () => {
       const currentFrameNumber = Math.floor(video.currentTime * vidFps)
-      setCurrentFrame(currentFrameNumber)
+      setCurrentFrame(currentFrameNumber);
     }
 
     const handleError = (e) => {
@@ -118,6 +119,25 @@ function VideoPlayerModal({
   const canNavigatePrev = currentIndex > 0
   const canNavigateNext = currentIndex < currentFramesList.length - 1
 
+  const handleSubmitFrame = () => {
+    if (onSubmitFrame) {
+      const video = videoRef.current
+      if (video) {
+        // Create frame data based on current video time
+        const currentVideoTime = video.currentTime
+        const currentFrameNumber = Math.floor(currentVideoTime * vidFps)
+        
+        // Create new frame data with current frame information
+        const currentFrameData = {
+          video_name: video_name,
+          frame_idx: currentFrameNumber
+        }
+        
+        onSubmitFrame(currentFrameData)
+      }
+    }
+  }
+
   return (
     <div className="video-player-modal" onClick={handleBackdropClick}>
       <div className="video-player-content" onClick={(e) => e.stopPropagation()}>
@@ -158,23 +178,26 @@ function VideoPlayerModal({
           
           <div className="video-player-info">
             <div className="frame-info-display">
-              <span className="current-frame">Frame: <strong>{currentFrame}</strong></span>
-              <span className="target-frame">Target: <strong>{currentFrameIdx}</strong></span>
-              <span className="similarity-display">Score: <strong>{score.toFixed(2)}%</strong></span>
+              <span className="current-frame">Current Frame: <strong>{currentFrame}</strong></span>
+              <span className="target-frame">Search Result Frame: <strong>{currentFrameIdx}</strong></span>
+              <span className="similarity-display">Search Score: <strong>{score.toFixed(2)}%</strong></span>
             </div>
             
             <div className="video-controls-custom">
-              <button className="seek-to-frame-btn" onClick={handleSeekToFrame}>
-                🎯 Jump to Frame
-              </button>
-              <button className="play-pause-btn" onClick={handlePlayPause}>
-                ⏯️ {isPlaying ? 'Pause' : 'Play'}
-              </button>
-
-              <button>
-                Submit Frame
-              </button>
-
+              <div className="controls-left">
+                <button className="seek-to-frame-btn" onClick={handleSeekToFrame}>
+                  🎯 Jump to Frame
+                </button>
+                <button className="play-pause-btn" onClick={handlePlayPause}>
+                  ⏯️ {isPlaying ? 'Pause' : 'Play'}
+                </button>
+              </div>
+              
+              <div className="controls-right">
+                <button className="submit-frame-btn" onClick={handleSubmitFrame}>
+                  📌 Submit Current Frame
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -5,7 +5,8 @@ function VideoPlayerPanel({
   initialFrame, 
   videoMetadata, 
   framesList, 
-  onClose 
+  onClose,
+  onSubmitFrame
 }) {
   // Find the initial index of the frame in the framesList
   const initialIndex = framesList.findIndex(f => 
@@ -43,6 +44,7 @@ function VideoPlayerPanel({
       currentFramesList={framesList}
       onClose={handleClose}
       onNavigate={handleNavigate}
+      onSubmitFrame={onSubmitFrame}
     />
   )
 }

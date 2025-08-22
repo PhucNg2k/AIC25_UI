@@ -111,10 +111,9 @@
 
 .video-player-info {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 15px;
+    width: 100%;
 }
 
 .frame-info-display {
@@ -137,7 +136,23 @@
 
 .video-controls-custom {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.controls-left {
+    display: flex;
     gap: 10px;
+    flex: 0 0 auto;
+}
+
+.controls-right {
+    display: flex;
+    gap: 10px;
+    flex: 0 0 auto;
+    margin-left: auto;
 }
 
 .seek-to-frame-btn,
@@ -168,11 +183,57 @@
     background: #f8f9fa;
     color: #495057;
     border: 1px solid #d5dbdb;
+    min-width: 120px;
+    text-align: center;
 }
 
 .play-pause-btn:hover {
     background: #e9ecef;
     color: #2c3e50;
+}
+
+.submit-frame-btn {
+    background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-frame-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #0056b3 0%, #5a2d91 100%);
+}
+
+.submit-frame-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+}
+
+.submit-frame-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.submit-frame-btn:hover::before {
+    left: 100%;
 }
 
 /* Video Player Responsive */
@@ -205,6 +266,12 @@
     }
     
     .video-controls-custom {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .controls-left,
+    .controls-right {
         justify-content: center;
     }
 }
@@ -217,5 +284,13 @@
     
     .video-controls-custom {
         flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls-left,
+    .controls-right {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
     }
 }
