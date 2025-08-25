@@ -11,7 +11,7 @@ let videoMetadata = {}
 // Load video metadata from JSON file
 export async function loadVideoMetadata() {
     try {
-        const response = await fetch("/Metadata/video_metadata.json")
+        const response = await fetch("/Metadata/video_metadata-transnet.json")
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
         }

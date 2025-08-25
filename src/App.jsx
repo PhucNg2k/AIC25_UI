@@ -15,7 +15,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [maxResults, setMaxResults] = useState(30)
+  const [maxResults, setMaxResults] = useState(80)
   const [currentFramesList, setCurrentFramesList] = useState([])
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [showFrameModal, setShowFrameModal] = useState(false)
@@ -41,8 +41,8 @@ function App() {
     
     try {
       // Call the search API
-      //const results = await searchImagesAPI(query, maxResults);
-      const results = await searchImagesMock(query, maxResults);
+      const results = await searchImagesAPI(query, maxResults);
+      //const results = await searchImagesMock(query, maxResults);
       
       // Process and display results
       if (results && results.length > 0) {

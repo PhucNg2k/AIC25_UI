@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import VideoResultRow from './video_player/VideoResultRow'
+import FrameComponent from './frame/FrameComponent'
+import ResultsHeader from './ResultsHeader'
 import '../styles/ResultsPanel.css'
 
 function ResultsPanel({ 
@@ -9,6 +12,7 @@ function ResultsPanel({
   onOpenFrameModal, 
   currentFramesList 
 }) {
+  const [displayMode, setDisplayMode] = useState('grouped')
   // Group results by video name
   const groupResultsByVideo = (results) => {
     const grouped = {}
@@ -45,37 +49,51 @@ function ResultsPanel({
     )
   }
 
-  const getSummaryText = () => {
-    if (searchQuery && searchResults.length > 0) {
-      return `Search results for "${searchQuery}"`
-    } else if (searchQuery && searchResults.length === 0) {
-      return `No results found for "${searchQuery}"`
-    }
-    return 'Enter a search query to see results'
-  }
-
-  return (
-    <div className="results-panel">
-      <div className="results-header">
-        <h2>Search Results</h2>
-        <div className="results-summary">
-          <span>{getSummaryText()}</span>
-        </div>
-      </div>
-
-      <div className="results-container">
-        {searchResults.length > 0 ? (
-          Object.entries(groupedResults).map(([videoName, frames]) => (
-            <VideoResultRow
-              key={videoName}
-              videoName={videoName}
-              frames={frames}
+  const renderRankingDisplay = () => {
+    return (
+      <div className="ranking-grid">
+        {searchResults.map((result, index) => (
+          <div key={`${result.video_name}_${result.frame_idx}_${index}`} className="ranking-frame-wrapper">
+            <div className="ranking-number">#{index + 1}</div>
+            <FrameComponent
+              frameData={result}
               videoMetadata={videoMetadata}
               onOpenVideoPlayer={onOpenVideoPlayer}
               onOpenFrameModal={onOpenFrameModal}
               currentFramesList={currentFramesList}
             />
-          ))
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderGroupedDisplay = () => {
+    return Object.entries(groupedResults).map(([videoName, frames]) => (
+      <VideoResultRow
+        key={videoName}
+        videoName={videoName}
+        frames={frames}
+        videoMetadata={videoMetadata}
+        onOpenVideoPlayer={onOpenVideoPlayer}
+        onOpenFrameModal={onOpenFrameModal}
+        currentFramesList={currentFramesList}
+      />
+    ))
+  }
+
+  return (
+    <div className="results-panel">
+      <ResultsHeader 
+        searchQuery={searchQuery}
+        searchResults={searchResults}
+        displayMode={displayMode}
+        setDisplayMode={setDisplayMode}
+      />
+
+      <div className="results-container">
+        {searchResults.length > 0 ? (
+          displayMode === 'grouped' ? renderGroupedDisplay() : renderRankingDisplay()
         ) : (
           renderNoResults()
         )}

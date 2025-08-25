@@ -1,7 +1,8 @@
 import { useState } from "react"
 import '../../styles/ExportButton.css'
+import SubmitPreview from './SubmitPreview'
 
-function ExportButton({ submittedFrames, query }) {
+function ExportButton({ submittedFrames, query, queryId }) {
     const [isExporting, setIsExporting] = useState(false)
 
     const handleExport = async () => {
@@ -19,59 +20,63 @@ function ExportButton({ submittedFrames, query }) {
             return
         }
 
+        if (!queryId || queryId.trim() === '') {
+            alert('Please set a query ID before exporting.')
+            return
+        }
+
         setIsExporting(true)
 
         try {
+            // Convert submittedFrames to the expected format
+            const frameNames = submittedFrames.map(frame => `${frame.video_name}_${frame.frame_idx}`);
+            
             // Prepare data for CSV export
             const exportData = {
-                query: query.trim(),
-                frames: submittedFrames,
-                timestamp: new Date().toISOString(),
-                frameCount: submittedFrames.length
+                query_id: parseInt(queryId, 10),
+                query_str: query.trim(),
+                selected_frames: frameNames
             }
 
             console.log('Prepared export data:', exportData)
 
-            // TODO: Replace with actual API call
-            // const response = await fetch('/api/export-csv', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(exportData)
-            // })
+            // Make POST request to the API
+            const response = await fetch('http://localhost:8000/submitCSV/kis', {
+                method: 'POST',
+                headers: { 
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(exportData)
+            })
 
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`)
+            }
 
-            // TODO: Handle actual response
-            console.log('Export would be successful')
-            alert(`Ready to export ${submittedFrames.length} frames for query: "${query}"`)
+            const result = await response.json()
+            console.log('Export successful:', result)
+            
+            alert(`✅ Export successful!\n\nCSV file: ${result.csv_file}\nTotal frames: ${result.total_frames}\nQuery ID: ${result.query_id}`)
 
         } catch (error) {
-            console.error('Export preparation failed:', error)
-            alert('Failed to prepare export. Please try again.')
+            console.error('Export failed:', error)
+            
+            // Handle specific error messages
+            if (error.message.includes('409') || error.message.includes('already exists')) {
+                alert(`❌ Export failed!\n\nQuery ID ${queryId} already exists. Please use a different Query ID.`)
+            } else if (error.message.includes('Failed to fetch')) {
+                alert('❌ Export failed!\n\nUnable to connect to the server. Please make sure the API is running on http://localhost:8000')
+            } else {
+                alert(`❌ Export failed!\n\n${error.message}`)
+            }
         } finally {
             setIsExporting(false)
         }
     }
 
-    const generateFrameNames = () => {
-        return submittedFrames.map(frame => `${frame.video_name}_${frame.frame_idx}`)
-    }
-
-    const getExportPreview = () => {
-        if (!submittedFrames || submittedFrames.length === 0) return null
-        
-        const frameNames = generateFrameNames()
-        return {
-            query,
-            frameCount: submittedFrames.length,
-            firstFewFrames: frameNames.slice(0, 3),
-            hasMore: frameNames.length > 3
-        }
-    }
-
-    const preview = getExportPreview()
-    const isDisabled = !submittedFrames || submittedFrames.length === 0 || !query?.trim()
+    const isDisabled = !submittedFrames || submittedFrames.length === 0 || !query?.trim() || !queryId?.trim()
 
     return (
         <div className="export-button-container">
@@ -79,26 +84,13 @@ function ExportButton({ submittedFrames, query }) {
                 className={`export-btn ${isDisabled ? 'disabled' : ''}`}
                 onClick={handleExport}
                 disabled={isDisabled || isExporting}
-                title={isDisabled ? 'Add frames and set query to export' : 'Export to CSV'}
+                title={isDisabled ? 'Add frames, set query ID and query to export' : 'Export to CSV'}
             >
                 <span className="export-icon">📊</span>
                 {isExporting ? 'Preparing Export...' : 'Export CSV'}
             </button>
             
-            {preview && (
-                <div className="export-preview">
-                    <p className="preview-query">Query: "{preview.query}"</p>
-                    <p className="preview-count">{preview.frameCount} frame{preview.frameCount !== 1 ? 's' : ''}</p>
-                    {preview.firstFewFrames.length > 0 && (
-                        <div className="preview-frames">
-                            {preview.firstFewFrames.map((frameName, index) => (
-                                <span key={index} className="preview-frame">{frameName}</span>
-                            ))}
-                            {preview.hasMore && <span className="preview-more">...</span>}
-                        </div>
-                    )}
-                </div>
-            )}
+            <SubmitPreview submittedFrames={submittedFrames} />
         </div>
     )
 }

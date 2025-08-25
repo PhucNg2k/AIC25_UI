@@ -6,10 +6,11 @@ import ExportButton from './ExportButton'
 
 function SubmitPanel({ submittedFrames = [], onClearSubmissions }) {
     const [query, setQuery] = useState('')
+    const [queryId, setQueryId] = useState('')
 
     return (
         <div className="submit-panel">
-            <SubmitHeader query={query} setQuery={setQuery} />
+            <SubmitHeader query={query} setQuery={setQuery} queryId={queryId} setQueryId={setQueryId} />
             
             <div className="submit-content">
                 <SubmitBoard submittedFrames={submittedFrames} />
@@ -25,6 +26,7 @@ function SubmitPanel({ submittedFrames = [], onClearSubmissions }) {
                         <ExportButton 
                             submittedFrames={submittedFrames}
                             query={query}
+                            queryId={queryId}
                         />
                     </div>
                 )}
