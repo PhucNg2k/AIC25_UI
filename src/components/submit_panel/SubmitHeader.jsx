@@ -1,7 +1,7 @@
 import { useState } from "react"
 import '../../styles/SubmitHeader.css'
 
-function SubmitHeader({ query, setQuery, queryId, setQueryId }) {
+function SubmitHeader({ query, setQuery, queryId, setQueryId, submittedFramesCount = 0 }) {
     const [inputValue, setInputValue] = useState('')
     const [queryIdInput, setQueryIdInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -26,9 +26,20 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId }) {
         setIsEditing(false)
     }
 
+    const getCounterClass = () => {
+        if (submittedFramesCount >= 100) return 'counter-max'
+        if (submittedFramesCount >= 80) return 'counter-warning'
+        return 'counter-normal'
+    }
+
     return (
         <div className="submit-header">
-            <h3>Submitted Frames</h3>
+            <div className="header-top">
+                <h3>Submitted Frames</h3>
+                <div className={`frame-counter ${getCounterClass()}`}>
+                    {submittedFramesCount}/100
+                </div>
+            </div>
             <div className="query-input-group">
                 {!isEditing ? (
                     // Display mode

@@ -4,16 +4,22 @@ import SubmitHeader from './SubmitHeader'
 import SubmitBoard from './SubmitBoard'
 import ExportButton from './ExportButton'
 
-function SubmitPanel({ submittedFrames = [], onClearSubmissions }) {
+function SubmitPanel({ submittedFrames = [], setSubmittedFrames, onClearSubmissions }) {
     const [query, setQuery] = useState('')
     const [queryId, setQueryId] = useState('')
 
     return (
         <div className="submit-panel">
-            <SubmitHeader query={query} setQuery={setQuery} queryId={queryId} setQueryId={setQueryId} />
+            <SubmitHeader 
+                query={query} 
+                setQuery={setQuery} 
+                queryId={queryId} 
+                setQueryId={setQueryId} 
+                submittedFramesCount={submittedFrames.length}
+            />
             
             <div className="submit-content">
-                <SubmitBoard submittedFrames={submittedFrames} />
+                <SubmitBoard submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
                 {submittedFrames.length > 0 && (
                     <div className="submit-actions">
                         <button 

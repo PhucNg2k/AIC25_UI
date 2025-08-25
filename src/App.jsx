@@ -94,6 +94,12 @@ function App() {
     )
     
     if (!isAlreadySubmitted) {
+      // Check if we've reached the 100 frame limit
+      if (submittedFrames.length >= 100) {
+        alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
+        return
+      }
+      
       // Only keep the essential data for export: video_name and frame_idx
       const essentialFrameData = {
         video_name: frameData.video_name,
@@ -132,6 +138,7 @@ function App() {
 
       <SubmitPanel 
         submittedFrames={submittedFrames}
+        setSubmittedFrames={setSubmittedFrames}
         onClearSubmissions={handleClearSubmissions}
       />
 

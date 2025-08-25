@@ -4,6 +4,8 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .empty-state {
@@ -25,8 +27,10 @@
     width: 100%;
     border-collapse: collapse;
     border-radius: 4px;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .frames-table thead th {
@@ -41,8 +45,9 @@
 
 .frames-table tbody {
     max-height: none;
-    overflow-y: visible;
+    overflow: visible;
     display: block;
+    position: relative;
 }
 
 .frames-table tbody tr {
@@ -51,7 +56,9 @@
     table-layout: fixed;
     border-bottom: 1px solid #e9ecef;
     background: white;
-    transition: background-color 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(0);
+    will-change: transform;
 }
 
 
@@ -73,6 +80,93 @@
     text-align: center;
     padding: 12px 8px;
     border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Drag and Drop Styles */
+.draggable-row {
+    user-select: none;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.draggable-row:active {
+    cursor: grabbing;
+}
+
+
+
+.drag-handle {
+    color: #6c757d;
+    font-size: 1.2em;
+    cursor: grab;
+    transition: color 0.2s ease;
+    line-height: 1;
+}
+
+.draggable-row:hover .drag-handle {
+    color: #007bff;
+}
+
+.draggable-row:active .drag-handle {
+    cursor: grabbing;
+}
+
+.frame-text {
+    flex: 1;
+}
+
+/* Drop target styling */
+.droppable-row.drop-over {
+    background-color: #e3f2fd !important;
+    border: 2px dashed #007bff;
+    position: relative;
+}
+
+/* Simple insertion line */
+.droppable-row.drop-over::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #007bff;
+}
+
+/* Stack push-down animation with fluid cascading effect */
+.draggable-row.pushed-down {
+    transform: translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* transition-delay is set dynamically via inline styles */
+}
+
+/* Enhanced dragging state */
+.draggable-row.dragging {
+    opacity: 0.8;
+    transform: rotate(1deg) scale(1.03);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    background: white !important;
+    border: 2px solid #007bff;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+}
+
+/* Fluid transitions for all rows */
+.frames-table tbody tr {
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                background-color 0.2s ease,
+                border 0.2s ease;
+    will-change: transform;
+}
+
+/* No transitions during dragging */
+.frames-table tbody tr.dragging {
+    transition: none;
 }
 
 
