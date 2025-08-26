@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import './styles.css'
-import SearchPanel from './components/SearchPanel'
-import ResultsPanel from './components/ResultsPanel'
+import SearchPanel from './components/search/SearchPanel'
+import ResultsPanel from './components/results/ResultsPanel'
 import VideoPlayerPanel from './components/video_player/VideoPlayerPanel'
 import FrameModal from './components/frame/FrameModal'
 import { loadVideoMetadata } from './utils/metadata'
-import { searchImagesMock, searchImagesAPI } from './utils/searching'
+import { searchImagesMock, searchImagesAPI, searchMultiModalAPI } from './utils/searching'
 import SubmitPanel from "./components/submit_panel/SubmitPanel"
 
 
 function App() {
   // State management
-  const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [maxResults, setMaxResults] = useState(80)
   const [currentFramesList, setCurrentFramesList] = useState([])
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [showFrameModal, setShowFrameModal] = useState(false)
@@ -28,20 +26,25 @@ function App() {
     loadVideoMetadata().then(setVideoMetadata)
   }, [])
 
-  // Search handler
-  const handleSearch = async () => {
-    const query = searchQuery.trim()
+  // Search handler - called from SearchPanel
+  const handleSearchResults = async (searchData, maxResults) => {
+    console.log("SEARCH REQUEST\n", searchData);
     
-    if (!query) {
-      alert('Please enter a search query')
-      return
+    // Check if any search modality has data
+    const hasSearchData = Object.values(searchData).some(modalData => 
+      modalData && modalData.value && modalData.value.trim()
+    );
+    
+    if (!hasSearchData) {
+      alert('Please enter at least one search query');
+      return;
     }
-    
+
     setIsLoading(true)
     
     try {
-      // Call the search API
-      const results = await searchImagesAPI(query, maxResults);
+      // Call the new multi-modal search API
+      const results = await searchMultiModalAPI(searchData, maxResults);
       //const results = await searchImagesMock(query, maxResults);
       
       // Process and display results
@@ -50,7 +53,6 @@ function App() {
         
         // Group results by video and create video list for navigation
         const groupedResults = groupResultsByVideo(results)
-        
         
         // Spread all frames into one flat list
         setCurrentFramesList(Object.values(groupedResults).flat())
@@ -69,7 +71,6 @@ function App() {
 
   // Clear handler
   const handleClear = () => {
-    setSearchQuery('')
     setSearchResults([])
     setCurrentFramesList([])
   }
@@ -117,23 +118,19 @@ function App() {
   return (
     <div className="main-container">
       <SearchPanel
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        maxResults={maxResults}
-        setMaxResults={setMaxResults}
         isLoading={isLoading}
-        onSearch={handleSearch}
+        onSearch={handleSearchResults}
         onClear={handleClear}
         resultCount={searchResults.length}
       />
       
       <ResultsPanel
-        searchQuery={searchQuery}
         searchResults={searchResults}
         videoMetadata={videoMetadata}
         onOpenVideoPlayer={openVideoPlayer}
         onOpenFrameModal={openFrameModal}
         currentFramesList={currentFramesList}
+        onSubmitFrame={handleSubmitFrame}
       />
 
       <SubmitPanel 

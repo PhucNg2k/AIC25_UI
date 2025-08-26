@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import VideoResultRow from './video_player/VideoResultRow'
-import FrameComponent from './frame/FrameComponent'
+import VideoResultRow from '../video_player/VideoResultRow'
+import FrameComponent from '../frame/FrameComponent'
 import ResultsHeader from './ResultsHeader'
-import '../styles/ResultsPanel.css'
+import '../../styles/ResultsPanel.css'
 
 function ResultsPanel({ 
-  searchQuery, 
   searchResults, 
   videoMetadata, 
   onOpenVideoPlayer, 
   onOpenFrameModal, 
-  currentFramesList 
+  currentFramesList,
+  onSubmitFrame
 }) {
   const [displayMode, setDisplayMode] = useState('grouped')
   // Group results by video name
@@ -30,16 +30,6 @@ function ResultsPanel({
   const groupedResults = searchResults.length > 0 ? groupResultsByVideo(searchResults) : {}
 
   const renderNoResults = () => {
-    if (searchQuery && searchResults.length === 0) {
-      return (
-        <div className="no-results">
-          <div className="no-results-icon">🔍</div>
-          <h3>No results found</h3>
-          <p>Try different keywords or search terms</p>
-        </div>
-      )
-    }
-    
     return (
       <div className="no-results">
         <div className="no-results-icon">📹</div>
@@ -61,6 +51,7 @@ function ResultsPanel({
               onOpenVideoPlayer={onOpenVideoPlayer}
               onOpenFrameModal={onOpenFrameModal}
               currentFramesList={currentFramesList}
+              onSubmitFrame={onSubmitFrame}
             />
           </div>
         ))}
@@ -78,6 +69,7 @@ function ResultsPanel({
         onOpenVideoPlayer={onOpenVideoPlayer}
         onOpenFrameModal={onOpenFrameModal}
         currentFramesList={currentFramesList}
+        onSubmitFrame={onSubmitFrame}
       />
     ))
   }
@@ -85,7 +77,6 @@ function ResultsPanel({
   return (
     <div className="results-panel">
       <ResultsHeader 
-        searchQuery={searchQuery}
         searchResults={searchResults}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}

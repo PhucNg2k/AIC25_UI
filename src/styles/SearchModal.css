@@ -1,0 +1,134 @@
+/* Search Modal Styles */
+
+.search-modal {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 12px;
+    border: 1px solid #e1e5e9;
+    transition: all 0.2s ease;
+}
+
+.search-modal:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: #d1d5db;
+}
+
+.search-header {
+    margin-bottom: 12px;
+}
+
+.search-header h2 {
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.search-header p {
+    color: #7f8c8d;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Search Input Section */
+.search-container {
+    margin-bottom: 0;
+}
+
+.search-input-group {
+    margin-bottom: 0;
+}
+
+.search-input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #34495e;
+    font-size: 13px;
+}
+
+#search-input,
+input[id^="search-input-"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+#search-input:focus,
+input[id^="search-input-"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+#search-input::placeholder,
+input[id^="search-input-"]::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* File input styling */
+input[id^="search-input-"][type="file"] {
+    padding: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+input[id^="search-input-"][type="file"]::-webkit-file-upload-button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-right: 8px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+input[id^="search-input-"][type="file"]::-webkit-file-upload-button:hover {
+    background: #5a6fd8;
+}
+
+/* Compact layout - remove unused styles */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-modal {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .search-header h2 {
+        font-size: 15px;
+    }
+    
+    .search-header p {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-modal {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .search-header h2 {
+        font-size: 14px;
+    }
+    
+    #search-input,
+    input[id^="search-input-"] {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}

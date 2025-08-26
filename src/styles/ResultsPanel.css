@@ -5,6 +5,7 @@
     padding: 30px;
     overflow-y: auto;
     background: #f8f9fa;
+    height: 100vh; /* Full height */
 }
 
 .results-header {

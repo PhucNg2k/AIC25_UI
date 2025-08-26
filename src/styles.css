@@ -3,25 +3,36 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+    height: 100vh;
     color: #333;
     line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent body from scrolling */
 }
 
 /* Main Container */
 .main-container {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
     max-width: 95%;
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevent main container from scrolling */
 }
 
 /* Main Container Responsive */
 @media (max-width: 768px) {
     .main-container {
         flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    
+    body {
+        overflow-y: auto; /* Allow scrolling on mobile */
     }
 }

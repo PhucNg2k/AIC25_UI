@@ -6,7 +6,9 @@ function FrameComponent({
   videoMetadata, 
   onOpenVideoPlayer, 
   onOpenFrameModal, 
-  currentFramesList 
+  currentFramesList,
+  isHighlighted = false,
+  onSubmitFrame,
 }) {
   const { video_name, frame_idx, image_path, score } = frameData
 
@@ -31,8 +33,16 @@ function FrameComponent({
     onOpenVideoPlayer(frameData, frameIndex >= 0 ? frameIndex : 0)
   }
 
+  const handleSubmitFrame = () => {
+    const currentFrameData = {
+      video_name: video_name,
+      frame_idx: frameNumber
+    }
+    onSubmitFrame(currentFrameData);
+  }
+
   return (
-    <div className="frame-component" id={metaKey}>
+    <div className={`frame-component ${isHighlighted ? 'highlighted' : ''}`} id={metaKey}>
       <div className="frame-image-container">
         <img 
           className="frame-image" 
@@ -42,12 +52,22 @@ function FrameComponent({
         <div className="frame-overlay">
           <div className="frame-info">
             <span className="frame-index">Frame #{targetFrame}</span>
-            <span className="similarity-score">{score.toFixed(2)}%</span>
+            <span className={`similarity-score ${isHighlighted ? 'best-score' : ''}`}>
+              {score.toFixed(2)}%
+              {isHighlighted && ' ⭐'}
+            </span>
           </div>
         </div>
       </div>
       <div className="frame-details">
         <div className="frame-timestamp">{timestamp}</div>
+        <button
+          className="view-frame-btn"
+          title="Submit this frame"
+          onClick={handleSubmitFrame}
+        >
+          ➕ Submit
+        </button>
         <button 
           className="view-frame-btn" 
           title="View full size"

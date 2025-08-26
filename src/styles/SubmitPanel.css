@@ -7,8 +7,9 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    overflow-y: auto;
     position: relative;
+    height: 100vh; /* Full height */
 }
 
 

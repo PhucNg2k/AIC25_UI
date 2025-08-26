@@ -102,4 +102,51 @@ async function searchImagesAPI(query, maxResults) {
 
 
 
-export {searchImagesMock, searchImagesAPI}
+// New multi-modal search API function
+async function searchMultiModalAPI(searchData, maxResults) {
+    // Extract search modalities from the searchData object
+    const requestBody = {
+        top_k: maxResults
+    };
+    
+    // Add text search if available
+    if (searchData.text && searchData.text.value) {
+        requestBody.text = searchData.text.value.trim();
+    }
+    
+    // Add OCR search if available
+    if (searchData.ocr && searchData.ocr.value) {
+        requestBody.ocr = searchData.ocr.value.trim();
+    }
+    
+    // Add localized/location search if available
+    if (searchData.localized && searchData.localized.value) {
+        requestBody.localized = searchData.localized.value.trim();
+    }
+    
+    console.log('Multi-modal search request:', requestBody);
+    
+    const response = await fetch('http://localhost:8000/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Multi-modal search request failed');
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+        throw new Error(data.message || 'Multi-modal search failed');
+    }
+    
+    // Return the results in the expected format
+    return data.results;
+}
+
+export {searchImagesMock, searchImagesAPI, searchMultiModalAPI}

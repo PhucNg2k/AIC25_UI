@@ -1,11 +1,9 @@
-import '../styles/ResultsHeader.css'
+import '../../styles/ResultsHeader.css'
 
-function ResultsHeader({ searchQuery, searchResults, displayMode, setDisplayMode }) {
+function ResultsHeader({ searchResults, displayMode, setDisplayMode }) {
   const getSummaryText = () => {
-    if (searchQuery && searchResults.length > 0) {
-      return `Search results for "${searchQuery}"`
-    } else if (searchQuery && searchResults.length === 0) {
-      return `No results found for "${searchQuery}"`
+    if (searchResults.length > 0) {
+      return `Search results (${searchResults.length} frames found)`
     }
     return 'Enter a search query to see results'
   }
