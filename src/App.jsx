@@ -44,8 +44,8 @@ function App() {
     
     try {
       // Call the new multi-modal search API
-      const results = await searchMultiModalAPI(searchData, maxResults);
-      //const results = await searchImagesMock(query, maxResults);
+      //const results = await searchMultiModalAPI(searchData, maxResults);
+      const results = await searchImagesMock(query, maxResults);
       
       // Process and display results
       if (results && results.length > 0) {
