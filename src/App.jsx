@@ -19,7 +19,28 @@ function App() {
   const [showFrameModal, setShowFrameModal] = useState(false)
   const [selectedFrame, setSelectedFrame] = useState(null)
   const [videoMetadata, setVideoMetadata] = useState({})
-  const [submittedFrames, setSubmittedFrames] = useState([])
+  
+  // Query and task state
+  const [query, setQuery] = useState('')
+  const [queryId, setQueryId] = useState('')
+  const [queryTask, setQueryTask] = useState('kis')
+
+  // Per-task submissions
+  const [submissions, setSubmissions] = useState({
+    kis: [],                          // [{ video_name, frame_idx }]
+    qa: [],                           // [{ video_name, frame_idx, answer }]
+    trake: []                         // [{ video_name, frames: [idx1, idx2, ...] }]
+  });
+
+  // Derived current list + setter
+  const currentList = submissions[queryTask];
+  
+  const setCurrentList = (updater) => {
+    setSubmissions(prev => ({
+      ...prev,
+      [queryTask]: typeof updater === 'function' ? updater(prev[queryTask]) : updater,
+    }));
+  };
 
   // Load video metadata on component mount
   useEffect(() => {
@@ -44,8 +65,8 @@ function App() {
     
     try {
       // Call the new multi-modal search API
-      //const results = await searchMultiModalAPI(searchData, maxResults);
-      const results = await searchImagesMock(query, maxResults);
+      const results = await searchMultiModalAPI(searchData, maxResults);
+      //const results = await searchImagesMock(query, maxResults);
       
       // Process and display results
       if (results && results.length > 0) {
@@ -87,32 +108,58 @@ function App() {
     setShowFrameModal(true)
   }
 
-  // Submit frame handler
+  // Submit frame handler - handles different task types
   const handleSubmitFrame = (frameData) => {
-    // Check if frame is already submitted to avoid duplicates
-    const isAlreadySubmitted = submittedFrames.some(
-      frame => frame.video_name === frameData.video_name && frame.frame_idx === frameData.frame_idx
-    )
+    const { video_name, frame_idx } = frameData;
     
-    if (!isAlreadySubmitted) {
-      // Check if we've reached the 100 frame limit
-      if (submittedFrames.length >= 100) {
-        alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
-        return
-      }
+    // Check if we've reached the 100 frame limit
+    if (currentList.length >= 100) {
+      alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
+      return
+    }
+
+    if (queryTask === 'kis') {
+      // KIS: simple video_name + frame_idx
+      const isAlreadySubmitted = currentList.some(
+        frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+      );
       
-      // Only keep the essential data for export: video_name and frame_idx
-      const essentialFrameData = {
-        video_name: frameData.video_name,
-        frame_idx: frameData.frame_idx
+      if (!isAlreadySubmitted) {
+        const frameData = { video_name, frame_idx };
+        setCurrentList(prev => [...prev, frameData]);
       }
-      setSubmittedFrames(prev => [...prev, essentialFrameData])
+    } else if (queryTask === 'qa') {
+      // QA: video_name + frame_idx + answer (initially empty)
+      const isAlreadySubmitted = currentList.some(
+        frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+      );
+      
+      if (!isAlreadySubmitted) {
+        const frameData = { video_name, frame_idx, answer: '' };
+        setCurrentList(prev => [...prev, frameData]);
+      }
+    } else if (queryTask === 'trake') {
+      // TRAKE: group consecutive frames by video
+      const existingVideoEntry = currentList.find(entry => entry.video_name === video_name);
+      
+      if (existingVideoEntry) {
+        // Add frame to existing video entry if not already there
+        if (!existingVideoEntry.frames.includes(frame_idx)) {
+          existingVideoEntry.frames.push(frame_idx);
+          existingVideoEntry.frames.sort((a, b) => a - b); // Keep frames sorted
+          setCurrentList(prev => [...prev]); // Trigger re-render
+        }
+      } else {
+        // Create new video entry
+        const frameData = { video_name, frames: [frame_idx] };
+        setCurrentList(prev => [...prev, frameData]);
+      }
     }
   }
 
-  // Clear submitted frames
+  // Clear submitted frames for current task
   const handleClearSubmissions = () => {
-    setSubmittedFrames([])
+    setCurrentList([]);
   }
 
   return (
@@ -134,8 +181,14 @@ function App() {
       />
 
       <SubmitPanel 
-        submittedFrames={submittedFrames}
-        setSubmittedFrames={setSubmittedFrames}
+        query={query}
+        setQuery={setQuery}
+        queryId={queryId}
+        setQueryId={setQueryId}
+        queryTask={queryTask}
+        setQueryTask={setQueryTask}
+        submittedFrames={currentList}
+        setSubmittedFrames={setCurrentList}
         onClearSubmissions={handleClearSubmissions}
       />
 
@@ -175,4 +228,4 @@ function groupResultsByVideo(results) {
   return grouped
 }
 
-export default App
+export default App;

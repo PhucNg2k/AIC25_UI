@@ -56,12 +56,8 @@
     table-layout: fixed;
     border-bottom: 1px solid #e9ecef;
     background: white;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    transform: translateY(0);
-    will-change: transform;
+    transition: background-color 0.2s ease;
 }
-
-
 
 .frames-table tbody tr:hover {
     background: #f8f9fa;
@@ -69,6 +65,10 @@
 
 .frames-table tbody tr:last-child {
     border-bottom: none;
+}
+
+.frame-row {
+    cursor: default;
 }
 
 .frame-name {
@@ -86,96 +86,297 @@
     gap: 8px;
 }
 
-/* Drag and Drop Styles */
-.draggable-row {
-    user-select: none;
-    cursor: grab;
-    transition: all 0.2s ease;
-}
-
-.draggable-row:active {
-    cursor: grabbing;
-}
-
-
-
-.drag-handle {
-    color: #6c757d;
-    font-size: 1.2em;
-    cursor: grab;
-    transition: color 0.2s ease;
-    line-height: 1;
-}
-
-.draggable-row:hover .drag-handle {
-    color: #007bff;
-}
-
-.draggable-row:active .drag-handle {
-    cursor: grabbing;
-}
-
 .frame-text {
     flex: 1;
 }
 
-/* Drop target styling */
-.droppable-row.drop-over {
-    background-color: #e3f2fd !important;
-    border: 2px dashed #007bff;
-    position: relative;
+.answer-input {
+    padding: 12px 8px;
+    text-align: center;
+    border: none;
 }
 
-/* Simple insertion line */
-.droppable-row.drop-over::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: 0;
-    right: 0;
-    height: 3px;
+.answer-field {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.answer-field:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.answer-field::placeholder {
+    color: #6c757d;
+    opacity: 0.7;
+}
+
+/* QABoard specific styles */
+.qa-frames-container {
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.qa-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     background: #007bff;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9em;
 }
 
-/* Stack push-down animation with fluid cascading effect */
-.draggable-row.pushed-down {
-    transform: translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    /* transition-delay is set dynamically via inline styles */
+.qa-header-frame,
+.qa-header-answer {
+    padding: 12px 16px;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Enhanced dragging state */
-.draggable-row.dragging {
-    opacity: 0.8;
-    transform: rotate(1deg) scale(1.03);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-    z-index: 9999;
-    background: white !important;
-    border: 2px solid #007bff;
-    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    position: relative;
+.qa-header-answer {
+    border-right: none;
 }
 
-/* Fluid transitions for all rows */
-.frames-table tbody tr {
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                background-color 0.2s ease,
-                border 0.2s ease;
-    will-change: transform;
+.qa-frames-list {
+    display: flex;
+    flex-direction: column;
 }
 
-/* No transitions during dragging */
-.frames-table tbody tr.dragging {
-    transition: none;
+.qa-frame-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
 }
 
+.qa-frame-row:hover {
+    background: #f8f9fa;
+}
 
+.qa-frame-row:last-child {
+    border-bottom: none;
+}
+
+.qa-frame-name {
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #2c3e50;
+    font-weight: 600;
+    word-break: break-all;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #e9ecef;
+}
+
+.qa-answer-input {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qa-answer-input .answer-field {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* TrakeBoard specific styles */
+.trake-frames-container {
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.trake-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    background: #007bff;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.trake-header-video,
+.trake-header-frames,
+.trake-header-actions {
+    padding: 12px 16px;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.trake-header-actions {
+    border-right: none;
+}
+
+.trake-frames-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.trake-video-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+    align-items: center;
+}
+
+.trake-video-row:hover {
+    background: #f8f9fa;
+}
+
+.trake-video-row:last-child {
+    border-bottom: none;
+}
+
+.trake-video-name {
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #2c3e50;
+    font-weight: 600;
+    word-break: break-all;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #e9ecef;
+}
+
+.trake-frames-list .trake-frames-list {
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #e9ecef;
+}
+
+.trake-frame-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.trake-frame-item .frame-text {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #495057;
+}
+
+.remove-frame-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+}
+
+.remove-frame-btn:hover {
+    background: #c82333;
+}
+
+.trake-actions {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-video-btn {
+    padding: 6px 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-video-btn:hover {
+    background: #5a6268;
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
     .frames-table thead th,
-    .frame-name {
+    .frame-name,
+    .answer-input {
         padding: 8px 6px;
         font-size: 0.8em;
+    }
+    
+    .answer-field {
+        max-width: 200px;
+        padding: 6px 8px;
+    }
+    
+    .qa-header-frame,
+    .qa-header-answer,
+    .qa-frame-name,
+    .qa-answer-input {
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+    
+    .qa-answer-input .answer-field {
+        max-width: 200px;
+        padding: 6px 8px;
+    }
+    
+    .trake-header-video,
+    .trake-header-frames,
+    .trake-header-actions,
+    .trake-video-name,
+    .trake-frames-list .trake-frames-list,
+    .trake-actions {
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+    
+    .trake-frame-item {
+        padding: 3px 6px;
+        font-size: 0.8em;
+    }
+    
+    .remove-frame-btn {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+    }
+    
+    .remove-video-btn {
+        padding: 4px 8px;
+        font-size: 0.75em;
     }
 }

@@ -58,7 +58,7 @@ function DraggableDroppableRow({ frameData, index, isDraggedOver, isBelow, dista
   );
 }
 
-function SubmitBoard({ submittedFrames, setSubmittedFrames }) {
+function SubmitBoard({ submitType, submittedFrames, setSubmittedFrames }) {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
 

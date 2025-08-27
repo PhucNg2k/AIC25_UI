@@ -1,13 +1,21 @@
-import { useState } from "react"
 import '../../styles/SubmitPanel.css'
 import SubmitHeader from './SubmitHeader'
-import SubmitBoard from './SubmitBoard'
+import KISBoard from './KISboard'
+import QABoard from './QABoard'
+import TrakeBoard from './TrakeBoard'
 import ExportButton from './ExportButton'
 
-function SubmitPanel({ submittedFrames = [], setSubmittedFrames, onClearSubmissions }) {
-    const [query, setQuery] = useState('')
-    const [queryId, setQueryId] = useState('')
-
+function SubmitPanel({ 
+    query, 
+    setQuery, 
+    queryId, 
+    setQueryId, 
+    queryTask, 
+    setQueryTask, 
+    submittedFrames = [], 
+    setSubmittedFrames, 
+    onClearSubmissions 
+}) {
     return (
         <div className="submit-panel">
             <SubmitHeader 
@@ -15,11 +23,23 @@ function SubmitPanel({ submittedFrames = [], setSubmittedFrames, onClearSubmissi
                 setQuery={setQuery} 
                 queryId={queryId} 
                 setQueryId={setQueryId} 
+                setQueryTask={setQueryTask}
+                queryTask={queryTask}
                 submittedFramesCount={submittedFrames.length}
+                onClearSubmissions={onClearSubmissions}
             />
             
             <div className="submit-content">
-                <SubmitBoard submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
+                {queryTask === 'kis' ? (
+                    <KISBoard submitType={queryTask} submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
+                ) : queryTask === 'qa' ? (
+                    <QABoard submitType={queryTask} submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
+                ) : queryTask === 'trake' ? (
+                    <TrakeBoard submitType={queryTask} submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
+                ) : (
+                    <KISBoard submitType={queryTask} submittedFrames={submittedFrames} setSubmittedFrames={setSubmittedFrames} />
+                )}
+
                 {submittedFrames.length > 0 && (
                     <div className="submit-actions">
                         <button 
@@ -33,6 +53,7 @@ function SubmitPanel({ submittedFrames = [], setSubmittedFrames, onClearSubmissi
                             submittedFrames={submittedFrames}
                             query={query}
                             queryId={queryId}
+                            queryTask={queryTask}
                         />
                     </div>
                 )}

@@ -71,6 +71,42 @@
     font-weight: 500;
 }
 
+/* Submit option buttons */
+.submit-option {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.submit-option-btn {
+    padding: 10px 20px;
+    border: 2px solid #007bff;
+    border-radius: 6px;
+    background: white;
+    color: #007bff;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+}
+
+.submit-option-btn:hover {
+    background: #f8f9fa;
+    border-color: #0056b3;
+    color: #0056b3;
+}
+
+/* Active state for selected button */
+.submit-option-btn.active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+}
+
 /* Display mode styles */
 .query-display-container {
     display: flex;
@@ -205,7 +241,7 @@
     border: none;
     border-radius: 4px;
     font-size: 0.9em;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
     white-space: nowrap;
@@ -228,7 +264,7 @@
     border: none;
     border-radius: 4px;
     font-size: 0.9em;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
     white-space: nowrap;
@@ -236,4 +272,20 @@
 
 .cancel-query-btn:hover {
     background: #5a6268;
+}
+
+/* Responsive design for submit option buttons */
+@media (max-width: 768px) {
+    .submit-option {
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+    }
+    
+    .submit-option-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 12px 16px;
+        font-size: 0.85em;
+    }
 }

@@ -2,8 +2,10 @@ import { useState } from "react"
 import '../../styles/ExportButton.css'
 import SubmitPreview from './SubmitPreview'
 
-function ExportButton({ submittedFrames, query, queryId }) {
+function ExportButton({ submittedFrames, query, queryId, queryTask }) {
     const [isExporting, setIsExporting] = useState(false)
+
+    
 
     const handleExport = async () => {
         // Prevent multiple exports
@@ -28,20 +30,51 @@ function ExportButton({ submittedFrames, query, queryId }) {
         setIsExporting(true)
 
         try {
-            // Convert submittedFrames to the expected format
-            const frameNames = submittedFrames.map(frame => `${frame.video_name}_${frame.frame_idx}`);
-            
-            // Prepare data for CSV export
-            const exportData = {
-                query_id: parseInt(queryId, 10),
-                query_str: query.trim(),
-                selected_frames: frameNames
+            let exportData;
+            let endpoint;
+
+            if (queryTask === 'kis') {
+                // KIS: simple frame list
+                const frameNames = submittedFrames.map(frame => `${frame.video_name}_${frame.frame_idx}`);
+                exportData = {
+                    query_id: parseInt(queryId, 10),
+                    query_str: query.trim(),
+                    selected_frames: frameNames
+                };
+                endpoint = 'http://localhost:8000/submitCSV/kis';
+            } else if (queryTask === 'qa') {
+                // QA: frames with answers
+                const qaData = submittedFrames.map(frame => ({
+                    video_name: frame.video_name,
+                    frame_idx: frame.frame_idx,
+                    answer: frame.answer || ''
+                }));
+                exportData = {
+                    query_id: parseInt(queryId, 10),
+                    query_str: query.trim(),
+                    qa_data: qaData
+                };
+                endpoint = 'http://localhost:8000/submitCSV/qa';
+            } else if (queryTask === 'trake') {
+                // TRAKE: grouped frames by video
+                const trakeData = submittedFrames.map(videoEntry => ({
+                    video_name: videoEntry.video_name,
+                    frames: videoEntry.frames
+                }));
+                exportData = {
+                    query_id: parseInt(queryId, 10),
+                    query_str: query.trim(),
+                    trake_data: trakeData
+                };
+                endpoint = 'http://localhost:8000/submitCSV/trake';
+            } else {
+                throw new Error(`Unknown task type: ${queryTask}`);
             }
 
             console.log('Prepared export data:', exportData)
 
-            // Make POST request to the API
-            const response = await fetch('http://localhost:8000/submitCSV/kis', {
+            // Make POST request to the appropriate API endpoint
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 
                     'accept': 'application/json',

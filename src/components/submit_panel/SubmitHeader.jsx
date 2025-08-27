@@ -1,7 +1,7 @@
 import { useState } from "react"
 import '../../styles/SubmitHeader.css'
 
-function SubmitHeader({ query, setQuery, queryId, setQueryId, submittedFramesCount = 0 }) {
+function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, queryTask, submittedFramesCount = 0, onClearSubmissions }) {
     const [inputValue, setInputValue] = useState('')
     const [queryIdInput, setQueryIdInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -32,6 +32,12 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, submittedFramesCou
         return 'counter-normal'
     }
 
+    const handleTaskSwitch = (newTask) => {
+        // Clear all submitted frames when switching tasks
+        onClearSubmissions();
+        setQueryTask(newTask);
+    }
+
     return (
         <div className="submit-header">
             <div className="header-top">
@@ -40,6 +46,28 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, submittedFramesCou
                     {submittedFramesCount}/100
                 </div>
             </div>
+
+            <div className="submit-option">
+                <button 
+                    className={`submit-option-btn ${queryTask === 'kis' ? 'active' : ''}`} 
+                    onClick={() => handleTaskSwitch('kis')}
+                >
+                    KIS
+                </button>
+                <button 
+                    className={`submit-option-btn ${queryTask === 'qa' ? 'active' : ''}`} 
+                    onClick={() => handleTaskSwitch('qa')}
+                >
+                    QA
+                </button>
+                <button 
+                    className={`submit-option-btn ${queryTask === 'trake' ? 'active' : ''}`} 
+                    onClick={() => handleTaskSwitch('trake')}
+                >
+                    TRAKE
+                </button>
+            </div>
+
             <div className="query-input-group">
                 {!isEditing ? (
                     // Display mode
