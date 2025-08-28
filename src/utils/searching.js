@@ -72,7 +72,7 @@ async function searchImagesMock(query, maxResults) {
 
 
 async function searchImagesAPI(query, maxResults) {
-    const response = await fetch('http://localhost:8000/textSearch', {
+    const response = await fetch('http://localhost:8000/search/text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ async function searchMultiModalAPI(searchData, maxResults) {
     
     // Add text search if available
     if (searchData.text && searchData.text.value) {
-        requestBody.text = searchData.text.value.trim();
+        requestBody.query = searchData.text.value.trim();
     }
     
     // Add OCR search if available
@@ -126,7 +126,7 @@ async function searchMultiModalAPI(searchData, maxResults) {
     
     console.log('Multi-modal search request:', requestBody);
     
-    const response = await fetch('http://localhost:8000/search', {
+    const response = await fetch('http://localhost:8000/search/text', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

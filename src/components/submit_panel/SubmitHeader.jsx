@@ -13,10 +13,24 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
     }
 
     const handleSave = () => {
-        setQuery(inputValue.trim())
-        // Process query_id: convert to integer and back to string to remove leading zeros
-        const processedQueryId = queryIdInput.trim() ? parseInt(queryIdInput.trim(), 10).toString() : ''
-        setQueryId(processedQueryId)
+        const q = inputValue.trim()
+        let qidRaw = queryIdInput.trim()
+        setQuery(q)
+
+        // Sanitize: strip any extension only (e.g., .csv, .txt)
+        const lastDot = qidRaw.lastIndexOf('.')
+        if (lastDot > 0) {
+            qidRaw = qidRaw.slice(0, lastDot)
+        }
+
+        // Determine task from the last token
+        const parts = qidRaw.split(/[-\s_]+/).filter(Boolean)
+        const lastToken = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : ''
+        if (['kis', 'qa', 'trake'].includes(lastToken)) {
+            setQueryTask(lastToken)
+        }
+
+        setQueryId(qidRaw)
         setIsEditing(false)
     }
 
@@ -98,8 +112,8 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                             <label htmlFor="submit-query-id">Query ID:</label>
                             <input 
                                 id="submit-query-id"
-                                type="number"
-                                placeholder="Enter query ID..."
+                                type="text"
+                                placeholder="Enter query ID (e.g., query-2-kis)..."
                                 value={queryIdInput}
                                 onChange={(e) => setQueryIdInput(e.target.value)}
                                 className="query-id-input"

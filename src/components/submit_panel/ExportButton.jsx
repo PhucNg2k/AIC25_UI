@@ -37,7 +37,7 @@ function ExportButton({ submittedFrames, query, queryId, queryTask }) {
                 // KIS: simple frame list
                 const frameNames = submittedFrames.map(frame => `${frame.video_name}_${frame.frame_idx}`);
                 exportData = {
-                    query_id: parseInt(queryId, 10),
+                    query_id: queryId.trim(),
                     query_str: query.trim(),
                     selected_frames: frameNames
                 };
@@ -50,7 +50,7 @@ function ExportButton({ submittedFrames, query, queryId, queryTask }) {
                     answer: frame.answer || ''
                 }));
                 exportData = {
-                    query_id: parseInt(queryId, 10),
+                    query_id: queryId.trim(),
                     query_str: query.trim(),
                     qa_data: qaData
                 };
@@ -62,7 +62,7 @@ function ExportButton({ submittedFrames, query, queryId, queryTask }) {
                     frames: videoEntry.frames
                 }));
                 exportData = {
-                    query_id: parseInt(queryId, 10),
+                    query_id: queryId.trim(),
                     query_str: query.trim(),
                     trake_data: trakeData
                 };
