@@ -8,7 +8,7 @@ const BASE_DATA_PATH = "/REAL_DATA/Data"
 
 function VideoPlayerModal({ 
   frameData, 
-  videoMetadata, 
+
   currentIndex, 
   currentFramesList, 
   onClose, 

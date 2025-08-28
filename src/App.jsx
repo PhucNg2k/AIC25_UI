@@ -73,10 +73,13 @@ function App() {
         setSearchResults(results)
         
         // Group results by video and create video list for navigation
-        const groupedResults = groupResultsByVideo(results)
+        
         
         // Spread all frames into one flat list
-        setCurrentFramesList(Object.values(groupedResults).flat())
+        //setCurrentFramesList(Object.values(groupedResults).flat())
+
+        setCurrentFramesList(Object.values(results).flat())
+      
       } else {
         setSearchResults([])
         setCurrentFramesList([])
@@ -162,6 +165,7 @@ function App() {
     setCurrentList([]);
   }
 
+
   return (
     <div className="main-container">
       <SearchPanel
@@ -195,7 +199,6 @@ function App() {
       {showVideoPlayer && selectedFrame && (
         <VideoPlayerPanel
           initialFrame={selectedFrame}
-          videoMetadata={videoMetadata}
           framesList={currentFramesList}
           onClose={() => setShowVideoPlayer(false)}
           onSubmitFrame={handleSubmitFrame}

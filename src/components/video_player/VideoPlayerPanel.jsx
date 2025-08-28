@@ -2,8 +2,7 @@ import { useState } from 'react'
 import VideoPlayerModal from './VideoPlayerModal'
 
 function VideoPlayerPanel({ 
-  initialFrame, 
-  videoMetadata, 
+  initialFrame,  
   framesList, 
   onClose,
   onSubmitFrame
@@ -39,7 +38,6 @@ function VideoPlayerPanel({
   return (
     <VideoPlayerModal
       frameData={currentFrame}
-      videoMetadata={videoMetadata}
       currentIndex={currentIndex}
       currentFramesList={framesList}
       onClose={handleClose}

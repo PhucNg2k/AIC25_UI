@@ -13,6 +13,7 @@ function ResultsPanel({
   onSubmitFrame
 }) {
   const [displayMode, setDisplayMode] = useState('grouped')
+  
   // Group results by video name
   const groupResultsByVideo = (results) => {
     const grouped = {}
@@ -44,7 +45,6 @@ function ResultsPanel({
       <div className="ranking-grid">
         {searchResults.map((result, index) => (
           <div key={`${result.video_name}_${result.frame_idx}_${index}`} className="ranking-frame-wrapper">
-            <div className="ranking-number">#{index + 1}</div>
             <FrameComponent
               frameData={result}
               videoMetadata={videoMetadata}
@@ -52,6 +52,7 @@ function ResultsPanel({
               onOpenFrameModal={onOpenFrameModal}
               currentFramesList={currentFramesList}
               onSubmitFrame={onSubmitFrame}
+              displayMode={displayMode}
             />
           </div>
         ))}
@@ -70,6 +71,7 @@ function ResultsPanel({
         onOpenFrameModal={onOpenFrameModal}
         currentFramesList={currentFramesList}
         onSubmitFrame={onSubmitFrame}
+        displayMode={displayMode}
       />
     ))
   }

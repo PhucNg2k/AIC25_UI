@@ -8,7 +8,8 @@ function VideoResultRow({
   onOpenVideoPlayer, 
   onOpenFrameModal, 
   currentFramesList,
-  onSubmitFrame
+  onSubmitFrame,
+  displayMode
 }) {
   // Sort frames by frame_idx in ascending order
   const sortedFrames = [...frames].sort((a, b) => parseInt(a.frame_idx) - parseInt(b.frame_idx))
@@ -35,6 +36,7 @@ function VideoResultRow({
             currentFramesList={currentFramesList}
             onSubmitFrame={onSubmitFrame}
             isHighlighted={frame.image_path === highestScoreFrame.image_path}
+            displayMode={displayMode}
           />
         ))}
       </div>

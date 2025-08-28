@@ -1,20 +1,25 @@
-import { getMetadataKey, getFrameIdx, getVideoFPS } from '../../utils/metadata'
+import { getMetadataKey, getFrameIdx, getVideoFPS, getPTStime } from '../../utils/metadata'
+import FrameHeader from './FrameHeader'
+import FrameControls from './FrameControls'
 import '../../styles/FrameComponent.css'
+
+import { useState, useRef, useEffect } from 'react'
 
 function FrameComponent({ 
   frameData, 
-  videoMetadata, 
   onOpenVideoPlayer, 
   onOpenFrameModal, 
   currentFramesList,
   isHighlighted = false,
   onSubmitFrame,
+  displayMode
 }) {
   const { video_name, frame_idx, image_path, score } = frameData
 
   const metaKey = getMetadataKey(video_name, frame_idx)
   const targetFrame = getFrameIdx(metaKey)
   const vidFps = getVideoFPS(metaKey)
+  const targetTime = getPTStime(metaKey)
 
   // Calculate approximate timestamp 
   const frameNumber = parseInt(targetFrame)
@@ -22,6 +27,59 @@ function FrameComponent({
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   const timestamp = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+
+
+  const BASE_DATA_PATH = "/REAL_DATA/Data"
+  const videoUrl = `${BASE_DATA_PATH}/video/${video_name}.mp4`
+
+  const [showVideo, setShowVideo] = useState(false)
+  const videoRef = useRef(null)
+  const hoverTimer = useRef(null)
+
+
+  const previewStart = Math.max(0, targetTime - 2)
+  const previewEnd = targetTime + 2
+
+  const handleMouseEnter = () => {
+    // Start a timer to preload video after 300ms
+    hoverTimer.current = setTimeout(() => {
+      setShowVideo(true)
+    }, 300)
+  }
+
+  const handleMouseLeave = () => {
+    // Cancel preload timer if user leaves early
+    clearTimeout(hoverTimer.current)
+    setShowVideo(false) // unmount video immediately
+  }
+
+   const handleTimeUpdate = () => {
+    if (videoRef.current && videoRef.current.currentTime > previewEnd) {
+      videoRef.current.pause()
+    }
+  }
+
+  // When <video> mounts, set start time and play
+  useEffect(() => {
+    if (showVideo && videoRef.current) {
+      const vid = videoRef.current
+      vid.currentTime = previewStart
+      vid.play()
+
+      console.log("VIDEO NAME", videoUrl);
+      console.log("Start time", previewStart);
+
+    }
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause()
+      }
+    }
+  }, [showVideo, previewStart]);
+
+
+
+  
 
   const handleViewFrame = () => {
     onOpenFrameModal(frameData)
@@ -42,47 +100,41 @@ function FrameComponent({
   }
 
   return (
-    <div className={`frame-component ${isHighlighted ? 'highlighted' : ''}`} id={metaKey}>
-      <div className="frame-image-container">
-        <img 
-          className="frame-image" 
-          src={image_path} 
-          alt={`Frame ${targetFrame} from ${video_name}`}
-        />
-        <div className="frame-overlay">
-          <div className="frame-info">
-            <span className="frame-index">Frame #{targetFrame}</span>
-            <span className={`similarity-score ${isHighlighted ? 'best-score' : ''}`}>
-              {score.toFixed(2)}%
-              {isHighlighted && ' ⭐'}
-            </span>
-          </div>
-        </div>
+    <div  className={`frame-component ${isHighlighted ? 'highlighted' : ''}`}
+          id={metaKey}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+    >
+      
+      <FrameHeader video_name={video_name} target_frame={targetFrame} timestamp={timestamp} />
+
+       <div className="frame-image-container">
+        {!showVideo ? (
+          <img 
+            className="frame-image" 
+            src={image_path} 
+            alt={`Frame ${targetFrame} from ${video_name}`} 
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            className="frame-video-preview"
+            src={videoUrl}
+            muted
+            playsInline
+            onTimeUpdate={handleTimeUpdate}
+          />
+        )}
       </div>
-      <div className="frame-details">
-        <div className="frame-timestamp">{timestamp}</div>
-        <button
-          className="view-frame-btn"
-          title="Submit this frame"
-          onClick={handleSubmitFrame}
-        >
-          ➕ Submit
-        </button>
-        <button 
-          className="view-frame-btn" 
-          title="View full size"
-          onClick={handleViewFrame}
-        >
-          👁️
-        </button>
-        <button 
-          className="view-video-btn" 
-          title="View shot in video"
-          onClick={handleViewVideo}
-        >
-          🎬
-        </button>
-      </div>
+
+
+      <FrameControls 
+        onSubmitFrame={handleSubmitFrame}
+        onViewFrame={handleViewFrame}
+        onViewVideo={handleViewVideo}
+        displayMode={displayMode}
+      />
+
     </div>
   )
 }
