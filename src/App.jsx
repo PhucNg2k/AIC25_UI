@@ -5,7 +5,11 @@ import SearchPanel from './components/search/SearchPanel'
 import ResultsPanel from './components/results/ResultsPanel'
 import VideoPlayerPanel from './components/video_player/VideoPlayerPanel'
 import FrameModal from './components/frame/FrameModal'
+import FrameSliderModal from './components/frame/FrameSliderModal'
+
 import { loadVideoMetadata } from './utils/metadata'
+import { loadGroupedKeyframesMetadata } from './utils/frame_submission'
+
 import { searchImagesMock, searchImagesAPI, searchMultiModalAPI } from './utils/searching'
 import SubmitPanel from "./components/submit_panel/SubmitPanel"
 
@@ -17,8 +21,11 @@ function App() {
   const [currentFramesList, setCurrentFramesList] = useState([])
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [showFrameModal, setShowFrameModal] = useState(false)
+  const [showSliderModal, setShowSliderModal] = useState(false)
   const [selectedFrame, setSelectedFrame] = useState(null)
   const [videoMetadata, setVideoMetadata] = useState({})
+  const [sliderFrames, setSliderFrames] = useState([])
+  const [sliderFrameIdx, setSliderFrameIdx] = useState(0)
   
   // Query and task state
   const [query, setQuery] = useState('')
@@ -44,8 +51,13 @@ function App() {
 
   // Load video metadata on component mount
   useEffect(() => {
-    loadVideoMetadata().then(setVideoMetadata)
+    loadVideoMetadata();
+    loadGroupedKeyframesMetadata();
+
   }, [])
+
+
+  
 
   // Search handler - called from SearchPanel
   const handleSearchResults = async (searchData, maxResults) => {
@@ -109,6 +121,16 @@ function App() {
   const openFrameModal = (frameData) => {
     setSelectedFrame(frameData)
     setShowFrameModal(true)
+  }
+
+  // Open slider modal
+  const openSliderModal = (frames, currentImagePath) => {
+    setSliderFrames(frames)
+    setShowSliderModal(true)
+    const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes"
+    const frameIndex = frames.findIndex(f => `${BASE_DATA_PATH}/${f}` === currentImagePath);
+    setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
+
   }
 
   // Submit frame handler - handles different task types
@@ -177,11 +199,11 @@ function App() {
       
       <ResultsPanel
         searchResults={searchResults}
-        videoMetadata={videoMetadata}
         onOpenVideoPlayer={openVideoPlayer}
         onOpenFrameModal={openFrameModal}
         currentFramesList={currentFramesList}
         onSubmitFrame={handleSubmitFrame}
+        onOpenSliderModal={openSliderModal}
       />
 
       <SubmitPanel 
@@ -209,6 +231,15 @@ function App() {
         <FrameModal
           frameData={selectedFrame}
           onClose={() => setShowFrameModal(false)}
+        />
+      )}
+
+      {showSliderModal && (
+        <FrameSliderModal
+          isOpen={showSliderModal}
+          onClose={() => setShowSliderModal(false)}
+          relatedFrames={sliderFrames}
+          currentIndex={sliderFrameIdx}
         />
       )}
     </div>

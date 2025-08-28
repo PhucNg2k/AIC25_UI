@@ -9,7 +9,8 @@ function VideoResultRow({
   onOpenFrameModal, 
   currentFramesList,
   onSubmitFrame,
-  displayMode
+  displayMode,
+  onOpenSliderModal
 }) {
   // Sort frames by frame_idx in ascending order
   const sortedFrames = [...frames].sort((a, b) => parseInt(a.frame_idx) - parseInt(b.frame_idx))
@@ -28,7 +29,7 @@ function VideoResultRow({
       <div className="frames-container">
         {sortedFrames.map((frame, index) => (
           <FrameComponent
-            key={`${frame.video_name}_${frame.frame_idx}`}
+            key={`grouped_${frame.video_name}_${frame.frame_idx}_${index}`}
             frameData={frame}
             videoMetadata={videoMetadata}
             onOpenVideoPlayer={onOpenVideoPlayer}
@@ -37,6 +38,7 @@ function VideoResultRow({
             onSubmitFrame={onSubmitFrame}
             isHighlighted={frame.image_path === highestScoreFrame.image_path}
             displayMode={displayMode}
+            onOpenSliderModal={onOpenSliderModal}
           />
         ))}
       </div>

@@ -5,14 +5,15 @@ import '../../styles/FrameComponent.css'
 
 import { useState, useRef, useEffect } from 'react'
 
-function FrameComponent({ 
-  frameData, 
-  onOpenVideoPlayer, 
-  onOpenFrameModal, 
+function FrameComponent({
+  frameData,
+  onOpenVideoPlayer,
+  onOpenFrameModal,
   currentFramesList,
   isHighlighted = false,
   onSubmitFrame,
-  displayMode
+  displayMode,
+  onOpenSliderModal
 }) {
   const { video_name, frame_idx, image_path, score } = frameData
 
@@ -35,6 +36,7 @@ function FrameComponent({
   const [showVideo, setShowVideo] = useState(false)
   const videoRef = useRef(null)
   const hoverTimer = useRef(null)
+  const [isVideoAvailable, setIsVideoAvailable] = useState(true)
 
 
   const previewStart = Math.max(0, targetTime - 2)
@@ -53,7 +55,7 @@ function FrameComponent({
     setShowVideo(false) // unmount video immediately
   }
 
-   const handleTimeUpdate = () => {
+  const handleTimeUpdate = () => {
     if (videoRef.current && videoRef.current.currentTime > previewEnd) {
       videoRef.current.pause()
     }
@@ -77,9 +79,11 @@ function FrameComponent({
     }
   }, [showVideo, previewStart]);
 
+  // Reset availability when the target video changes
+  useEffect(() => {
+    setIsVideoAvailable(true)
+  }, [videoUrl])
 
-
-  
 
   const handleViewFrame = () => {
     onOpenFrameModal(frameData)
@@ -99,21 +103,22 @@ function FrameComponent({
     onSubmitFrame(currentFrameData);
   }
 
+
+
   return (
-    <div  className={`frame-component ${isHighlighted ? 'highlighted' : ''}`}
-          id={metaKey}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+    <div className={`frame-component ${isHighlighted ? 'highlighted' : ''}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      
+
       <FrameHeader video_name={video_name} target_frame={targetFrame} timestamp={timestamp} />
 
-       <div className="frame-image-container">
-        {!showVideo ? (
-          <img 
-            className="frame-image" 
-            src={image_path} 
-            alt={`Frame ${targetFrame} from ${video_name}`} 
+      <div className="frame-image-container">
+        {!showVideo || !isVideoAvailable ? (
+          <img
+            className="frame-image"
+            src={image_path}
+            alt={`Frame ${targetFrame} from ${video_name}`}
           />
         ) : (
           <video
@@ -123,18 +128,20 @@ function FrameComponent({
             muted
             playsInline
             onTimeUpdate={handleTimeUpdate}
+            onError={() => setIsVideoAvailable(false)}
           />
         )}
       </div>
 
 
-      <FrameControls 
+      <FrameControls
         onSubmitFrame={handleSubmitFrame}
         onViewFrame={handleViewFrame}
         onViewVideo={handleViewVideo}
         displayMode={displayMode}
+        image_path={image_path}
+        onOpenSliderModal={onOpenSliderModal}
       />
-
     </div>
   )
 }
