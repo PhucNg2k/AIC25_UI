@@ -119,21 +119,21 @@ function VideoPlayerModal({
   const canNavigateNext = currentIndex < currentFramesList.length - 1
 
   const handleSubmitFrame = () => {
-    if (onSubmitFrame) {
-      const video = videoRef.current
-      if (video) {
-        // Create frame data based on current video time
-        const currentVideoTime = video.currentTime
-        const currentFrameNumber = Math.floor(currentVideoTime * vidFps)
-        
-        // Create new frame data with current frame information
-        const currentFrameData = {
-          video_name: video_name,
-          frame_idx: currentFrameNumber
-        }
-        
-        onSubmitFrame(currentFrameData)
+  
+    const video = videoRef.current
+    if (video) {
+      // Create frame data based on current video time
+      const currentVideoTime = video.currentTime
+      const currentFrameNumber = Math.floor(currentVideoTime * vidFps)
+      
+      // Create new frame data with current frame information
+      const currentFrameData = {
+        video_name: video_name,
+        frame_idx: currentFrameNumber
       }
+      
+      onSubmitFrame(currentFrameData)
+      
     }
   }
 
@@ -197,6 +197,7 @@ function VideoPlayerModal({
                   📌 Submit Current Frame
                 </button>
               </div>
+
             </div>
           </div>
         </div>

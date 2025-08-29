@@ -147,17 +147,18 @@ function App() {
   }
 
   // Submit frame handler - handles different task types
-  const handleSubmitFrame = (frameData) => {
-    const { video_name, frame_idx, image_path } = frameData;
+  const handleSubmitFrame = (frameData, isFrameset = false) => {
+    let { video_name, frame_idx, image_path } = frameData;
     
+    if (currentList.length >= 100) {
+      //alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
+      return
+    }
 
     // Manual mode: behave as before, append single frame if not duplicate
-    if (submitType === 'manual') {
+    if (submitType === 'manual' || isFrameset) {
       // Check if we've reached the 100 frame limit
-      if (currentList.length >= 100) {
-        alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
-        return
-      }
+     
       if (queryTask === 'kis') {
         const isAlreadySubmitted = currentList.some(
           frame => frame.video_name === video_name && frame.frame_idx === frame_idx
@@ -191,12 +192,17 @@ function App() {
     }
 
     // Auto mode: replace current submissions with 100 related keyframes from the same video
+    let step = null;
+    
     if (submitType === 'auto') {
       if (!image_path) {
-        console.error('Auto submit requires image_path in frameData');
-        return;
+        let fname = `f${String(frame_idx).padStart(6, '0')}.webp`
+
+        image_path = `Video/${video_name}/${fname}`;
+        step = 10;
       }
-      const related = get_related_keyframe(image_path);
+
+      const related = get_related_keyframe(image_path, step);
       if (!related || related.length === 0) {
         console.error('No related keyframes found for image:', image_path);
         return;
@@ -238,8 +244,12 @@ function App() {
   }
 
   // Clear submitted frames for current task
-  const handleClearSubmissions = () => {
+  const handleClearSubmissions = (callback) => {
     setCurrentList([]);
+    if (callback) {
+      // Execute callback after state update
+      setTimeout(callback, 0);
+    }
   }
 
 
@@ -297,6 +307,9 @@ function App() {
           onClose={() => setShowSliderModal(false)}
           relatedFrames={sliderFrames}
           currentIndex={sliderFrameIdx}
+          onSubmitFrame={handleSubmitFrame}
+          submitMode={submitType}
+          onClearSubmissions={handleClearSubmissions}
         />
       )}
     </div>

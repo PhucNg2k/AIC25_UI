@@ -8,6 +8,9 @@ export default function FrameSliderModal({
   onClose, 
   relatedFrames, 
   currentIndex,
+  onSubmitFrame,
+  submitMode,
+  onClearSubmissions,
 }) {
   const [currentSliderIndex, setCurrentSliderIndex] = useState(currentIndex)
 
@@ -24,12 +27,15 @@ export default function FrameSliderModal({
 
   if (!isOpen) return null
 
-  const currentFrameData = relatedFrames[currentSliderIndex];
-  const parts = currentFrameData.split("/");
+  const image_path = relatedFrames[currentSliderIndex];
 
+  const parts = image_path.split("/");
   const frame_id = parts[parts.length - 1];           // f007932.webp
   const video_name = parts[parts.length - 2];         // L28_V023
   const key_name = parts[parts.length - 3];           // Videos_L28_a
+
+  const match = frame_id.match(/f(\d+)\.webp/); 
+  const frameNumber = parseInt(match[1], 10);
 
   return (
     <div className="frame-slider-modal-overlay">
@@ -54,6 +60,9 @@ export default function FrameSliderModal({
             relatedFrames={relatedFrames}
             currentIndex={currentSliderIndex}
             onIndexChange={setCurrentSliderIndex}
+            onSubmitFrame={onSubmitFrame}
+            submitMode={submitMode}
+            onClearSubmissions={onClearSubmissions}
           />
         </div>
       </div>
