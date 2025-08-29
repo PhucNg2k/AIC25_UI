@@ -123,7 +123,7 @@ function ExportButton({ submittedFrames, query, queryId, queryTask }) {
                 {isExporting ? 'Preparing Export...' : 'Export CSV'}
             </button>
             
-            <SubmitPreview submittedFrames={submittedFrames} />
+            
         </div>
     )
 }

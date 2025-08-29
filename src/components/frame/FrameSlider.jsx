@@ -8,7 +8,7 @@ export default function FrameSlider({ frames, currentIndex, onIndexChange }) {
   const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes"
   const currentFrame = frames[currentIndex]
   const image_src = `${BASE_DATA_PATH}/${currentFrame}`;
-  console.log(image_src)
+  
 
   const handlePrevious = () => {
     if (currentIndex > 0) {

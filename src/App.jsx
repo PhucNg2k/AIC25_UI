@@ -29,7 +29,7 @@ function App() {
   const [sliderFrames, setSliderFrames] = useState([])
   const [sliderFrameIdx, setSliderFrameIdx] = useState(0)
 
-  const [submitType, setSubmitType] = useState();
+  const [submitType, setSubmitType] = useState('auto');
   
   // Query and task state
   const [query, setQuery] = useState('')
@@ -209,15 +209,17 @@ function App() {
         const parts = rel.split('/');
         const videoName = parts[1];
         const frameFile = parts[2]; // f007932.webp
-        const frameNumber = parseInt(frameFile.replace(/^f/, '').replace(/\.webp$/, ''), 10);
+        const frameNumber = parseInt(frameFile.replace(/^f/, '').replace(/\.webp$/, ''), 10); // 7932
         return { video_name: videoName, frame_idx: frameNumber };
       });
 
       if (queryTask === 'kis') {
         setCurrentList(newListKIS);
+
       } else if (queryTask === 'qa') {
-        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({ video_name, frame_idx, answer: '' }));
+        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({ video_name, frame_idx, answer: '' })); //!!!!
         setCurrentList(newListQA);
+
       } else if (queryTask === 'trake') { // need redesign logic
         // Group frames by video and store as { video_name, frames: [...] }
         const videoToFrames = {};

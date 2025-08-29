@@ -21,7 +21,7 @@ export async function loadGroupedKeyframesMetadata() {
     }
 }
 
-export function get_related_keyframe(image_path, n_before=49, n_after=50) { 
+export function get_related_keyframe(image_path, n_before=19, n_after=80) { 
     // result in list of 100 keyframes path
 
     // image_path: /REAL_DATA/keyframes_b1/keyframes/Videos_L28_a/L28_V023/f007932.webp
