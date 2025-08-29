@@ -7,7 +7,7 @@ function SearchControls({
   onClear, 
   isLoading
 }) {
-  const [localMaxResults, setLocalMaxResults] = useState(80)
+  const [localMaxResults, setLocalMaxResults] = useState(100)
 
   const hasValidSearchData = () => {
     return Object.values(searchData).some(typeData => 
@@ -38,14 +38,10 @@ function SearchControls({
             onChange={(e) => setLocalMaxResults(parseInt(e.target.value))}
             disabled={isLoading}
           >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="60">60</option>
-            <option value="80">80</option>
             <option value="100">100</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
           </select>
         </div>
       </div>

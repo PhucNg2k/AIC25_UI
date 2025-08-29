@@ -15,7 +15,7 @@ body {
 .main-container {
     display: flex;
     height: 100vh;
-    max-width: 95%;
+    max-width: 98%;
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);

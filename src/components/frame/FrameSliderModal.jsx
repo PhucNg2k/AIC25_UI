@@ -7,7 +7,7 @@ export default function FrameSliderModal({
   isOpen, 
   onClose, 
   relatedFrames, 
-  currentIndex = 0 
+  currentIndex,
 }) {
   const [currentSliderIndex, setCurrentSliderIndex] = useState(currentIndex)
 
@@ -37,7 +37,7 @@ export default function FrameSliderModal({
 
         <div className="modal-header">
           <div className="key-video-info">
-            <h3>{`${key_name}/${video_name}/${frame_id}`}</h3>
+            <h3>{`${key_name}/${video_name}/${frame_id}` }</h3>
             
           </div>
           <button className="close-btn" onClick={onClose}>×</button>

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import '../../styles/SubmitHeader.css'
 
-function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, queryTask, submittedFramesCount = 0, onClearSubmissions }) {
+function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, queryTask, submitType, setSubmitType, submittedFramesCount = 0, onClearSubmissions }) {
     const [inputValue, setInputValue] = useState('')
     const [queryIdInput, setQueryIdInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -80,6 +80,26 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                 >
                     TRAKE
                 </button>
+            </div>
+
+            <div className="submit-mode">
+                <span className="mode-label">Mode:</span>
+                <div className="mode-buttons">
+                    <button
+                        className={`mode-btn ${submitType === 'manual' ? 'active' : ''}`}
+                        onClick={() => setSubmitType('manual')}
+                        title="Manual submit mode"
+                    >
+                        Manual
+                    </button>
+                    <button
+                        className={`mode-btn ${submitType === 'auto' ? 'active' : ''}`}
+                        onClick={() => setSubmitType('auto')}
+                        title="Auto submit mode"
+                    >
+                        Auto
+                    </button>
+                </div>
             </div>
 
             <div className="query-input-group">

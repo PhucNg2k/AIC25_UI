@@ -142,7 +142,7 @@ function VideoPlayerModal({
       <div className="video-player-content" onClick={(e) => e.stopPropagation()}>
         <div className="video-player-header">
           <h3 className="video-player-title">
-            {video_name} - Frame {currentFrameIdx} ({currentIndex + 1}/{currentFramesList.length})
+            {video_name} -  #{currentFrameIdx} ({currentIndex + 1}/{currentFramesList.length})
           </h3>
           <button className="close-player-btn" onClick={onClose}>
             &times;

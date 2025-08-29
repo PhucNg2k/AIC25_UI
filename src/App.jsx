@@ -26,6 +26,8 @@ function App() {
   const [videoMetadata, setVideoMetadata] = useState({})
   const [sliderFrames, setSliderFrames] = useState([])
   const [sliderFrameIdx, setSliderFrameIdx] = useState(0)
+
+  const [submitType, setSubmitType] = useState();
   
   // Query and task state
   const [query, setQuery] = useState('')
@@ -41,6 +43,7 @@ function App() {
 
   // Derived current list + setter
   const currentList = submissions[queryTask];
+  
   
   const setCurrentList = (updater) => {
     setSubmissions(prev => ({
@@ -123,14 +126,14 @@ function App() {
     setShowFrameModal(true)
   }
 
+
   // Open slider modal
   const openSliderModal = (frames, currentImagePath) => {
     setSliderFrames(frames)
-    setShowSliderModal(true)
+    setShowSliderModal(true);
     const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes"
     const frameIndex = frames.findIndex(f => `${BASE_DATA_PATH}/${f}` === currentImagePath);
     setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
-
   }
 
   // Submit frame handler - handles different task types
@@ -213,6 +216,8 @@ function App() {
         setQueryId={setQueryId}
         queryTask={queryTask}
         setQueryTask={setQueryTask}
+        submitType={submitType}
+        setSubmitType={setSubmitType}
         submittedFrames={currentList}
         setSubmittedFrames={setCurrentList}
         onClearSubmissions={handleClearSubmissions}

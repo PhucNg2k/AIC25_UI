@@ -12,6 +12,8 @@ function SubmitPanel({
     setQueryId, 
     queryTask, 
     setQueryTask, 
+    submitType,
+    setSubmitType,
     submittedFrames = [], 
     setSubmittedFrames, 
     onClearSubmissions 
@@ -25,6 +27,8 @@ function SubmitPanel({
                 setQueryId={setQueryId} 
                 setQueryTask={setQueryTask}
                 queryTask={queryTask}
+                submitType={submitType}
+                setSubmitType={setSubmitType}
                 submittedFramesCount={submittedFrames.length}
                 onClearSubmissions={onClearSubmissions}
             />

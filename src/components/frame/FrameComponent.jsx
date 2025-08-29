@@ -138,6 +138,7 @@ function FrameComponent({
         displayMode={displayMode}
         image_path={image_path}
         onOpenSliderModal={onOpenSliderModal}
+        targetFrame={targetFrame}
       />
     </div>
   )

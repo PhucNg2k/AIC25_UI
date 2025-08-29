@@ -88,13 +88,14 @@
     font-size: 0.9em;
     font-weight: 600;
     cursor: pointer;
+    text-align: center;
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     min-width: 80px;
 }
 
-.submit-option-btn:hover {
+.submit-option-btn:not(.active):hover {
     background: #f8f9fa;
     border-color: #0056b3;
     color: #0056b3;
@@ -105,6 +106,104 @@
     background: #d4edda;
     color: #155724;
     border-color: #28a745;
+}
+
+/* Remove default blue focus/active effects for submit-option buttons */
+.submit-option-btn:focus,
+.submit-option-btn:active,
+.submit-option-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.submit-option-btn:not(.active):focus,
+.submit-option-btn:not(.active):active {
+    background: white;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.submit-option-btn.active:focus,
+.submit-option-btn.active:active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+}
+
+/* Submit mode (Manual/Auto) */
+.submit-mode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mode-label {
+    font-size: 0.9em;
+    color: #495057;
+    font-weight: 600;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.mode-btn {
+    padding: 10px 20px;
+    border: 2px solid #007bff;
+    border-radius: 6px;
+    background: white;
+    color: #007bff;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+}
+
+.mode-btn:not(.active):hover {
+    background: #f8f9fa;
+    border-color: #0056b3;
+    color: #0056b3;
+}
+
+.mode-btn.active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+}
+
+/* Remove default blue focus/active effects for mode buttons */
+.mode-btn:focus,
+.mode-btn:active,
+.mode-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.mode-btn:not(.active):focus,
+.mode-btn:not(.active):active {
+    background: white;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.mode-btn.active:focus,
+.mode-btn.active:active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+}
+
+@media (max-width: 768px) {
+    .submit-mode {
+        flex-direction: column;
+    }
 }
 
 /* Display mode styles */
