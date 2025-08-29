@@ -8,6 +8,8 @@ function normalizePath(relativePath) {
 
 let videoMetadata = {}
 
+let videoData = {}
+
 // Load video metadata from JSON file
 export async function loadVideoMetadata() {
     try {
@@ -18,7 +20,17 @@ export async function loadVideoMetadata() {
         const data = await response.json()
         videoMetadata = data
         console.log("Video metadata loaded:", Object.keys(videoMetadata).length, "videos")
-        return videoMetadata
+
+
+        const videoResponse = await fetch("/Metadata/metadata.json")
+        if (!videoResponse.ok) {
+            throw new Error(`HTTP error! status: ${videoResponse.status}`)
+        }
+        const videoDataJSON = await videoResponse.json()
+        videoData = videoDataJSON;
+        console.log("Video data loaded:", Object.keys(videoData).length, "videos");
+
+        return 
     } catch (error) {
         console.error("Failed to load video metadata:", error)
         // Fallback to empty object
@@ -49,12 +61,13 @@ export function getPTStime(metaKey) {
     return videoMetadata[metaKey]?.pts_time || null
 }
 
-export function getVideoDuration(metaKey) {
-    return videoMetadata[metaKey]?.duration_formatted || "Unknown"
-}
 
 export function getVideoMetadata(metaKey) {
     return videoMetadata[metaKey] || null
+}
+
+export function getVideoDuration(video_name) {
+    return videoData[video_name]?.duration_seconds || null;
 }
 
 export { normalizePath }

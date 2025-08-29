@@ -1,4 +1,4 @@
-import { getMetadataKey, getFrameIdx, getVideoFPS, getPTStime } from '../../utils/metadata'
+import { getMetadataKey, getFrameIdx, getVideoFPS, getPTStime, getVideoDuration } from '../../utils/metadata'
 import FrameHeader from './FrameHeader'
 import FrameControls from './FrameControls'
 import '../../styles/FrameComponent.css'
@@ -38,9 +38,10 @@ function FrameComponent({
   const hoverTimer = useRef(null)
   const [isVideoAvailable, setIsVideoAvailable] = useState(true)
 
-
-  const previewStart = Math.max(0, targetTime - 2)
-  const previewEnd = targetTime + 2
+  const videoDuration = getVideoDuration(video_name); 
+  const timeDelta = 2;
+  const previewStart = Math.max(0, targetTime - timeDelta)
+  const previewEnd = videoDuration ? Math.min(videoDuration, targetTime + timeDelta) : targetTime + timeDelta;
 
   const handleMouseEnter = () => {
     // Start a timer to preload video after 300ms
@@ -67,10 +68,6 @@ function FrameComponent({
       const vid = videoRef.current
       vid.currentTime = previewStart
       vid.play()
-
-      console.log("VIDEO NAME", videoUrl);
-      console.log("Start time", previewStart);
-
     }
     return () => {
       if (videoRef.current) {
