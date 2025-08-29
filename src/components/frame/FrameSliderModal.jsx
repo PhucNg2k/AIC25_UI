@@ -51,7 +51,7 @@ export default function FrameSliderModal({
           />
           
           <SliderControl 
-            totalFrames={relatedFrames.length}
+            relatedFrames={relatedFrames}
             currentIndex={currentSliderIndex}
             onIndexChange={setCurrentSliderIndex}
           />

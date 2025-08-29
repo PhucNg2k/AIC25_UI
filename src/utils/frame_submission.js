@@ -48,8 +48,22 @@ export function get_related_keyframe(image_path, n_before=49, n_after=50) {
         return null;
     }
 
-    const startIndex = Math.max(0, currentIndex - n_before);
-    const endIndex = Math.min(framesList.length, currentIndex + n_after + 1);
+    // Calculate initial start and end indices
+    let startIndex = Math.max(0, currentIndex - n_before);
+    let endIndex = Math.min(framesList.length, currentIndex + n_after + 1);
+    
+    // Calculate how many frames we actually have
+    const actualFrameCount = endIndex - startIndex;
+    const targetFrameCount = n_before + n_after + 1; // Should be 100
+    
+    // If we don't have enough frames, adjust startIndex to get more frames from the beginning
+    if (actualFrameCount < targetFrameCount) {
+        const missingFrames = targetFrameCount - actualFrameCount;
+        startIndex = Math.max(0, startIndex - missingFrames);
+        
+        // Recalculate endIndex to ensure we get exactly the target number of frames
+        endIndex = Math.min(framesList.length, startIndex + targetFrameCount);
+    }
 
     
     const result_frameList_fname = framesList.slice(startIndex, endIndex);

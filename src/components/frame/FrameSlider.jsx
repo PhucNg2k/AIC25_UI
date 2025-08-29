@@ -1,3 +1,5 @@
+import KeyframePreview from './KeyframePreview';
+
 export default function FrameSlider({ frames, currentIndex, onIndexChange }) {
   if (!frames || frames.length === 0) {
     return <div className="no-frames">No keyframes available</div>
@@ -32,14 +34,10 @@ export default function FrameSlider({ frames, currentIndex, onIndexChange }) {
           ‹
         </button>
         
-        <div className="current-frame">
-          <img 
-            src={image_src} 
-            alt={`Keyframe ${currentIndex + 1}`}
-            className="frame-image"
-          />
-          
-        </div>
+        <KeyframePreview 
+          relatedFrames={frames}
+          currentIndex={currentIndex}
+        />
         
         <button 
           className="nav-btn next-btn" 

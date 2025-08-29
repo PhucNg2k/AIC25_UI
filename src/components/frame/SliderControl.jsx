@@ -1,15 +1,39 @@
-export default function SliderControl({ totalFrames, currentIndex, onIndexChange }) {
-  // Placeholder component - implement your slider control features here
+export default function SliderControl({ relatedFrames, currentIndex, onIndexChange }) {
+  
+
+  const handleSliderChange = (event) => {
+    const newIndex = parseInt(event.target.value) - 1
+    if (newIndex >= 0 && newIndex < relatedFrames.length) {
+      onIndexChange(newIndex)
+    }
+  }
+
+  const handleSliderInput = (event) => {
+    const newIndex = parseInt(event.target.value) - 1
+    if (newIndex >= 0 && newIndex < relatedFrames.length) {
+      onIndexChange(newIndex)
+    }
+  }
+
   return (
     <div className="slider-control">
       <div className="control-info">
-        <span>Frame {currentIndex + 1} of {totalFrames}</span>
+        <span>Frame {currentIndex + 1} of {relatedFrames.length}</span>
       </div>
       
-      {/* Add your slider control features here */}
       <div className="control-placeholder">
-        <p>Slider Control Component</p>
-        <p>Implement your specific features here</p>
+        <div className="slidecontainer">
+          <input 
+            type="range" 
+            min="1" 
+            max={relatedFrames.length} 
+            value={currentIndex + 1} 
+            className="slider" 
+            id="controlSlider"
+            onChange={handleSliderChange}
+            onInput={handleSliderInput}
+          />
+        </div>
       </div>
     </div>
   )
