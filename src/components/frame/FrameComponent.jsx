@@ -95,7 +95,8 @@ function FrameComponent({
   const handleSubmitFrame = () => {
     const currentFrameData = {
       video_name: video_name,
-      frame_idx: frameNumber
+      frame_idx: frameNumber,
+      image_path: image_path
     }
     onSubmitFrame(currentFrameData);
   }

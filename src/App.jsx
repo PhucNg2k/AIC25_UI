@@ -8,7 +8,7 @@ import FrameModal from './components/frame/FrameModal'
 import FrameSliderModal from './components/frame/FrameSliderModal'
 
 import { loadVideoMetadata } from './utils/metadata'
-import { loadGroupedKeyframesMetadata } from './utils/frame_submission'
+import { loadGroupedKeyframesMetadata, get_related_keyframe } from './utils/frame_submission'
 
 import { searchImagesMock, searchImagesAPI, searchMultiModalAPI } from './utils/searching'
 import SubmitPanel from "./components/submit_panel/SubmitPanel"
@@ -19,11 +19,13 @@ function App() {
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentFramesList, setCurrentFramesList] = useState([])
+  
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [showFrameModal, setShowFrameModal] = useState(false)
   const [showSliderModal, setShowSliderModal] = useState(false)
+  
   const [selectedFrame, setSelectedFrame] = useState(null)
-  const [videoMetadata, setVideoMetadata] = useState({})
+  
   const [sliderFrames, setSliderFrames] = useState([])
   const [sliderFrameIdx, setSliderFrameIdx] = useState(0)
 
@@ -50,6 +52,14 @@ function App() {
       ...prev,
       [queryTask]: typeof updater === 'function' ? updater(prev[queryTask]) : updater,
     }));
+  };
+
+  // Handle submit type change - clear frames when switching modes
+  const handleSubmitTypeChange = (newSubmitType) => {
+    if (submitType !== newSubmitType) {
+      setCurrentList([]);
+      setSubmitType(newSubmitType);
+    }
   };
 
   // Load video metadata on component mount
@@ -138,50 +148,90 @@ function App() {
 
   // Submit frame handler - handles different task types
   const handleSubmitFrame = (frameData) => {
-    const { video_name, frame_idx } = frameData;
+    const { video_name, frame_idx, image_path } = frameData;
     
-    // Check if we've reached the 100 frame limit
-    if (currentList.length >= 100) {
-      alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
-      return
+
+    // Manual mode: behave as before, append single frame if not duplicate
+    if (submitType === 'manual') {
+      // Check if we've reached the 100 frame limit
+      if (currentList.length >= 100) {
+        alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
+        return
+      }
+      if (queryTask === 'kis') {
+        const isAlreadySubmitted = currentList.some(
+          frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+        );
+        if (!isAlreadySubmitted) {
+          const newFrame = { video_name, frame_idx };
+          setCurrentList(prev => [...prev, newFrame]);
+        }
+      } else if (queryTask === 'qa') {
+        const isAlreadySubmitted = currentList.some(
+          frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+        );
+        if (!isAlreadySubmitted) {
+          const newFrame = { video_name, frame_idx, answer: '' };
+          setCurrentList(prev => [...prev, newFrame]);
+        }
+      } else if (queryTask === 'trake') {
+        const existingVideoEntry = currentList.find(entry => entry.video_name === video_name);
+        if (existingVideoEntry) {
+          if (!existingVideoEntry.frames.includes(frame_idx)) {
+            existingVideoEntry.frames.push(frame_idx);
+            existingVideoEntry.frames.sort((a, b) => a - b);
+            setCurrentList(prev => [...prev]);
+          }
+        } else {
+          const newEntry = { video_name, frames: [frame_idx] };
+          setCurrentList(prev => [...prev, newEntry]);
+        }
+      }
+      return;
     }
 
-    if (queryTask === 'kis') {
-      // KIS: simple video_name + frame_idx
-      const isAlreadySubmitted = currentList.some(
-        frame => frame.video_name === video_name && frame.frame_idx === frame_idx
-      );
-      
-      if (!isAlreadySubmitted) {
-        const frameData = { video_name, frame_idx };
-        setCurrentList(prev => [...prev, frameData]);
+    // Auto mode: replace current submissions with 100 related keyframes from the same video
+    if (submitType === 'auto') {
+      if (!image_path) {
+        console.error('Auto submit requires image_path in frameData');
+        return;
       }
-    } else if (queryTask === 'qa') {
-      // QA: video_name + frame_idx + answer (initially empty)
-      const isAlreadySubmitted = currentList.some(
-        frame => frame.video_name === video_name && frame.frame_idx === frame_idx
-      );
-      
-      if (!isAlreadySubmitted) {
-        const frameData = { video_name, frame_idx, answer: '' };
-        setCurrentList(prev => [...prev, frameData]);
+      const related = get_related_keyframe(image_path);
+      if (!related || related.length === 0) {
+        console.error('No related keyframes found for image:', image_path);
+        return;
       }
-    } else if (queryTask === 'trake') {
-      // TRAKE: group consecutive frames by video
-      const existingVideoEntry = currentList.find(entry => entry.video_name === video_name);
-      
-      if (existingVideoEntry) {
-        // Add frame to existing video entry if not already there
-        if (!existingVideoEntry.frames.includes(frame_idx)) {
-          existingVideoEntry.frames.push(frame_idx);
-          existingVideoEntry.frames.sort((a, b) => a - b); // Keep frames sorted
-          setCurrentList(prev => [...prev]); // Trigger re-render
-        }
-      } else {
-        // Create new video entry
-        const frameData = { video_name, frames: [frame_idx] };
-        setCurrentList(prev => [...prev, frameData]);
+
+      const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+      // related entries look like: "Videos_L28_a/L28_V023/f007932.webp"
+      // Extract video_name and frame_idx from each
+      const newListKIS = related.map(rel => {
+        const parts = rel.split('/');
+        const videoName = parts[1];
+        const frameFile = parts[2]; // f007932.webp
+        const frameNumber = parseInt(frameFile.replace(/^f/, '').replace(/\.webp$/, ''), 10);
+        return { video_name: videoName, frame_idx: frameNumber };
+      });
+
+      if (queryTask === 'kis') {
+        setCurrentList(newListKIS);
+      } else if (queryTask === 'qa') {
+        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({ video_name, frame_idx, answer: '' }));
+        setCurrentList(newListQA);
+      } else if (queryTask === 'trake') { // need redesign logic
+        // Group frames by video and store as { video_name, frames: [...] }
+        const videoToFrames = {};
+        newListKIS.forEach(({ video_name, frame_idx }) => {
+          if (!videoToFrames[video_name]) videoToFrames[video_name] = [];
+          videoToFrames[video_name].push(frame_idx);
+        });
+        const newTrakeList = Object.entries(videoToFrames).map(([video, frames]) => ({
+          video_name: video,
+          frames: frames.sort((a, b) => a - b)
+        }));
+        setCurrentList(newTrakeList);
       }
+      return;
     }
   }
 
@@ -217,7 +267,7 @@ function App() {
         queryTask={queryTask}
         setQueryTask={setQueryTask}
         submitType={submitType}
-        setSubmitType={setSubmitType}
+        setSubmitType={handleSubmitTypeChange}
         submittedFrames={currentList}
         setSubmittedFrames={setCurrentList}
         onClearSubmissions={handleClearSubmissions}

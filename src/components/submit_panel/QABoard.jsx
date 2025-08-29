@@ -1,16 +1,17 @@
 import '../../styles/SubmitBoard.css'
 
 function QABoard({ submitType, submittedFrames, setSubmittedFrames }) {
-    const handleAnswerChange = (frameIndex, answer) => {
-        setSubmittedFrames(prev => {
-            const newFrames = [...prev];
-            
-            newFrames[frameIndex] = {
-                ...newFrames[frameIndex],
+    // Get the answer from the first frame (or empty string if no frames)
+    const firstAnswer = submittedFrames.length > 0 ? submittedFrames[0].answer || '' : '';
+    
+    const handleGlobalAnswerChange = (answer) => {
+        // Update all frames with the same answer
+        setSubmittedFrames(prev => 
+            prev.map(frame => ({
+                ...frame,
                 answer: answer
-            };
-            return newFrames;
-        });
+            }))
+        );
     }
 
     return (
@@ -22,6 +23,17 @@ function QABoard({ submitType, submittedFrames, setSubmittedFrames }) {
                 </div>
             ) : (
                 <div className="qa-frames-container">
+                    <div className="qa-global-answer">
+                        <label htmlFor="global-answer">Your answer</label>
+                        <input
+                            id="global-answer"
+                            type="text"
+                            value={firstAnswer}
+                            onChange={(e) => handleGlobalAnswerChange(e.target.value)}
+                            placeholder="Enter your answer"
+                            className="global-answer-field"
+                        />
+                    </div>
                     <div className="qa-header">
                         <div className="qa-header-frame">Frame Name</div>
                         <div className="qa-header-answer">Answer</div>
@@ -36,14 +48,8 @@ function QABoard({ submitType, submittedFrames, setSubmittedFrames }) {
                                     <div className="qa-frame-name">
                                         <span className="frame-text">{frameName}</span>
                                     </div>
-                                    <div className="qa-answer-input">
-                                        <input
-                                            type="text"
-                                            value={answer || ''}
-                                            onChange={(e) => handleAnswerChange(index, e.target.value)}
-                                            placeholder="Enter your answer..."
-                                            className="answer-field"
-                                        />
+                                    <div className="qa-answer-display">
+                                        <span className="answer-text">{answer || ''}</span>
                                     </div>
                                 </div>
                             );
