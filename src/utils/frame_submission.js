@@ -32,7 +32,8 @@ function buildInterleavedOffsets(n_before, n_after) {
 
 export function get_related_keyframe(
   image_path,
-  step,
+  step=3,
+  sorted=false,
   n_before = 19,
   n_after = 80
 ) {
@@ -53,7 +54,7 @@ export function get_related_keyframe(
   // Build the alternating proximity order once
   const offsets = buildInterleavedOffsets(n_before, n_after);
 
-  if (step) {
+  if (step >= 1) {
     // -------- Exact numeric frames with stride = step --------
     const match = frame_id_str.match(/f(\d+)\.webp/);
     if (!match) {
@@ -64,24 +65,35 @@ export function get_related_keyframe(
     const frame_id = parseInt(match[1], 10);
     result_frameList_fname = [];
 
-    for (const off of offsets) {
-      const new_id = frame_id + off * step;
-      if (new_id < 0) continue; // skip negatives
-      result_frameList_fname.push(`f${String(new_id).padStart(6, "0")}.webp`);
+    if (sorted) {
+      for (const off of offsets) {
+        const new_id = frame_id + off * step;
+        if (new_id < 0) continue; // skip negatives
+        result_frameList_fname.push(`f${String(new_id).padStart(6, "0")}.webp`);
+      }
+    } else {
+        // Generate frames before
+        for (let i = n_before; i >= 1; i--) {
+            const new_id = frame_id - i * step;
+            if (new_id >= 0) {
+                result_frameList_fname.push(`f${String(new_id).padStart(6, '0')}.webp`);
+            }
+        }
+
+        // Include current frame
+        result_frameList_fname.push(`f${String(frame_id).padStart(6, '0')}.webp`);
+
+        // Generate frames after
+        for (let i = 1; i <= n_after; i++) {
+            const new_id = frame_id + i * step;
+            result_frameList_fname.push(`f${String(new_id).padStart(6, '0')}.webp`);
+        }
     }
+
   } else {
     // -------- Use precomputed keyframe list from metadata --------
-    const framesList =
-      grouped_keyframes_metadata?.[key_name]?.[video_name] || null;
+    const framesList = grouped_keyframes_metadata?.[key_name]?.[video_name] || null;
 
-    if (!Array.isArray(framesList)) {
-      console.error(
-        "Missing frames list in metadata for:",
-        key_name,
-        video_name
-      );
-      return null;
-    }
 
     const currentIndex = framesList.findIndex((f) => f === frame_id_str);
     if (currentIndex === -1) {
@@ -89,16 +101,39 @@ export function get_related_keyframe(
       return null;
     }
 
-    // Filter offsets to those that land inside the list
-    const inBounds = offsets
+    if (sorted) {
+      
+      // Filter offsets to those that land inside the list
+      const inBounds = offsets
       .map((off) => currentIndex + off)
       .filter((idx) => idx >= 0 && idx < framesList.length);
+      
+      // If you want to cap to exactly (n_before + n_after + 1), slice here:
+      const targetCount = n_before + n_after + 1;
+      const chosen = inBounds.slice(0, targetCount);
+      
+      result_frameList_fname = chosen.map((idx) => framesList[idx]);
+    } else {
+      // Calculate initial start and end indices
+      let startIndex = Math.max(0, currentIndex - n_before);
+      let endIndex = Math.min(framesList.length, currentIndex + n_after + 1);
+      
+      // Calculate how many frames we actually have
+      const actualFrameCount = endIndex - startIndex;
+      const targetFrameCount = n_before + n_after + 1; // Should be 100
+      
+      // If we don't have enough frames, adjust startIndex to get more frames from the beginning
+      if (actualFrameCount < targetFrameCount) {
+          const missingFrames = targetFrameCount - actualFrameCount;
+          startIndex = Math.max(0, startIndex - missingFrames);
+          
+          // Recalculate endIndex to ensure we get exactly the target number of frames
+          endIndex = Math.min(framesList.length, startIndex + targetFrameCount);
+      }
 
-    // If you want to cap to exactly (n_before + n_after + 1), slice here:
-    const targetCount = n_before + n_after + 1;
-    const chosen = inBounds.slice(0, targetCount);
+      result_frameList_fname = framesList.slice(startIndex, endIndex);
+    }
 
-    result_frameList_fname = chosen.map((idx) => framesList[idx]);
   }
 
   // Stitch back to "key_name/video_name/filename"

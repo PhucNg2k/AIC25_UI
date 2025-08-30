@@ -206,7 +206,7 @@ function App() {
         step = 3;
       }
 
-      const related = get_related_keyframe(image_path, step);
+      const related = get_related_keyframe(image_path, step, true);
       if (!related || related.length === 0) {
         console.error("No related keyframes found for image:", image_path);
         return;
