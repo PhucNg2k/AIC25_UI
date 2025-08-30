@@ -1,56 +1,62 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import './styles.css'
-import SearchPanel from './components/search/SearchPanel'
-import ResultsPanel from './components/results/ResultsPanel'
-import VideoPlayerPanel from './components/video_player/VideoPlayerPanel'
-import FrameModal from './components/frame/FrameModal'
-import FrameSliderModal from './components/frame/FrameSliderModal'
+import { useState, useEffect } from "react";
+import "./App.css";
+import "./styles.css";
+import SearchPanel from "./components/search/SearchPanel";
+import ResultsPanel from "./components/results/ResultsPanel";
+import VideoPlayerPanel from "./components/video_player/VideoPlayerPanel";
+import FrameModal from "./components/frame/FrameModal";
+import FrameSliderModal from "./components/frame/FrameSliderModal";
 
-import { loadVideoMetadata } from './utils/metadata'
-import { loadGroupedKeyframesMetadata, get_related_keyframe } from './utils/frame_submission'
+import { loadVideoMetadata } from "./utils/metadata";
+import {
+  loadGroupedKeyframesMetadata,
+  get_related_keyframe,
+} from "./utils/frame_submission";
 
-import { searchImagesMock, searchImagesAPI, searchMultiModalAPI } from './utils/searching'
-import SubmitPanel from "./components/submit_panel/SubmitPanel"
-
+import {
+  searchImagesMock,
+  searchImagesAPI,
+  searchMultiModalAPI,
+} from "./utils/searching";
+import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
 function App() {
   // State management
-  const [searchResults, setSearchResults] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentFramesList, setCurrentFramesList] = useState([])
-  
-  const [showVideoPlayer, setShowVideoPlayer] = useState(false)
-  const [showFrameModal, setShowFrameModal] = useState(false)
-  const [showSliderModal, setShowSliderModal] = useState(false)
-  
-  const [selectedFrame, setSelectedFrame] = useState(null)
-  
-  const [sliderFrames, setSliderFrames] = useState([])
-  const [sliderFrameIdx, setSliderFrameIdx] = useState(0)
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentFramesList, setCurrentFramesList] = useState([]);
 
-  const [submitType, setSubmitType] = useState('auto');
-  
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [showFrameModal, setShowFrameModal] = useState(false);
+  const [showSliderModal, setShowSliderModal] = useState(false);
+
+  const [selectedFrame, setSelectedFrame] = useState(null);
+
+  const [sliderFrames, setSliderFrames] = useState([]);
+  const [sliderFrameIdx, setSliderFrameIdx] = useState(0);
+
+  const [submitType, setSubmitType] = useState("auto");
+
   // Query and task state
-  const [query, setQuery] = useState('')
-  const [queryId, setQueryId] = useState('')
-  const [queryTask, setQueryTask] = useState('kis')
+  const [query, setQuery] = useState("");
+  const [queryId, setQueryId] = useState("");
+  const [queryTask, setQueryTask] = useState("kis");
 
   // Per-task submissions
   const [submissions, setSubmissions] = useState({
-    kis: [],                          // [{ video_name, frame_idx }]
-    qa: [],                           // [{ video_name, frame_idx, answer }]
-    trake: []                         // [{ video_name, frames: [idx1, idx2, ...] }]
+    kis: [], // [{ video_name, frame_idx }]
+    qa: [], // [{ video_name, frame_idx, answer }]
+    trake: [], // [{ video_name, frames: [idx1, idx2, ...] }]
   });
 
   // Derived current list + setter
   const currentList = submissions[queryTask];
-  
-  
+
   const setCurrentList = (updater) => {
-    setSubmissions(prev => ({
+    setSubmissions((prev) => ({
       ...prev,
-      [queryTask]: typeof updater === 'function' ? updater(prev[queryTask]) : updater,
+      [queryTask]:
+        typeof updater === "function" ? updater(prev[queryTask]) : updater,
     }));
   };
 
@@ -66,126 +72,124 @@ function App() {
   useEffect(() => {
     loadVideoMetadata();
     loadGroupedKeyframesMetadata();
-
-  }, [])
-
-
-  
+  }, []);
 
   // Search handler - called from SearchPanel
   const handleSearchResults = async (searchData, maxResults) => {
     console.log("SEARCH REQUEST\n", searchData);
-    
+
     // Check if any search modality has data
-    const hasSearchData = Object.values(searchData).some(modalData => 
-      modalData && modalData.value && modalData.value.trim()
+    const hasSearchData = Object.values(searchData).some(
+      (modalData) => modalData && modalData.value && modalData.value.trim()
     );
-    
+
     if (!hasSearchData) {
-      alert('Please enter at least one search query');
+      alert("Please enter at least one search query");
       return;
     }
 
-    setIsLoading(true)
-    
+    setIsLoading(true);
+
     try {
       // Call the new multi-modal search API
       const results = await searchMultiModalAPI(searchData, maxResults);
       //const results = await searchImagesMock(query, maxResults);
-      
+
       // Process and display results
       if (results && results.length > 0) {
-        setSearchResults(results)
-        
+        setSearchResults(results);
+
         // Group results by video and create video list for navigation
-        
-        
+
         // Spread all frames into one flat list
         //setCurrentFramesList(Object.values(groupedResults).flat())
 
-        setCurrentFramesList(Object.values(results).flat())
-      
+        setCurrentFramesList(Object.values(results).flat());
       } else {
-        setSearchResults([])
-        setCurrentFramesList([])
+        setSearchResults([]);
+        setCurrentFramesList([]);
       }
-      
     } catch (error) {
-      console.error('Search failed:', error)
-      alert(error.message || 'Search request failed')
+      console.error("Search failed:", error);
+      alert(error.message || "Search request failed");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Clear handler
   const handleClear = () => {
-    setSearchResults([])
-    setCurrentFramesList([])
-  }
+    setSearchResults([]);
+    setCurrentFramesList([]);
+  };
 
   // Open video player
   const openVideoPlayer = (frameData) => {
-    setSelectedFrame(frameData)
-    setShowVideoPlayer(true)
-  }
+    setSelectedFrame(frameData);
+    setShowVideoPlayer(true);
+  };
 
   // Open frame modal
   const openFrameModal = (frameData) => {
-    setSelectedFrame(frameData)
-    setShowFrameModal(true)
-  }
-
+    setSelectedFrame(frameData);
+    setShowFrameModal(true);
+  };
 
   // Open slider modal
   const openSliderModal = (frames, currentImagePath) => {
-    setSliderFrames(frames)
+    setSliderFrames(frames);
     setShowSliderModal(true);
-    const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes"
-    const frameIndex = frames.findIndex(f => `${BASE_DATA_PATH}/${f}` === currentImagePath);
+    const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+    const frameIndex = frames.findIndex(
+      (f) => `${BASE_DATA_PATH}/${f}` === currentImagePath
+    );
     setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
-  }
+  };
 
   // Submit frame handler - handles different task types
   const handleSubmitFrame = (frameData, isFrameset = false) => {
     let { video_name, frame_idx, image_path } = frameData;
-    
+
     if (currentList.length >= 100) {
       //alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
-      return
+      return;
     }
 
     // Manual mode: behave as before, append single frame if not duplicate
-    if (submitType === 'manual' || isFrameset) {
+    if (submitType === "manual" || isFrameset) {
       // Check if we've reached the 100 frame limit
-     
-      if (queryTask === 'kis') {
+
+      if (queryTask === "kis") {
         const isAlreadySubmitted = currentList.some(
-          frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+          (frame) =>
+            frame.video_name === video_name && frame.frame_idx === frame_idx
         );
         if (!isAlreadySubmitted) {
           const newFrame = { video_name, frame_idx };
-          setCurrentList(prev => [...prev, newFrame]);
+          setCurrentList((prev) => [...prev, newFrame]);
         }
-      } else if (queryTask === 'qa') {
+      } else if (queryTask === "qa") {
         const isAlreadySubmitted = currentList.some(
-          frame => frame.video_name === video_name && frame.frame_idx === frame_idx
+          (frame) =>
+            frame.video_name === video_name && frame.frame_idx === frame_idx
         );
         if (!isAlreadySubmitted) {
-          const newFrame = { video_name, frame_idx, answer: '' };
-          setCurrentList(prev => [...prev, newFrame]);
+          const newFrame = { video_name, frame_idx, answer: "" };
+          setCurrentList((prev) => [...prev, newFrame]);
         }
-      } else if (queryTask === 'trake') {
-        const existingVideoEntry = currentList.find(entry => entry.video_name === video_name);
+      } else if (queryTask === "trake") {
+        const existingVideoEntry = currentList.find(
+          (entry) => entry.video_name === video_name
+        );
         if (existingVideoEntry) {
           if (!existingVideoEntry.frames.includes(frame_idx)) {
             existingVideoEntry.frames.push(frame_idx);
             existingVideoEntry.frames.sort((a, b) => a - b);
-            setCurrentList(prev => [...prev]);
+            setCurrentList((prev) => [...prev]);
           }
         } else {
           const newEntry = { video_name, frames: [frame_idx] };
-          setCurrentList(prev => [...prev, newEntry]);
+          setCurrentList((prev) => [...prev, newEntry]);
         }
       }
       return;
@@ -193,55 +197,63 @@ function App() {
 
     // Auto mode: replace current submissions with 100 related keyframes from the same video
     let step = null;
-    
-    if (submitType === 'auto') {
-      if (!image_path) {
-        let fname = `f${String(frame_idx).padStart(6, '0')}.webp`
+
+    if (submitType === "auto") {
+      if (true) {
+        let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
 
         image_path = `Video/${video_name}/${fname}`;
-        step = 10;
+        step = 3;
       }
 
       const related = get_related_keyframe(image_path, step);
       if (!related || related.length === 0) {
-        console.error('No related keyframes found for image:', image_path);
+        console.error("No related keyframes found for image:", image_path);
         return;
       }
 
       const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
       // related entries look like: "Videos_L28_a/L28_V023/f007932.webp"
       // Extract video_name and frame_idx from each
-      const newListKIS = related.map(rel => {
-        const parts = rel.split('/');
+      const newListKIS = related.map((rel) => {
+        const parts = rel.split("/");
         const videoName = parts[1];
         const frameFile = parts[2]; // f007932.webp
-        const frameNumber = parseInt(frameFile.replace(/^f/, '').replace(/\.webp$/, ''), 10); // 7932
+        const frameNumber = parseInt(
+          frameFile.replace(/^f/, "").replace(/\.webp$/, ""),
+          10
+        ); // 7932
         return { video_name: videoName, frame_idx: frameNumber };
       });
 
-      if (queryTask === 'kis') {
+      if (queryTask === "kis") {
         setCurrentList(newListKIS);
-
-      } else if (queryTask === 'qa') {
-        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({ video_name, frame_idx, answer: '' })); //!!!!
+      } else if (queryTask === "qa") {
+        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({
+          video_name,
+          frame_idx,
+          answer: "",
+        })); //!!!!
         setCurrentList(newListQA);
-
-      } else if (queryTask === 'trake') { // need redesign logic
+      } else if (queryTask === "trake") {
+        // need redesign logic
         // Group frames by video and store as { video_name, frames: [...] }
         const videoToFrames = {};
         newListKIS.forEach(({ video_name, frame_idx }) => {
           if (!videoToFrames[video_name]) videoToFrames[video_name] = [];
           videoToFrames[video_name].push(frame_idx);
         });
-        const newTrakeList = Object.entries(videoToFrames).map(([video, frames]) => ({
-          video_name: video,
-          frames: frames.sort((a, b) => a - b)
-        }));
+        const newTrakeList = Object.entries(videoToFrames).map(
+          ([video, frames]) => ({
+            video_name: video,
+            frames: frames.sort((a, b) => a - b),
+          })
+        );
         setCurrentList(newTrakeList);
       }
       return;
     }
-  }
+  };
 
   // Clear submitted frames for current task
   const handleClearSubmissions = (callback) => {
@@ -250,8 +262,7 @@ function App() {
       // Execute callback after state update
       setTimeout(callback, 0);
     }
-  }
-
+  };
 
   return (
     <div className="main-container">
@@ -261,7 +272,7 @@ function App() {
         onClear={handleClear}
         resultCount={searchResults.length}
       />
-      
+
       <ResultsPanel
         searchResults={searchResults}
         onOpenVideoPlayer={openVideoPlayer}
@@ -271,7 +282,7 @@ function App() {
         onOpenSliderModal={openSliderModal}
       />
 
-      <SubmitPanel 
+      <SubmitPanel
         query={query}
         setQuery={setQuery}
         queryId={queryId}
@@ -293,7 +304,7 @@ function App() {
           onSubmitFrame={handleSubmitFrame}
         />
       )}
-      
+
       {showFrameModal && selectedFrame && (
         <FrameModal
           frameData={selectedFrame}
@@ -313,23 +324,21 @@ function App() {
         />
       )}
     </div>
-  )
+  );
 }
-
-
 
 // Group results by video name
 function groupResultsByVideo(results) {
-  const grouped = {}
-  
-  results.forEach(result => {
+  const grouped = {};
+
+  results.forEach((result) => {
     if (!grouped[result.video_name]) {
-      grouped[result.video_name] = []
+      grouped[result.video_name] = [];
     }
-    grouped[result.video_name].push(result)
-  })
-  
-  return grouped
+    grouped[result.video_name].push(result);
+  });
+
+  return grouped;
 }
 
 export default App;
