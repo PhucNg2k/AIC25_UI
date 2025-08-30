@@ -279,6 +279,10 @@
     align-items: center;
 }
 
+.trake-video-row.interpolated-row {
+    grid-template-columns: 1fr 2fr;
+}
+
 .trake-video-row:hover {
     background: #f8f9fa;
 }
@@ -309,6 +313,10 @@
     align-items: center;
     justify-content: center;
     border-right: 1px solid #e9ecef;
+}
+
+.trake-video-row.interpolated-row .trake-frames-list {
+    border-right: none;
 }
 
 .trake-frame-item {
@@ -352,6 +360,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+}
+
+.interpolate-btn {
+    padding: 6px 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.interpolate-btn:hover {
+    background: #218838;
 }
 
 .remove-video-btn {

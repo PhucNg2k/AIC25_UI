@@ -178,18 +178,25 @@ function App() {
           setCurrentList((prev) => [...prev, newFrame]);
         }
       } else if (queryTask === "trake") {
-        const existingVideoEntry = currentList.find(
-          (entry) => entry.video_name === video_name
-        );
-        if (existingVideoEntry) {
-          if (!existingVideoEntry.frames.includes(frame_idx)) {
-            existingVideoEntry.frames.push(frame_idx);
-            existingVideoEntry.frames.sort((a, b) => a - b);
-            setCurrentList((prev) => [...prev]);
-          }
-        } else {
+        // For TRAKE task, all frames must come from the same video
+        if (currentList.length === 0) {
+          // First frame submission - create new entry
           const newEntry = { video_name, frames: [frame_idx] };
           setCurrentList((prev) => [...prev, newEntry]);
+        } else {
+          // Check if this frame is from the same video as existing frames
+          const firstVideoEntry = currentList[0];
+          if (firstVideoEntry.video_name !== video_name) {
+            alert(`❌ TRAKE Task Error!\n\nAll frames must come from the same video.\n\nYou already have frames from: ${firstVideoEntry.video_name}\nThis frame is from: ${video_name}\n\nPlease select frames only from: ${firstVideoEntry.video_name}`);
+            return;
+          }
+          
+          // Same video - add frame to existing entry
+          if (!firstVideoEntry.frames.includes(frame_idx)) {
+            firstVideoEntry.frames.push(frame_idx);
+            firstVideoEntry.frames.sort((a, b) => a - b);
+            setCurrentList((prev) => [...prev]);
+          }
         }
       }
       return;
