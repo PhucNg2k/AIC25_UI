@@ -1,5 +1,41 @@
+import { useState, useEffect, useRef } from 'react'
+
 export default function SliderControl({ relatedFrames, currentIndex, onIndexChange, onSubmitFrame, submitMode, onClearSubmissions }) {
-  
+  const [isAutoScanning, setIsAutoScanning] = useState(false)
+  const [scanDirection, setScanDirection] = useState(1) // 1 for right, -1 for left
+  const autoScanIntervalRef = useRef(null)
+
+  // Auto-scan effect
+  useEffect(() => {
+    if (isAutoScanning) {
+      autoScanIntervalRef.current = setInterval(() => {
+        let newIndex = currentIndex + 1
+        
+        // Check if we hit the end and need to restart from beginning
+        if (newIndex >= relatedFrames.length) {
+          newIndex = 0 // Restart from beginning
+        }
+        
+        onIndexChange(newIndex)
+      }, 50) // Move every 500ms
+    } else {
+      if (autoScanIntervalRef.current) {
+        clearInterval(autoScanIntervalRef.current)
+        autoScanIntervalRef.current = null
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (autoScanIntervalRef.current) {
+        clearInterval(autoScanIntervalRef.current)
+      }
+    }
+  }, [isAutoScanning, currentIndex, relatedFrames.length, onIndexChange])
+
+  const toggleAutoScan = () => {
+    setIsAutoScanning(!isAutoScanning)
+  }
 
   const handleSliderChange = (event) => {
     const newIndex = parseInt(event.target.value) - 1
@@ -53,6 +89,14 @@ export default function SliderControl({ relatedFrames, currentIndex, onIndexChan
       
       <div className="control-placeholder">
         <div className="slidecontainer">
+          <button 
+            className={`auto-scan-btn ${isAutoScanning ? 'scanning' : ''}`}
+            onClick={toggleAutoScan}
+            title={isAutoScanning ? 'Stop auto-scanning' : 'Start auto-scanning'}
+          >
+            {isAutoScanning ? '⏸️ Stop' : '▶️ Auto-Scan'}
+          </button>
+          
           <input 
             type="range" 
             min="1" 
@@ -69,6 +113,7 @@ export default function SliderControl({ relatedFrames, currentIndex, onIndexChan
           <button 
             className="submit-frames-btn" 
             onClick={handleSubmitFrames}
+            disabled={isAutoScanning}
           >
             {submitMode === 'manual' ? 'Submit This Frame' : 'Submit Moment From This Frame'}
           </button>
@@ -76,6 +121,7 @@ export default function SliderControl({ relatedFrames, currentIndex, onIndexChan
           <button 
             className="submit-all-frames-btn" 
             onClick={handleSubmitAllFrames}
+            disabled={isAutoScanning}
           >
             Submit Frameset
           </button>

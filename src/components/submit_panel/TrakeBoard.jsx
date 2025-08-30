@@ -23,6 +23,12 @@ function TrakeBoard({ submitType, submittedFrames, setSubmittedFrames }) {
     };
 
     const handleInterpolate = (videoIndex) => {
+        // Check if we already have 100 frames
+        if (submittedFrames.length >= 100) {
+            alert('❌ TRAKE Task Limit Reached!\n\nYou already have 100 frame combinations.\n\nPlease remove some frames or clear all submissions before interpolating again.');
+            return;
+        }
+
         const videoEntry = submittedFrames[videoIndex];
         if (!videoEntry || videoEntry.frames.length === 0) {
             alert('No frames to interpolate');
@@ -50,7 +56,7 @@ function TrakeBoard({ submitType, submittedFrames, setSubmittedFrames }) {
             return newFrames;
         });
 
-        alert(`Generated ${interpolatedFrames.length} frame combinations for ${videoEntry.video_name}`);
+        //alert(`Generated ${interpolatedFrames.length} frame combinations for ${videoEntry.video_name}`);
     };
 
     return (
