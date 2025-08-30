@@ -12,6 +12,31 @@
     flex-direction: column;
     gap: 20px;
     height: 100vh; /* Full height */
+    /* Allow content to expand beyond viewport height */
+    min-height: 100vh;
+    max-height: none;
+}
+
+/* Ensure SearchModal components can expand fully */
+.search-panel .search-modal {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+}
+
+.search-panel .search-container {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+}
+
+.search-panel .search-input-group {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
 }
 
 /* Utility classes */

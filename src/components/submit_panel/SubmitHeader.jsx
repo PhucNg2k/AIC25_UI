@@ -5,11 +5,43 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
     const [inputValue, setInputValue] = useState('')
     const [queryIdInput, setQueryIdInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
+    const [selectedFile, setSelectedFile] = useState(null)
 
     const handleEdit = () => {
         setInputValue(query || '')
         setQueryIdInput(queryId || '')
         setIsEditing(true)
+        setSelectedFile(null)
+    }
+
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0]
+        if (file && file.type === 'text/plain') {
+            setSelectedFile(file)
+            
+            // Extract filename without extension for query ID
+            const filename = file.name
+            const lastDot = filename.lastIndexOf('.')
+            const queryIdFromFile = lastDot > 0 ? filename.slice(0, lastDot) : filename
+            setQueryIdInput(queryIdFromFile)
+            
+            // Parse file content for query
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const content = e.target.result
+                setInputValue(content.trim())
+            }
+            reader.readAsText(file)
+            
+            // Determine task from the last token
+            const parts = queryIdFromFile.split(/[-\s_]+/).filter(Boolean)
+            const lastToken = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : ''
+            if (['kis', 'qa', 'trake'].includes(lastToken)) {
+                setQueryTask(lastToken)
+            }
+        } else {
+            alert('Please select a valid text file (.txt)')
+        }
     }
 
     const handleSave = () => {
@@ -27,17 +59,22 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
         const parts = qidRaw.split(/[-\s_]+/).filter(Boolean)
         const lastToken = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : ''
         if (['kis', 'qa', 'trake'].includes(lastToken)) {
-            setQueryTask(lastToken)
+            setQueryTask(lastToken);
+            if (lastToken === 'trake' ) {
+                setSubmitType('manual');
+            }
         }
 
         setQueryId(qidRaw)
         setIsEditing(false)
+        setSelectedFile(null)
     }
 
     const handleCancel = () => {
         setInputValue('')
         setQueryIdInput('')
         setIsEditing(false)
+        setSelectedFile(null)
     }
 
     const getCounterClass = () => {
@@ -50,6 +87,11 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
         // Clear all submitted frames when switching tasks
         onClearSubmissions();
         setQueryTask(newTask);
+    }
+
+    const lockManual = (taskName) => {
+        setSubmitType('manual');
+        handleTaskSwitch(taskName);
     }
 
     return (
@@ -76,7 +118,7 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                 </button>
                 <button 
                     className={`submit-option-btn ${queryTask === 'trake' ? 'active' : ''}`} 
-                    onClick={() => handleTaskSwitch('trake')}
+                    onClick={() => lockManual('trake')}
                 >
                     TRAKE
                 </button>
@@ -92,13 +134,15 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                     >
                         Manual
                     </button>
-                    <button
-                        className={`mode-btn ${submitType === 'auto' ? 'active' : ''}`}
-                        onClick={() => setSubmitType('auto')}
-                        title="Auto submit mode"
-                    >
-                        Auto
-                    </button>
+                    {queryTask !== 'trake' &&
+                        <button
+                            className={`mode-btn ${submitType === 'auto' ? 'active' : ''}`}
+                            onClick={() => setSubmitType('auto')}
+                            title="Auto submit mode"
+                        >
+                            Auto
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -130,24 +174,33 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                     <div className="query-edit-container">
                         <div className="input-field">
                             <label htmlFor="submit-query-id">Query ID:</label>
-                            <input 
-                                id="submit-query-id"
-                                type="text"
-                                placeholder="Enter query ID (e.g., query-2-kis)..."
-                                value={queryIdInput}
-                                onChange={(e) => setQueryIdInput(e.target.value)}
-                                className="query-id-input"
-                            />
+                            <div className="file-upload-container">
+                                <input 
+                                    id="submit-query-id"
+                                    type="file"
+                                    accept=".txt"
+                                    onChange={handleFileUpload}
+                                    className="file-input"
+                                />
+                                <label htmlFor="submit-query-id" className="file-upload-label">
+                                    {selectedFile ? selectedFile.name : "Choose a .txt file"}
+                                </label>
+                                {selectedFile && (
+                                    <span className="file-info">
+                                        ✓ {selectedFile.name}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <div className="input-field">
                             <label htmlFor="submit-query">Query:</label>
                             <textarea 
                                 id="submit-query"
-                                placeholder="Enter your query for these frames..."
+                                placeholder="Query content will be auto-filled from uploaded file..."
                                 value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
                                 className="query-textarea"
                                 rows={3}
+                                readOnly={selectedFile !== null}
                             />
                         </div>
                         <div className="query-actions">

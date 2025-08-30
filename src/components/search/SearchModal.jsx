@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../../styles/SearchModal.css'
 
 function SearchModal({ 
@@ -10,6 +10,8 @@ function SearchModal({
   resetTrigger
 }) {
   const [inputValue, setInputValue] = useState("")
+  const [isFocused, setIsFocused] = useState(false)
+  const textareaRef = useRef(null)
 
   // Reset input when resetTrigger changes
   useEffect(() => {
@@ -27,6 +29,20 @@ function SearchModal({
     updateInput(type, { value: value })
   }
 
+  const handleFocus = () => {
+    setIsFocused(true)
+    // Focus the textarea after state update
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+      }
+    }, 0)
+  }
+
+  const handleBlur = () => {
+    setIsFocused(false)
+  }
+
   return (
     <div className="search-modal">
       <div className="search-header">
@@ -37,14 +53,30 @@ function SearchModal({
       <div className="search-container">
         <div className="search-input-group">
           <label htmlFor={`search-input-${type}`}>Search Query</label>
-          <input 
-            type="text" 
-            id={`search-input-${type}`}
-            placeholder={placeholder}
-            autoComplete="off"
-            value={inputValue}
-            onChange={handleInputChange}
-          />
+          
+          {!isFocused ? (
+            // Display mode - show full content in a div
+            <div 
+              className="search-display"
+              onClick={handleFocus}
+            >
+              {inputValue || placeholder}
+            </div>
+          ) : (
+            // Edit mode - normal textarea
+            <textarea 
+              ref={textareaRef}
+              id={`search-input-${type}`}
+              placeholder={placeholder}
+              autoComplete="off"
+              value={inputValue}
+              onChange={handleInputChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              rows={3}
+              className="search-textarea"
+            />
+          )}
         </div>
       </div>
     </div>

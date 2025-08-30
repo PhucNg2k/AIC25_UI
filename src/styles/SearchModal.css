@@ -8,6 +8,9 @@
     margin-bottom: 12px;
     border: 1px solid #e1e5e9;
     transition: all 0.2s ease;
+    /* Remove any height constraints */
+    height: auto;
+    min-height: auto;
 }
 
 .search-modal:hover {
@@ -36,10 +39,16 @@
 /* Search Input Section */
 .search-container {
     margin-bottom: 0;
+    /* Remove any height constraints */
+    height: auto;
+    min-height: auto;
 }
 
 .search-input-group {
     margin-bottom: 0;
+    /* Remove any height constraints */
+    height: auto;
+    min-height: auto;
 }
 
 .search-input-group label {
@@ -74,6 +83,81 @@ input[id^="search-input-"]::placeholder {
     color: #9ca3af;
     font-style: italic;
     font-size: 12px;
+}
+
+/* Search Display Mode - shows full content when not editing */
+.search-display {
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 13px;
+    line-height: 1.4;
+    min-height: 35px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-display:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+/* Textarea styling for search inputs */
+.search-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    box-sizing: border-box;
+    font-family: inherit;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 80px;
+    /* Ensure textarea can expand without constraints */
+    height: auto;
+    max-height: none;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.search-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.search-textarea::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Focused state - normal textarea behavior */
+.search-textarea.focused {
+    overflow: auto;
+    resize: vertical;
+    min-height: 80px;
+    height: auto;
+}
+
+/* Unfocused state - show full content without scrollbars */
+.search-textarea.unfocused {
+    overflow: hidden;
+    resize: none;
+    height: auto;
+    /* Ensure content is fully visible */
+    max-height: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* File input styling */
@@ -130,5 +214,17 @@ input[id^="search-input-"][type="file"]::-webkit-file-upload-button:hover {
     input[id^="search-input-"] {
         padding: 6px 10px;
         font-size: 12px;
+    }
+    
+    .search-textarea {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-height: 70px;
+    }
+    
+    .search-display {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-height: 30px;
     }
 }
