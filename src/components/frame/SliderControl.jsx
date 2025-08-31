@@ -57,7 +57,6 @@ export default function SliderControl({ relatedFrames, currentIndex, onIndexChan
     const currentFrameData = {
       video_name: relatedFrames[currentIndex].split("/")[1],
       frame_idx: parseInt(relatedFrames[currentIndex].split("/")[2].match(/f(\d+)\.webp/)[1], 10),
-      image_path: relatedFrames[currentIndex]
     }
     onSubmitFrame(currentFrameData);
   }

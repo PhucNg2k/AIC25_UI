@@ -148,7 +148,7 @@ function App() {
 
   // Submit frame handler - handles different task types
   const handleSubmitFrame = (frameData, isFrameset = false) => {
-    let { video_name, frame_idx, image_path } = frameData;
+    let { video_name, frame_idx } = frameData;
 
     if (currentList.length >= 100) {
       //alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
@@ -203,17 +203,15 @@ function App() {
     }
 
     // Auto mode: replace current submissions with 100 related keyframes from the same video
-    let step = null;
+    
 
     if (submitType === "auto") {
-      if (true) {
-        let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
-
-        image_path = `Video/${video_name}/${fname}`;
-        step = 3;
-      }
-
-      const related = get_related_keyframe(image_path, step, true);
+    
+      let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
+      let image_path = `Video/${video_name}/${fname}`;
+      let step = 5;
+      
+      const related = get_related_keyframe(image_path, step, true); // interpolate, sorted
       if (!related || related.length === 0) {
         console.error("No related keyframes found for image:", image_path);
         return;

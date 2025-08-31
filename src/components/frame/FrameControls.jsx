@@ -3,8 +3,9 @@ import {get_related_keyframe} from "../../utils/frame_submission"
 export default function FrameControls({ onSubmitFrame, onViewFrame, onViewVideo, displayMode, image_path, onOpenSliderModal }) {
     
     const openSliderModal = () => {
-        const frames = get_related_keyframe(image_path,null,false);
+        const frames = get_related_keyframe(image_path,null,false); // grouped keyframes, no sort
         onOpenSliderModal(frames, image_path)
+
     };
 
     const handleFullview = () => {

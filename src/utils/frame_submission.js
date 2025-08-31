@@ -1,3 +1,5 @@
+
+
 let grouped_keyframes_metadata = {};
 
 // Load video metadata from JSON file
@@ -20,6 +22,9 @@ export async function loadGroupedKeyframesMetadata() {
  *   [0, -1, +1, -2, +2, ...]
  * Bounded by n_before / n_after.
  */
+
+
+
 function buildInterleavedOffsets(n_before, n_after) {
   const offsets = [0];
   const maxK = Math.max(n_before, n_after);
@@ -30,9 +35,29 @@ function buildInterleavedOffsets(n_before, n_after) {
   return offsets;
 }
 
+const TOP_AT_R = [1, 5, 20, 100];
+
+function buildSubmissionPattern(step) {
+  // Gradually expanding pattern: 0 -> ±1 -> ±2 -> ±3 -> ... until 100 frames
+  // This creates a natural progression from narrow to wide temporal coverage
+  
+  const offsets = [];
+  
+  for (let idx=0; idx <= 50; idx++) {
+    if (idx===0){
+      offsets.push(idx);
+      continue;
+    }
+    offsets.push(idx);
+    offsets.push(-idx);
+  }
+
+  return offsets.slice(0, 100);
+}
+
 export function get_related_keyframe(
   image_path,
-  step=3,
+  step=0,
   sorted=false,
   n_before = 19,
   n_after = 80
@@ -51,10 +76,7 @@ export function get_related_keyframe(
   const video_name = parts[parts.length - 2]; // L28_V023
   const key_name = parts[parts.length - 3]; // Videos_L28_a
 
-  // Build the alternating proximity order once
-  const offsets = buildInterleavedOffsets(n_before, n_after);
-
-  if (step >= 1) {
+  if (step >= 1) { // KEYFRAMES SUBMISSION - interpolate other frames id
     // -------- Exact numeric frames with stride = step --------
     const match = frame_id_str.match(/f(\d+)\.webp/);
     if (!match) {
@@ -65,14 +87,15 @@ export function get_related_keyframe(
     const frame_id = parseInt(match[1], 10);
     result_frameList_fname = [];
 
-    if (sorted) {
+    if (sorted) { // Submission pattern for video retrieval optimization
+      const offsets = buildSubmissionPattern(step);
       for (const off of offsets) {
-        const new_id = frame_id + off * step;
+        const new_id = frame_id + off;
         if (new_id < 0) continue; // skip negatives
         result_frameList_fname.push(`f${String(new_id).padStart(6, "0")}.webp`);
       }
-    } else {
-        // Generate frames before
+    } else { // no sort, just get n_before, self, n_after
+        // gen frames before
         for (let i = n_before; i >= 1; i--) {
             const new_id = frame_id - i * step;
             if (new_id >= 0) {
@@ -83,17 +106,16 @@ export function get_related_keyframe(
         // Include current frame
         result_frameList_fname.push(`f${String(frame_id).padStart(6, '0')}.webp`);
 
-        // Generate frames after
+        // Gen frames after
         for (let i = 1; i <= n_after; i++) {
             const new_id = frame_id + i * step;
             result_frameList_fname.push(`f${String(new_id).padStart(6, '0')}.webp`);
         }
     }
 
-  } else {
-    // -------- Use precomputed keyframe list from metadata --------
+  } else { 
+    // -------- Use precomputed keyframe list --------
     const framesList = grouped_keyframes_metadata?.[key_name]?.[video_name] || null;
-
 
     const currentIndex = framesList.findIndex((f) => f === frame_id_str);
     if (currentIndex === -1) {
@@ -101,20 +123,21 @@ export function get_related_keyframe(
       return null;
     }
 
-    if (sorted) {
-      
+    if (sorted) { // push chosen frame to top
+      // Build the alternating proximity order for keyframe metadata
+      const offsets = buildInterleavedOffsets(n_before, n_after);
       // Filter offsets to those that land inside the list
       const inBounds = offsets
-      .map((off) => currentIndex + off)
-      .filter((idx) => idx >= 0 && idx < framesList.length);
+        .map((off) => currentIndex + off)
+        .filter((idx) => idx >= 0 && idx < framesList.length);
       
       // If you want to cap to exactly (n_before + n_after + 1), slice here:
       const targetCount = n_before + n_after + 1;
       const chosen = inBounds.slice(0, targetCount);
       
       result_frameList_fname = chosen.map((idx) => framesList[idx]);
-    } else {
-      // Calculate initial start and end indices
+    } else { // KEYFRAMES SLIDER
+
       let startIndex = Math.max(0, currentIndex - n_before);
       let endIndex = Math.min(framesList.length, currentIndex + n_after + 1);
       
