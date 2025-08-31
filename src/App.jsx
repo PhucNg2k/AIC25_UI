@@ -17,6 +17,38 @@ import { searchMultiModalAPI } from "./utils/searching";
 import { getFramePath, getMetadataKey } from "./utils/metadata";
 import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
+// Add new function
+const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+
+function extractFrameNumber(relPath) {
+  const fname = relPath.split("/").pop(); // f008856.webp
+  return parseInt(fname.replace(/^f/, "").replace(/\.webp$/, ""), 10);
+}
+
+function toCenteredWindow(frames, currentFullPath) {
+  // Convert full path -> relative ("Videos_XX/Video_Y/fnnn.webp")
+  const rel = currentFullPath.startsWith(BASE_DATA_PATH + "/")
+    ? currentFullPath.slice(BASE_DATA_PATH.length + 1)
+    : currentFullPath;
+  const [keyName, videoName, fileName] = rel.split("/");
+
+  // Keep only frames from the same video, then sort by numeric index
+  const sameVideo = frames.filter((f) =>
+    f.startsWith(`${keyName}/${videoName}/`)
+  );
+  const sorted = sameVideo
+    .slice()
+    .sort((a, b) => extractFrameNumber(a) - extractFrameNumber(b));
+
+  // Index of the clicked frame in the sorted window
+  const idx = sorted.findIndex(
+    (f) => f === `${keyName}/${videoName}/${fileName}`
+  );
+  return { frames: sorted, index: idx >= 0 ? idx : 0 };
+}
+
+//
+
 function App() {
   // State management
   const [searchResults, setSearchResults] = useState([]);
@@ -126,14 +158,24 @@ function App() {
   };
 
   // Open slider modal
+  // const openSliderModal = (frames, currentImagePath) => {
+  //   setSliderFrames(frames);
+  //   setShowSliderModal(true);
+  //   const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+  //   const frameIndex = frames.findIndex(
+  //     (f) => `${BASE_DATA_PATH}/${f}` === currentImagePath
+  //   );
+  //   setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
+
+  // };
   const openSliderModal = (frames, currentImagePath) => {
-    setSliderFrames(frames);
-    setShowSliderModal(true);
-    const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
-    const frameIndex = frames.findIndex(
-      (f) => `${BASE_DATA_PATH}/${f}` === currentImagePath
+    const { frames: displayFrames, index } = toCenteredWindow(
+      frames,
+      currentImagePath
     );
-    setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
+    setSliderFrames(displayFrames);
+    setShowSliderModal(true);
+    setSliderFrameIdx(index); // lands on current, so you have 19 left / 80 right
   };
 
   // Submit frame handler - handles different task types
