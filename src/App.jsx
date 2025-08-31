@@ -98,7 +98,7 @@ function App() {
       // Process and display results
       if (results && results.length > 0) {
         setSearchResults(results);
-
+        console.log(results);
         // Group results by video and create video list for navigation
 
         // Spread all frames into one flat list
@@ -284,6 +284,7 @@ function App() {
         onOpenFrameModal={openFrameModal}
         currentFramesList={currentFramesList}
         onSubmitFrame={handleSubmitFrame}
+        setSearchResults={setSearchResults}
         onOpenSliderModal={openSliderModal}
       />
 

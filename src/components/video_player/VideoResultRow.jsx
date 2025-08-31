@@ -10,7 +10,8 @@ function VideoResultRow({
   currentFramesList,
   onSubmitFrame,
   displayMode,
-  onOpenSliderModal
+  onOpenSliderModal,
+  onDeleteVideo
 }) {
   // Sort frames by frame_idx in ascending order
   const sortedFrames = [...frames].sort((a, b) => parseInt(a.frame_idx) - parseInt(b.frame_idx))
@@ -20,11 +21,24 @@ function VideoResultRow({
     frame.score > max.score ? frame : max, frames[0]
   )
 
+  const handleDeleteVideo = () => {
+    if (onDeleteVideo) {
+      onDeleteVideo(videoName);
+    }
+  }
+
   return (
     <div className="video-result-row">
       <div className="video-header">
         <h3 className="video-title">{videoName}</h3>
         <span className="frame-count">{frames.length} frame{frames.length > 1 ? 's' : ''}</span>
+        <button 
+          className="delete-video-btn"
+          onClick={handleDeleteVideo}
+          title="Delete this video group"
+        >
+          🗑️
+        </button>
       </div>
       <div className="frames-container">
         {sortedFrames.map((frame, index) => (

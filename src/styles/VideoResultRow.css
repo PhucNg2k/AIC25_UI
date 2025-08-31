@@ -37,6 +37,30 @@
     font-weight: 500;
 }
 
+.delete-video-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: white;
+}
+
+.delete-video-btn:hover {
+    background: rgba(255, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.delete-video-btn:active {
+    transform: scale(0.95);
+}
+
 /* Frames Container */
 .frames-container {
     padding: 12px;

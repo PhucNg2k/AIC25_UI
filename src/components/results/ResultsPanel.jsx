@@ -6,6 +6,7 @@ import '../../styles/ResultsPanel.css'
 
 function ResultsPanel({ 
   searchResults, 
+  setSearchResults,
   videoMetadata, 
   onOpenVideoPlayer, 
   onOpenFrameModal, 
@@ -29,7 +30,38 @@ function ResultsPanel({
     return grouped
   }
 
-  const groupedResults = searchResults.length > 0 ? groupResultsByVideo(searchResults) : {}
+  function reparse_from_group(groupedResults) {
+    let results = [];
+    
+    // Iterate through each video group
+    Object.entries(groupedResults).forEach(([videoName, frames]) => {
+      // Add each frame from this video group to the results array
+      frames.forEach(frame => {
+        results.push(frame);
+      });
+    });
+    
+    return results;
+  }
+
+  const handleUpdateResults = (groupedResults) => {
+    let results = reparse_from_group(groupedResults);
+    setSearchResults(results);
+    // Implementation for updating results
+    console.log('Update results functionality');
+  }
+
+  const handleDeleteVideo = (videoName) => {
+    // Remove the video from groupedResults
+    const updatedGroupedResults = { ...groupedResults };
+    delete updatedGroupedResults[videoName];
+    
+    // Convert back to flat array and re-sort by score to maintain correct ranking
+    const results = reparse_from_group(updatedGroupedResults);
+    const sortedResults = results.sort((a, b) => b.score - a.score);
+    setSearchResults(sortedResults);
+  }
+  
 
   const renderNoResults = () => {
     return (
@@ -61,7 +93,7 @@ function ResultsPanel({
       </div>
     )
   }
-
+  const groupedResults = searchResults.length > 0 ? groupResultsByVideo(searchResults) : {}
   const renderGroupedDisplay = () => {
     return Object.entries(groupedResults).map(([videoName, frames]) => (
       <VideoResultRow
@@ -75,6 +107,7 @@ function ResultsPanel({
         onSubmitFrame={onSubmitFrame}
         displayMode={displayMode}
         onOpenSliderModal={onOpenSliderModal}
+        onDeleteVideo={handleDeleteVideo}
       />
     ))
   }
