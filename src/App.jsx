@@ -13,11 +13,8 @@ import {
   get_related_keyframe,
 } from "./utils/frame_submission";
 
-import {
-  searchImagesMock,
-  searchImagesAPI,
-  searchMultiModalAPI,
-} from "./utils/searching";
+import { searchMultiModalAPI } from "./utils/searching";
+
 import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
 function App() {

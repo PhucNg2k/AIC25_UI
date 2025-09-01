@@ -44,13 +44,6 @@ function ResultsPanel({
     return results;
   }
 
-  const handleUpdateResults = (groupedResults) => {
-    let results = reparse_from_group(groupedResults);
-    setSearchResults(results);
-    // Implementation for updating results
-    console.log('Update results functionality');
-  }
-
   const handleDeleteVideo = (videoName) => {
     // Remove the video from groupedResults
     const updatedGroupedResults = { ...groupedResults };
