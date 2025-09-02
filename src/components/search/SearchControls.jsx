@@ -9,11 +9,7 @@ function SearchControls({
 }) {
   const [localMaxResults, setLocalMaxResults] = useState(100)
 
-  const hasValidSearchData = () => {
-    return Object.values(searchData).some(typeData => 
-      typeData && typeData.value && typeData.value.trim()
-    )
-  }
+  const hasValidSearchData = () => Object.keys(searchData).length > 0
 
   const handleSearch = () => {
     if (hasValidSearchData()) {

@@ -75,10 +75,8 @@ function App() {
   const handleSearchResults = async (searchData, maxResults) => {
     console.log("SEARCH REQUEST\n", searchData);
 
-    // Check if any search modality has data
-    const hasSearchData = Object.values(searchData).some(
-      (modalData) => modalData && modalData.value && modalData.value.trim()
-    );
+    // Check that at least one modality is present
+    const hasSearchData = Object.keys(searchData).length > 0;
 
     if (!hasSearchData) {
       alert("Please enter at least one search query");

@@ -1,4 +1,5 @@
 import SearchModal from "./SearchModal";
+import ImageSearchModal from "./ImageSearchModal";
 import SearchControls from "./SearchControls";
 import "../../styles/SearchPanel.css";
 import { useState, useCallback } from "react";
@@ -14,8 +15,14 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
       if (inputData === null) {
         // Remove the key if inputData is explicitly null (reset case)
         delete newData[type];
-      } else if (inputData && inputData.value && inputData.value.trim()) {
-        // Add or update the key if value is not empty
+      } else if (
+        // Text-like modalities must have a trimmed value
+        (inputData && inputData.value && inputData.value.trim()) ||
+        // Image modality can be any of the supported forms
+        (type === 'img' && inputData && (
+          inputData.file || inputData.blob || inputData.dataUrl || inputData.url
+        ))
+      ) {
         newData[type] = inputData;
       } else if (prev[type]) {
         // Only remove the key if it existed before and now becomes empty
@@ -62,6 +69,15 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
         title="Location Search"
         description="Search by location or place names"
         placeholder="e.g., vietnam"
+        resetTrigger={resetTrigger}
+      />
+
+      {/* Image Search Modal */}
+      <ImageSearchModal
+        updateInput={updateInput}
+        type="img"
+        title="Image Search"
+        description="Upload a reference image"
         resetTrigger={resetTrigger}
       />
 
