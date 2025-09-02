@@ -46,6 +46,7 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
       }
       return
     }
+    
     setFileName(file.name)
     const localUrl = URL.createObjectURL(file)
     setPreviewUrl(localUrl)

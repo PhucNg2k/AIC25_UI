@@ -4,17 +4,21 @@ import '../../styles/SearchControls.css'
 function SearchControls({ 
   searchData,
   onSearch,
+  // updateInput is not used here but kept for future extension
+  updateInput,
   onClear, 
   isLoading
 }) {
   const [localMaxResults, setLocalMaxResults] = useState(100)
+  const [localIntersect, setLocalIntersect] = useState(false)
 
   const hasValidSearchData = () => Object.keys(searchData).length > 0
 
   const handleSearch = () => {
     if (hasValidSearchData()) {
-      // Call the search function from parent with searchData and maxResults
-      onSearch(searchData, localMaxResults)
+      // Include intersect flag in the payload
+      const payload = { ...searchData, intersect: localIntersect }
+      onSearch(payload, localMaxResults)
     }
   }
 
@@ -39,6 +43,16 @@ function SearchControls({
             <option value="200">200</option>
             <option value="300">300</option>
           </select>
+        </div>
+        <div className="intersect-center-row">
+          <button
+            type="button"
+            className={`btn-toggle-plain ${localIntersect ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setLocalIntersect((v) => !v)}
+            disabled={isLoading}
+          >
+            Intersect
+          </button>
         </div>
       </div>
       

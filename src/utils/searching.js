@@ -2,6 +2,7 @@
 // New multi-modal search API function (multipart/form-data)
 async function searchMultiModalAPI(searchData, maxResults=100) {
     if (!searchData) {
+        alert("Form request must not be empty!");
         return;
     }
 
@@ -44,6 +45,9 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
             formData.append('img_url', img.url);
         }
     }
+    if (Object.prototype.hasOwnProperty.call(searchData, 'intersect')) {
+        formData.append('intersect', String(Boolean(searchData.intersect)));
+    }
     
     const response = await fetch('http://localhost:8000/search-entry', {
         method: 'POST',
@@ -60,6 +64,7 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
     }
     
     const data = await response.json();
+    
     if (!data.success) {
         throw new Error(data.message || 'Multi-modal search failed');
     }

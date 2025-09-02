@@ -57,6 +57,27 @@
     justify-content: center;
     gap: 8px;
 }
+.intersect-center-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.btn-toggle-plain {
+    box-shadow: none !important;
+    transform: none !important;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-toggle-plain.btn-secondary:hover:not(:disabled),
+.btn-toggle-plain.btn-primary:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-toggle-plain:active:not(:disabled) {
+    filter: brightness(0.97);
+}
 
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

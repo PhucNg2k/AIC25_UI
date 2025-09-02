@@ -43,6 +43,11 @@ function SearchModal({
     setIsFocused(false)
   }
 
+  const handleClear = () => {
+    setInputValue("")
+    updateInput(type, null)
+  }
+
   return (
     <div className="search-modal">
       <div className="search-header">
@@ -77,6 +82,18 @@ function SearchModal({
               className="search-textarea"
             />
           )}
+          {inputValue ? (
+            <div style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleClear}
+                style={{ padding: '4px 8px', fontSize: 12 }}
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

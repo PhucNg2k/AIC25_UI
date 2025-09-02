@@ -52,6 +52,15 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
         resetTrigger={resetTrigger}
       />
 
+      {/* Image Search Modal */}
+      <ImageSearchModal
+        updateInput={updateInput}
+        type="img"
+        title="Image Search"
+        description="Upload a reference image"
+        resetTrigger={resetTrigger}
+      />
+
       {/* OCR Search Modal */}
       <SearchModal
         updateInput={updateInput}
@@ -72,19 +81,13 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
         resetTrigger={resetTrigger}
       />
 
-      {/* Image Search Modal */}
-      <ImageSearchModal
-        updateInput={updateInput}
-        type="img"
-        title="Image Search"
-        description="Upload a reference image"
-        resetTrigger={resetTrigger}
-      />
+      
 
       {/* Search Controls */}
       <SearchControls
         searchData={searchData}
         onSearch={onSearch}
+        updateInput={updateInput}
         onClear={handleClear}
         isLoading={isLoading}
       />
