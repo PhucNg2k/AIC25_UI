@@ -28,6 +28,7 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
     } catch (error) {
       console.error('Failed to fetch by video name:', error)
     }
+    setVideoName('');
   }
   
 
