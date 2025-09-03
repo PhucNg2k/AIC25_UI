@@ -1,18 +1,54 @@
+import { useState } from 'react'
 import '../../styles/ResultsHeader.css'
 
-function ResultsHeader({ searchResults, displayMode, setDisplayMode }) {
+function ResultsHeader({ searchResults, setSearchResults, displayMode, setDisplayMode }) {
+  const [videoName, setVideoName] = useState('')
+
   const getSummaryText = () => {
     if (searchResults.length > 0) {
       return `Search results (${searchResults.length} frames found)`
     }
     return 'Enter a search query to see results'
   }
+  
+  const handleFetchByVideoName = async () => {
+    if (!videoName.trim()) return
+    try {
+      const response = await fetch('http://localhost:8000/es-search/video_name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: videoName.trim().toUpperCase() })
+      })
+      const data = await response.json()
+      if (data && Array.isArray(data.results)) {
+        setSearchResults(data.results)
+      }
+    } catch (error) {
+      console.error('Failed to fetch by video name:', error)
+    }
+  }
+  
 
   return (
     <div className="results-header">
       <div className="results-header-top">
         <h2>Search Results</h2>
+
         
+        <div className="video-search-controls">
+          <label htmlFor="videoNameInput">Video name</label>
+          <input
+            id="videoNameInput"
+            type="text"
+            value={videoName}
+            onChange={(e) => setVideoName(e.target.value)}
+            placeholder="Enter video name"
+          />
+          <button className="search-btn" onClick={handleFetchByVideoName}>Search</button>
+        </div>
+
         {searchResults.length > 0 && (
           <div className="display-mode-toggle">
             <button 

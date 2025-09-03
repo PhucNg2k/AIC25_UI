@@ -111,6 +111,7 @@ function ResultsPanel({
         searchResults={searchResults}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}
+        setSearchResults={setSearchResults}
       />
 
       <div className="results-container">
