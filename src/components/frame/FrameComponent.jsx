@@ -36,9 +36,9 @@ function FrameComponent({
   const [isVideoAvailable, setIsVideoAvailable] = useState(true)
 
   const videoDuration = getVideoDuration(video_name); 
-  const timeDelta = 2;
+  const timeDelta = 1;
   const previewStart = Math.max(0, targetTime - timeDelta)
-  const previewEnd = videoDuration ? Math.min(videoDuration, targetTime + timeDelta) : targetTime + timeDelta;
+  const previewEnd = videoDuration ? Math.min(videoDuration, targetTime + timeDelta) : targetTime + timeDelta + 1.5;
 
   const handleMouseEnter = () => {
     // Start a timer to preload video after 300ms

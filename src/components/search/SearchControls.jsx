@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { validateSearchData } from '../../utils/searching.js'
 import '../../styles/SearchControls.css'
 
 function SearchControls({ 
@@ -9,9 +10,11 @@ function SearchControls({
   onClear, 
   isLoading
 }) {
-  const [localMaxResults, setLocalMaxResults] = useState(100)
+  const [localMaxResults, setLocalMaxResults] = useState(1000)
 
-  const hasValidSearchData = () => Object.keys(searchData).length > 0
+  const hasValidSearchData = () => {
+    return validateSearchData(searchData)
+  }
 
   const handleSearch = () => {
     if (hasValidSearchData()) {
@@ -35,10 +38,10 @@ function SearchControls({
             onChange={(e) => setLocalMaxResults(parseInt(e.target.value))}
             disabled={isLoading}
           >
-            <option value="100">100</option>
-            <option value="150">150</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="2000">2000</option>
           </select>
         </div>
         
@@ -47,7 +50,7 @@ function SearchControls({
       <div className="button-controls">
         <button 
           type="button" 
-          className="btn-primary"
+          className={`btn-primary ${!hasValidSearchData() ? 'btn-disabled' : ''}`}
           onClick={handleSearch}
           disabled={isLoading || !hasValidSearchData()}
         >

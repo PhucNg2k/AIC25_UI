@@ -31,7 +31,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           placeholder="e.g., a running horse"
           resetTrigger={resetTrigger}
           initialValue={stageData?.text?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.text || 0.7}
+          defaultWeightValue={stageData?.weight_dict?.text || 1.0}
         />
 
         <ImageSearchModal
@@ -41,7 +41,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           description="Upload a reference image"
           resetTrigger={resetTrigger}
           initialFile={stageData?.img?.file || null}
-          defaultWeightValue={stageData?.weight_dict?.img || 0.7}
+          defaultWeightValue={stageData?.weight_dict?.img || 1.0}
         />
 
         <SearchModal
@@ -52,7 +52,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           placeholder="e.g., green farm village"
           resetTrigger={resetTrigger}
           initialValue={stageData?.ocr?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.ocr || 0.3}
+          defaultWeightValue={stageData?.weight_dict?.ocr || 1.0}
         />
 
         <SearchModal
@@ -63,7 +63,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           placeholder="e.g., vietnam"
           resetTrigger={resetTrigger}
           initialValue={stageData?.localized?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.localized || 0.3}
+          defaultWeightValue={stageData?.weight_dict?.localized || 1.0}
         />
       </div>
     </div>

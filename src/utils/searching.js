@@ -17,6 +17,10 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
     Object.entries(searchData || {}).forEach(([stageKey, modalities]) => {
         if (!modalities || typeof modalities !== 'object') return;
         const stageObj = {};
+        
+        // Initialize weight_dict for this stage
+        stageObj.weight_dict = {};
+        
         // text-like modalities
         ['text', 'ocr', 'localized', 'asr'].forEach((mod) => {
             const entry = modalities[mod];
@@ -27,6 +31,7 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
                 }
             }
         });
+        
         // image modality
         const img = modalities.img;
         if (img) {
@@ -36,31 +41,36 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
                 const filename = file.name || 'image.jpg';
                 formData.append(fieldName, file, filename);
                 stageObj.img = { value: fieldName };
+                // Add weight for image modality
             } else if (img instanceof File || img instanceof Blob) {
                 const filename = img.name || 'image.jpg';
                 formData.append(fieldName, img, filename);
                 stageObj.img = { value: fieldName };
             }
         }
+
+        stageObj.weight_dict = modalities.weight_dict;
+                
         if (Object.keys(stageObj).length > 0) {
             stageList[stageKey] = stageObj;
         }
     });
     formData.append('stage_list', JSON.stringify(stageList));
+
     // Debug: log form-data contents (direct console.log on FormData appears empty)
+    /*
     try {
         // eslint-disable-next-line no-console
         console.log("FORM DATA ENTRIES:");
         for (const [key, value] of formData.entries()) {
             if (value instanceof File) {
-                // eslint-disable-next-line no-console
                 console.log(`${key}: <File name=${value.name} size=${value.size}>`);
             } else {
-                // eslint-disable-next-line no-console
                 console.log(`${key}:`, value);
             }
         }
     } catch (_) {}
+    */
 
     const response = await fetch('http://localhost:8000/search-entry', {
         method: 'POST',
@@ -98,4 +108,30 @@ function dataURLToBlob(dataUrl) {
     return new Blob([uint8Array], { type: mime });
 }
 
-export { searchMultiModalAPI}
+
+
+// Validation function to check if search data is valid
+function validateSearchData(searchData) {
+  if (!searchData || Object.keys(searchData).length === 0) {
+    return false;
+  }
+
+  const allStages = searchData || {};
+  let ok = true;
+  
+  // Validate stage keys are contiguous 1..N
+  const keys = Object.keys(allStages).map((k) => Number(k)).filter((n) => Number.isInteger(n) && n > 0);
+  if (keys.length > 0) {
+    const sorted = [...keys].sort((a, b) => a - b);
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i] !== i + 1) {
+        ok = false;
+        break;
+      }
+    }
+  }
+  
+  return ok;
+}
+
+export { searchMultiModalAPI, validateSearchData}

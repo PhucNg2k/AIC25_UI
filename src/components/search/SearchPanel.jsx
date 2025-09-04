@@ -184,25 +184,6 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
 
       {/* Debug - Current Search Data */}
       {(() => {
-        // validate each stage weight sum === 1 and stage keys contiguous 1..N
-        const allStages = searchData || {};
-        let ok = true;
-        Object.values(allStages).forEach((stage) => {
-          if (stage && stage.weight_dict) {
-            const sum = Object.values(stage.weight_dict).reduce((a, b) => a + Number(b || 0), 0);
-            if (Math.abs(sum - 1) > 1e-6) ok = false;
-          }
-        });
-        const keys = Object.keys(allStages).map((k) => Number(k)).filter((n) => Number.isInteger(n) && n > 0);
-        if (keys.length > 0) {
-          const sorted = [...keys].sort((a, b) => a - b);
-          for (let i = 0; i < sorted.length; i++) {
-            if (sorted[i] !== i + 1) {
-              ok = false;
-              break;
-            }
-          }
-        }
         const replacer = (key, value) => {
           // Pretty-print File/Blob objects to show name/size/type
           if (typeof File !== 'undefined' && value instanceof File) {
@@ -216,13 +197,13 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
         return (
           <div
             style={{
-              background: ok ? "#e9f7ef" : "#fbeaea",
+              background: "#e9f7ef",
               padding: "15px",
               borderRadius: "8px",
               marginTop: "20px",
               fontSize: "12px",
-              color: ok ? "#1e7e34" : "#a71d2a",
-              border: `1px solid ${ok ? '#c3e6cb' : '#f5c6cb'}`,
+              color: "#1e7e34",
+              border: "1px solid #c3e6cb",
             }}
           >
             <strong>Current Search Data (stage_list):</strong>
