@@ -7,9 +7,12 @@ function SearchModal({
   title,
   description,
   placeholder,
-  resetTrigger
+  resetTrigger,
+  defaultWeightValue,
+  initialValue = ""
 }) {
-  const [inputValue, setInputValue] = useState("")
+  const [inputValue, setInputValue] = useState(initialValue)
+  const [weightValue, setWeightValue] = useState(defaultWeightValue)
   const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef(null)
 
@@ -17,18 +20,38 @@ function SearchModal({
   useEffect(() => {
     if (resetTrigger > 0) { // Only trigger on actual reset, not initial load
       setInputValue("")
+      setWeightValue("1")
       // Only clear once per resetTrigger bump to avoid loops
       updateInput(type, null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetTrigger, type])
 
+  useEffect(() => {
+    setInputValue(initialValue || "")
+  }, [initialValue])
+
+  useEffect(() => {
+    if (typeof defaultWeightValue !== 'undefined') {
+      setWeightValue(defaultWeightValue)
+    }
+  }, [defaultWeightValue])
+
   const handleInputChange = (e) => {
     const value = e.target.value
     setInputValue(value)
     
     // Always call updateInput, let SearchPanel decide what to do
-    updateInput(type, { value: value })
+    updateInput(type, { value: value, weight: Number(weightValue) || 1 })
+  }
+
+  const handleWeightChange = (e) => {
+    const raw = e.target.value
+    setWeightValue(raw)
+    const numeric = Number(raw)
+    if (inputValue && inputValue.trim()) {
+      updateInput(type, { value: inputValue, weight: Number.isFinite(numeric) ? numeric : 1 })
+    }
   }
 
   const handleFocus = () => {
@@ -47,11 +70,13 @@ function SearchModal({
 
   const handleClear = () => {
     setInputValue("")
+    setWeightValue("1")
     updateInput(type, null)
   }
 
+  const hasValue = !!(inputValue && inputValue.trim());
   return (
-    <div className="search-modal">
+    <div className={`search-modal ${hasValue ? '' : 'dimmed'}`}>
       <div className="search-header">
         <h2>{title}</h2>
         <p>{description}</p>
@@ -96,6 +121,19 @@ function SearchModal({
               </button>
             </div>
           ) : null}
+        </div>
+
+        <div className="search-input-group" style={{ marginTop: 12 }}>
+          <label htmlFor={`weight-input-${type}`}>Weight (0–1)</label>
+          <input
+            id={`weight-input-${type}`}
+            type="number"
+            min={0}
+            max={1}
+            step={0.1}
+            value={weightValue}
+            onChange={handleWeightChange}
+          />
         </div>
       </div>
     </div>

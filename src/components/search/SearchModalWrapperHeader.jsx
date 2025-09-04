@@ -12,18 +12,20 @@ function SearchModalWrapperHeader({ stage_num, onToggle, isCollapsed, onRemove, 
         <button
           type="button"
           className="btn-secondary"
-          onClick={onToggle}
+          onClick={(e) => { e.stopPropagation(); onToggle && onToggle(); }}
           style={{ padding: '4px 8px', fontSize: 12 }}
         >
           {isCollapsed ? 'Expand' : 'Collapse'}
         </button>
-        <h3 style={{ margin: 0 }}>Stage {stage_num}</h3>
+
+        <h3 style={{ padding: "4px" }}>Stage {stage_num}</h3>
+      
       </div>
       {onRemove ? (
         <button
           type="button"
           className="btn-secondary"
-          onClick={onRemove}
+          onClick={(e) => { e.stopPropagation(); onRemove && onRemove(); }}
           disabled={disableRemove}
           style={{ padding: '4px 8px', fontSize: 12 }}
         >

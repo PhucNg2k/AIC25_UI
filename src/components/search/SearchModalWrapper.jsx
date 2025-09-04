@@ -3,11 +3,15 @@ import ImageSearchModal from "./ImageSearchModal";
 import SearchModalWrapperHeader from "./SearchModalWrapperHeader";
 import { useState, useCallback } from "react";
 
-function SearchModalWrapper({ stage_num, updateInput, resetTrigger, onRemove, disableRemove }) {
+function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, onRemove, disableRemove }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const updateInputForStage = useCallback((type, inputData) => {
     updateInput(stage_num, type, inputData);
   }, [stage_num, updateInput]);
+
+  const handleRemove = useCallback(() => {
+    if (onRemove) onRemove(stage_num);
+  }, [onRemove, stage_num]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16, border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
@@ -15,47 +19,53 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, onRemove, di
         stage_num={stage_num}
         onToggle={() => setIsCollapsed((v) => !v)}
         isCollapsed={isCollapsed}
-        onRemove={onRemove ? () => onRemove(stage_num) : undefined}
+        onRemove={handleRemove}
         disableRemove={disableRemove}
       />
-      {!isCollapsed && (
-        <>
-      <SearchModal
-        updateInput={updateInputForStage}
-        type="text"
-        title={`Text Search (Stage ${stage_num})`}
-        description="Enter text to find similar video frames"
-        placeholder="e.g., a running horse"
-        resetTrigger={resetTrigger}
-      />
+      <div style={{ display: isCollapsed ? 'none' : 'block' }}>
+        <SearchModal
+          updateInput={updateInputForStage}
+          type="text"
+          title={`Text Search (Stage ${stage_num})`}
+          description="Enter text to find similar video frames"
+          placeholder="e.g., a running horse"
+          resetTrigger={resetTrigger}
+          initialValue={stageData?.text?.value || ""}
+          defaultWeightValue={stageData?.weight_dict?.text || 0.7}
+        />
 
-      <ImageSearchModal
-        updateInput={updateInputForStage}
-        type="img"
-        title={`Image Search (Stage ${stage_num})`}
-        description="Upload a reference image"
-        resetTrigger={resetTrigger}
-      />
+        <ImageSearchModal
+          updateInput={updateInputForStage}
+          type="img"
+          title={`Image Search (Stage ${stage_num})`}
+          description="Upload a reference image"
+          resetTrigger={resetTrigger}
+          initialFile={stageData?.img?.file || null}
+          defaultWeightValue={stageData?.weight_dict?.img || 0.7}
+        />
 
-      <SearchModal
-        updateInput={updateInputForStage}
-        type="ocr"
-        title={`OCR Search (Stage ${stage_num})`}
-        description="Search for text that appears in video frames"
-        placeholder="e.g., green farm village"
-        resetTrigger={resetTrigger}
-      />
+        <SearchModal
+          updateInput={updateInputForStage}
+          type="ocr"
+          title={`OCR Search (Stage ${stage_num})`}
+          description="Search for text that appears in video frames"
+          placeholder="e.g., green farm village"
+          resetTrigger={resetTrigger}
+          initialValue={stageData?.ocr?.value || ""}
+          defaultWeightValue={stageData?.weight_dict?.ocr || 0.3}
+        />
 
-      <SearchModal
-        updateInput={updateInputForStage}
-        type="localized"
-        title={`Location Search (Stage ${stage_num})`}
-        description="Search by location or place names"
-        placeholder="e.g., vietnam"
-        resetTrigger={resetTrigger}
-      />
-        </>
-      )}
+        <SearchModal
+          updateInput={updateInputForStage}
+          type="localized"
+          title={`Location Search (Stage ${stage_num})`}
+          description="Search by location or place names"
+          placeholder="e.g., vietnam"
+          resetTrigger={resetTrigger}
+          initialValue={stageData?.localized?.value || ""}
+          defaultWeightValue={stageData?.weight_dict?.localized || 0.3}
+        />
+      </div>
     </div>
   );
 }

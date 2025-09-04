@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import '../../styles/SearchModal.css'
 
-function ImageSearchModal({ updateInput, type = 'img', title, description, resetTrigger }) {
-  const [fileName, setFileName] = useState("")
-  const [previewUrl, setPreviewUrl] = useState("")
+function ImageSearchModal({ updateInput, type = 'img', title, description, resetTrigger, defaultWeightValue, initialFile = null }) {
+  const [fileName, setFileName] = useState(initialFile ? (initialFile.name || "") : "")
+  const [previewUrl, setPreviewUrl] = useState(initialFile ? URL.createObjectURL(initialFile) : "")
+  const [weightValue, setWeightValue] = useState(defaultWeightValue)
   const fileInputRef = useRef(null)
+  const currentFileRef = useRef(initialFile)
   const lastUrlRef = useRef("")
 
   // Reset state on resetTrigger
@@ -13,6 +15,7 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
       // Clear preview first, then revoke previously stored URL to avoid race with <img>
       setPreviewUrl("")
       setFileName("")
+      setWeightValue("1")
       if (lastUrlRef.current) {
         URL.revokeObjectURL(lastUrlRef.current)
         lastUrlRef.current = ""
@@ -34,6 +37,31 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
     }
   }, [])
 
+  useEffect(() => {
+    if (initialFile) {
+      currentFileRef.current = initialFile
+      setFileName(initialFile.name || "")
+      const url = URL.createObjectURL(initialFile)
+      setPreviewUrl(url)
+      if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current)
+      lastUrlRef.current = url
+    } else {
+      currentFileRef.current = null
+      setFileName("")
+      setPreviewUrl("")
+      if (lastUrlRef.current) {
+        URL.revokeObjectURL(lastUrlRef.current)
+        lastUrlRef.current = ""
+      }
+    }
+  }, [initialFile])
+
+  useEffect(() => {
+    if (typeof defaultWeightValue !== 'undefined') {
+      setWeightValue(defaultWeightValue)
+    }
+  }, [defaultWeightValue])
+
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0]
     if (!file) {
@@ -47,17 +75,19 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
       return
     }
     
+    currentFileRef.current = file
     setFileName(file.name)
     const localUrl = URL.createObjectURL(file)
     setPreviewUrl(localUrl)
     if (lastUrlRef.current) URL.revokeObjectURL(lastUrlRef.current)
     lastUrlRef.current = localUrl
-    updateInput(type, { file })
+    updateInput(type, { file, weight: Number(weightValue) || 1 })
   }
 
   const handleClearImage = () => {
     setPreviewUrl("")
     setFileName("")
+    setWeightValue("1")
     updateInput(type, null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
@@ -68,8 +98,21 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
     }
   }
 
+  const handleWeightChange = (e) => {
+    const raw = e.target.value
+    setWeightValue(raw)
+    const numeric = Number(raw)
+    // Only update if a file is present
+    const fileInInput = fileInputRef.current?.files?.[0]
+    const file = fileInInput || currentFileRef.current
+    if (file) {
+      updateInput(type, { file, weight: Number.isFinite(numeric) ? numeric : 1 })
+    }
+  }
+
+  const hasImage = !!fileName;
   return (
-    <div className="search-modal">
+    <div className={`search-modal ${hasImage ? '' : 'dimmed'}`}>
       <div className="search-header">
         <h2>{title}</h2>
         <p>{description}</p>
@@ -112,6 +155,19 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
             </div>
           </div>
         ) : null}
+
+        <div className="search-input-group" style={{ marginTop: 12 }}>
+          <label htmlFor={`weight-input-${type}`}>Weight (0–1)</label>
+          <input
+            id={`weight-input-${type}`}
+            type="number"
+            min={0}
+            max={1}
+            step={0.1}
+            value={weightValue}
+            onChange={handleWeightChange}
+          />
+        </div>
       </div>
     </div>
   )

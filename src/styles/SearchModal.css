@@ -2,35 +2,42 @@
 
 .search-modal {
     background: #ffffff;
-    padding: 15px;
+    padding: 12px 12px 10px 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    margin-bottom: 12px;
-    border: 1px solid #e1e5e9;
-    transition: all 0.2s ease;
-    /* Remove any height constraints */
+    box-shadow: none;
+    margin-bottom: 10px;
+    border: 1px solid #ececf2;
+    transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
     height: auto;
     min-height: auto;
 }
 
-.search-modal:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    border-color: #d1d5db;
+.search-modal.dimmed {
+    opacity: 0.55;
+    filter: grayscale(0.2);
 }
+
+/* Highlight active (non-dimmed) modals with a clear border */
+.search-modal:not(.dimmed) {
+    border-color: #111111;
+    border-width: 2px;
+}
+
+
 
 .search-header {
     margin-bottom: 12px;
 }
 
 .search-header h2 {
-    color: #2c3e50;
-    font-size: 16px;
+    color: #2b2d42;
+    font-size: 15px;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .search-header p {
-    color: #7f8c8d;
+    color: #6b7280;
     font-size: 12px;
     line-height: 1.4;
     margin: 0;
@@ -54,16 +61,16 @@
 .search-input-group label {
     display: block;
     margin-bottom: 6px;
-    font-weight: 500;
-    color: #34495e;
-    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 12px;
 }
 
 #search-input,
 input[id^="search-input-"] {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #e5e7eb;
     border-radius: 6px;
     font-size: 13px;
     transition: all 0.2s ease;
@@ -74,13 +81,13 @@ input[id^="search-input-"] {
 #search-input:focus,
 input[id^="search-input-"]:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    border-color: #a5b4fc;
+    box-shadow: 0 0 0 2px rgba(165, 180, 252, 0.18);
 }
 
 #search-input::placeholder,
 input[id^="search-input-"]::placeholder {
-    color: #9ca3af;
+    color: #9aa1ac;
     font-style: italic;
     font-size: 12px;
 }
@@ -88,10 +95,10 @@ input[id^="search-input-"]::placeholder {
 /* Search Display Mode - shows full content when not editing */
 .search-display {
     padding: 8px 12px;
-    border: 1px solid #e9ecef;
+    border: 1px solid #ececf2;
     border-radius: 4px;
-    background: #f8f9fa;
-    color: #495057;
+    background: #f5f7fb;
+    color: #444a57;
     font-size: 13px;
     line-height: 1.4;
     min-height: 35px;
@@ -104,8 +111,6 @@ input[id^="search-input-"]::placeholder {
 }
 
 .search-display:hover {
-    background: #e9ecef;
-    border-color: #ced4da;
 }
 
 /* Textarea styling for search inputs */
