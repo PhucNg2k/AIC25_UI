@@ -1,5 +1,6 @@
 
-// New multi-modal search API function (multipart/form-data)
+// New multi-stage multi-modal search API (multipart/form-data)
+// Sends 'stage_list' (JSON) and 'top_k'. Image files are attached as img_{stage}.
 async function searchMultiModalAPI(searchData, maxResults=100) {
     if (!searchData) {
         alert("Form request must not be empty!");
@@ -11,44 +12,56 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
     if (typeof maxResults !== 'undefined' && maxResults !== null) {
         formData.append('top_k', String(maxResults));
     }
-    
-    if (searchData && searchData.text && searchData.text.value) {
-        formData.append('text', searchData.text.value.trim());
-    }
-    
-    if (searchData && searchData.ocr && searchData.ocr.value) {
-        formData.append('ocr', searchData.ocr.value.trim());
-    }
-    
-    if (searchData && searchData.localized && searchData.localized.value) {
-        formData.append('localized', searchData.localized.value.trim());
-    }
-    
-    // Handle image input flexibly
-    if (searchData && searchData.img) {
-        const img = searchData.img;
-        if (img instanceof File || img instanceof Blob) {
-            const filename = img.name || 'image.jpg';
-            formData.append('img', img, filename);
-        } else if (img && img.file) {
-            const file = img.file;
-            const filename = file.name || 'image.jpg';
-            formData.append('img', file, filename);
-        } else if (img && img.blob) {
-            const blob = img.blob;
-            const filename = (img.filename || 'image.jpg');
-            formData.append('img', blob, filename);
-        } else if (img && img.dataUrl) {
-            const blob = dataURLToBlob(img.dataUrl);
-            formData.append('img', blob, 'image.jpg');
-        } else if (img && img.url) {
-            formData.append('img_url', img.url);
+    // Build stage_list JSON and attach per-stage image files
+    const stageList = {};
+    Object.entries(searchData || {}).forEach(([stageKey, modalities]) => {
+        if (!modalities || typeof modalities !== 'object') return;
+        const stageObj = {};
+        // text-like modalities
+        ['text', 'ocr', 'localized', 'asr'].forEach((mod) => {
+            const entry = modalities[mod];
+            if (entry && entry.value && String(entry.value).trim()) {
+                stageObj[mod] = { value: String(entry.value).trim() };
+                if (Object.prototype.hasOwnProperty.call(entry, 'obj_mask')) {
+                    stageObj[mod].obj_mask = entry.obj_mask;
+                }
+            }
+        });
+        // image modality
+        const img = modalities.img;
+        if (img) {
+            const fieldName = `img_${stageKey}`;
+            if (img.file) {
+                const file = img.file;
+                const filename = file.name || 'image.jpg';
+                formData.append(fieldName, file, filename);
+                stageObj.img = { value: fieldName };
+            } else if (img instanceof File || img instanceof Blob) {
+                const filename = img.name || 'image.jpg';
+                formData.append(fieldName, img, filename);
+                stageObj.img = { value: fieldName };
+            }
         }
-    }
-    if (Object.prototype.hasOwnProperty.call(searchData, 'intersect')) {
-        formData.append('intersect', String(Boolean(searchData.intersect)));
-    }
-    
+        if (Object.keys(stageObj).length > 0) {
+            stageList[stageKey] = stageObj;
+        }
+    });
+    formData.append('stage_list', JSON.stringify(stageList));
+    // Debug: log form-data contents (direct console.log on FormData appears empty)
+    try {
+        // eslint-disable-next-line no-console
+        console.log("FORM DATA ENTRIES:");
+        for (const [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                // eslint-disable-next-line no-console
+                console.log(`${key}: <File name=${value.name} size=${value.size}>`);
+            } else {
+                // eslint-disable-next-line no-console
+                console.log(`${key}:`, value);
+            }
+        }
+    } catch (_) {}
+
     const response = await fetch('http://localhost:8000/search-entry', {
         method: 'POST',
         body: formData

@@ -10,15 +10,12 @@ function SearchControls({
   isLoading
 }) {
   const [localMaxResults, setLocalMaxResults] = useState(100)
-  const [localIntersect, setLocalIntersect] = useState(false)
 
   const hasValidSearchData = () => Object.keys(searchData).length > 0
 
   const handleSearch = () => {
     if (hasValidSearchData()) {
-      // Include intersect flag in the payload
-      const payload = { ...searchData, intersect: localIntersect }
-      onSearch(payload, localMaxResults)
+      onSearch(searchData, localMaxResults)
     }
   }
 
@@ -44,16 +41,7 @@ function SearchControls({
             <option value="300">300</option>
           </select>
         </div>
-        <div className="intersect-center-row">
-          <button
-            type="button"
-            className={`btn-toggle-plain ${localIntersect ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setLocalIntersect((v) => !v)}
-            disabled={isLoading}
-          >
-            Intersect
-          </button>
-        </div>
+        
       </div>
       
       <div className="button-controls">

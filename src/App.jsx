@@ -74,6 +74,7 @@ function App() {
   // Search handler - called from SearchPanel
   const handleSearchResults = async (searchData, maxResults) => {
     console.log("SEARCH REQUEST\n", searchData);
+    console.log("TOP_K: ", maxResults)
 
     // Check that at least one modality is present
     const hasSearchData = Object.keys(searchData).length > 0;

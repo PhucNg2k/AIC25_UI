@@ -1,5 +1,6 @@
 import SearchModal from "./SearchModal";
 import ImageSearchModal from "./ImageSearchModal";
+import SearchModalWrapper from "./SearchModalWrapper";
 import SearchControls from "./SearchControls";
 import "../../styles/SearchPanel.css";
 import { useState, useCallback } from "react";
@@ -7,30 +8,50 @@ import { useState, useCallback } from "react";
 function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
   const [searchData, setSearchData] = useState({});
   const [resetTrigger, setResetTrigger] = useState(0);
+  const [stages, setStages] = useState([1]);
 
-  const updateInput = useCallback((type, inputData) => {
-    setSearchData((prev) => {
-      const newData = { ...prev };
+  const updateInput = useCallback((stage_num, type, inputData) => {
+    setSearchData((previousData) => {
+      const draft = { ...previousData };
+      const stageKey = String(stage_num || 1);
+      const previousStageBucket = draft[stageKey] || {};
+      const nextStageBucket = { ...previousStageBucket };
+
+      const isImageModality = type === 'img';
+      const hasValidImagePayload =
+        inputData && (inputData.file || inputData.blob || inputData.dataUrl || inputData.url);
+      const hasValidTextLikePayload =
+        inputData && inputData.value && typeof inputData.value === 'string' && inputData.value.trim();
 
       if (inputData === null) {
-        // Remove the key if inputData is explicitly null (reset case)
-        delete newData[type];
-      } else if (
-        // Text-like modalities must have a trimmed value
-        (inputData && inputData.value && inputData.value.trim()) ||
-        // Image modality can be any of the supported forms
-        (type === 'img' && inputData && (
-          inputData.file || inputData.blob || inputData.dataUrl || inputData.url
-        ))
-      ) {
-        newData[type] = inputData;
-      } else if (prev[type]) {
-        // Only remove the key if it existed before and now becomes empty
-        delete newData[type];
+        delete nextStageBucket[type];
+      } else if (isImageModality) {
+        if (hasValidImagePayload) {
+          nextStageBucket[type] = inputData;
+        } else {
+          delete nextStageBucket[type];
+        }
+      } else {
+        if (hasValidTextLikePayload) {
+          const sanitized = {
+            value: inputData.value,
+          };
+          if (inputData.obj_mask !== undefined) {
+            sanitized.obj_mask = inputData.obj_mask;
+          }
+          nextStageBucket[type] = sanitized;
+        } else {
+          delete nextStageBucket[type];
+        }
       }
-      // If key doesn't exist and value is empty, do nothing (don't create the key)
 
-      return newData;
+      if (Object.keys(nextStageBucket).length > 0) {
+        draft[stageKey] = nextStageBucket;
+      } else {
+        delete draft[stageKey];
+      }
+
+      return draft;
     });
   }, []);
 
@@ -40,46 +61,79 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
     onClear();
   }
 
+  const handleAddStage = () => {
+    setStages((previousStages) => {
+      const next = previousStages.length + 1;
+      return [...previousStages, next];
+    });
+  };
+
+  const handleRemoveStage = (stage_num) => {
+    setStages((previousStages) => {
+      const oldLen = previousStages.length;
+
+      // Build remapped data from current snapshot
+      const prevSnapshot = searchData || {};
+      const nextData = {};
+
+      // Copy all stages before the removed one
+      for (let i = 1; i < stage_num; i++) {
+        const key = String(i);
+        if (prevSnapshot[key]) {
+          nextData[key] = prevSnapshot[key];
+        }
+      }
+
+      // Shift all stages after the removed one down by 1
+      for (let i = stage_num + 1; i <= oldLen; i++) {
+        const oldKey = String(i);
+        const newKey = String(i - 1);
+        if (prevSnapshot[oldKey]) {
+          nextData[newKey] = prevSnapshot[oldKey];
+        }
+      }
+
+      // Update state with the new mapping
+      setSearchData(nextData);
+
+      // Call updateInput for each moved/retained modality so downstream reacts
+      Object.entries(nextData).forEach(([stageKey, modalities]) => {
+        Object.entries(modalities).forEach(([type, payload]) => {
+          updateInput(Number(stageKey), type, payload);
+        });
+      });
+
+      // Rebuild the stage list with sequential numbers
+      return Array.from({ length: oldLen - 1 }, (_, i) => i + 1);
+    });
+  };
+
   return (
     <div className="search-panel">
-      {/* Text Search Modal */}
-      <SearchModal
-        updateInput={updateInput}
-        type="text"
-        title="Text Search"
-        description="Enter text to find similar video frames"
-        placeholder="e.g., a running horse"
-        resetTrigger={resetTrigger}
-      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <strong>Stages</strong>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handleAddStage}
+          style={{ padding: '6px 10px', fontSize: 12 }}
+        >
+          Add Stage
+        </button>
+      </div>
 
-      {/* Image Search Modal */}
-      <ImageSearchModal
-        updateInput={updateInput}
-        type="img"
-        title="Image Search"
-        description="Upload a reference image"
-        resetTrigger={resetTrigger}
-      />
-
-      {/* OCR Search Modal */}
-      <SearchModal
-        updateInput={updateInput}
-        type="ocr"
-        title="OCR Search"
-        description="Search for text that appears in video frames"
-        placeholder="e.g., green farm village"
-        resetTrigger={resetTrigger}
-      />
-
-      {/* Localized Search Modal */}
-      <SearchModal
-        updateInput={updateInput}
-        type="localized"
-        title="Location Search"
-        description="Search by location or place names"
-        placeholder="e.g., vietnam"
-        resetTrigger={resetTrigger}
-      />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+        {stages.map((stage_num, index) => (
+          <SearchModalWrapper
+            key={stage_num}
+            stage_num={stage_num}
+            updateInput={updateInput}
+            resetTrigger={resetTrigger}
+            onRemove={handleRemoveStage}
+            disableRemove={stages.length === 1}
+          />
+        ))}
+      </div>
 
       
 
@@ -103,8 +157,8 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
           color: "#6c757d",
         }}
       >
-        <strong>Current Search Data:</strong>
-        <pre>{JSON.stringify(searchData, null, 2)}</pre>
+        <strong>Current Search Data (stage_list):</strong>
+        <pre>{JSON.stringify({ stage_list: searchData }, null, 2)}</pre>
       </div>
     </div>
   );

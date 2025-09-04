@@ -17,9 +17,11 @@ function SearchModal({
   useEffect(() => {
     if (resetTrigger > 0) { // Only trigger on actual reset, not initial load
       setInputValue("")
-      updateInput(type, null) // Remove the key from searchData when reset
+      // Only clear once per resetTrigger bump to avoid loops
+      updateInput(type, null)
     }
-  }, [resetTrigger, type, updateInput]) // Now safe to include updateInput since it's memoized
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetTrigger, type])
 
   const handleInputChange = (e) => {
     const value = e.target.value
