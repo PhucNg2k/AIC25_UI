@@ -8,7 +8,6 @@ function normalizePath(relativePath) {
 
 let videoMetadata = {}
 
-let videoData = {}
 
 // Load video metadata from JSON file
 export async function loadVideoMetadata() {
@@ -21,14 +20,6 @@ export async function loadVideoMetadata() {
         videoMetadata = data
         console.log("Video metadata loaded:", Object.keys(videoMetadata).length, "videos")
 
-
-        const videoResponse = await fetch("/Metadata/metadata.json")
-        if (!videoResponse.ok) {
-            throw new Error(`HTTP error! status: ${videoResponse.status}`)
-        }
-        const videoDataJSON = await videoResponse.json()
-        videoData = videoDataJSON;
-        console.log("Video data loaded:", Object.keys(videoData).length, "videos");
 
         return 
     } catch (error) {
@@ -49,10 +40,6 @@ export function getVideoFPS(metaKey) {
     return videoMetadata[metaKey]?.fps || 30 // Default to 30 FPS
 }
 
-export function getVideoResolution(metaKey) {
-    return videoMetadata[metaKey]?.resolution || "Unknown"
-}
-
 export function getFrameIdx(metaKey) {
     return videoMetadata[metaKey]?.frame_idx || null
 }
@@ -61,13 +48,12 @@ export function getPTStime(metaKey) {
     return videoMetadata[metaKey]?.pts_time || null
 }
 
-
-export function getVideoMetadata(metaKey) {
-    return videoMetadata[metaKey] || null
+export function getVideoDuration(metaKey) {
+    return videoMetadata[metaKey]?.video_duration || null;
 }
 
-export function getVideoDuration(video_name) {
-    return videoData[video_name]?.duration_seconds || null;
+export function getFramePath(metaKey) {
+    return videoMetadata[metaKey]?.frame_path || "";
 }
 
 export { normalizePath }

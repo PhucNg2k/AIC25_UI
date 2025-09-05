@@ -35,7 +35,7 @@ function FrameComponent({
   const hoverTimer = useRef(null)
   const [isVideoAvailable, setIsVideoAvailable] = useState(true)
 
-  const videoDuration = getVideoDuration(video_name); 
+  const videoDuration = getVideoDuration(metaKey); 
   const timeDelta = 1;
   const previewStart = Math.max(0, targetTime - timeDelta)
   const previewEnd = videoDuration ? Math.min(videoDuration, targetTime + timeDelta) : targetTime + timeDelta + 1.5;
