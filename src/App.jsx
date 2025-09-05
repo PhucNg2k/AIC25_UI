@@ -207,7 +207,7 @@ function App() {
       let image_path = `Video/${video_name}/${fname}`;
       let step = 5;
       
-      const related = get_related_keyframe(image_path, step, true); // interpolate, sorted
+      const related = get_related_keyframe(image_path, -1, true); // interpolate, sorted
       if (!related || related.length === 0) {
         console.error("No related keyframes found for image:", image_path);
         return;

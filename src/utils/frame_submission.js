@@ -136,6 +136,17 @@ export function get_related_keyframe(
       const chosen = inBounds.slice(0, targetCount);
       
       result_frameList_fname = chosen.map((idx) => framesList[idx]);
+
+       // --- ✅ Padding if fewer than targetCount ---
+      if (result_frameList_fname.length < targetCount) {
+        const padCount = targetCount - result_frameList_fname.length;
+        const padFrame = framesList[currentIndex]; // chosen frame
+        result_frameList_fname = [
+          ...result_frameList_fname,
+          ...Array(padCount).fill(padFrame),
+        ];
+      }
+
     } else { // KEYFRAMES SLIDER
 
       let startIndex = Math.max(0, currentIndex - n_before);
