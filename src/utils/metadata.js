@@ -31,7 +31,8 @@ export async function loadVideoMetadata() {
 }
 
 export function getMetadataKey(videoName, frameIdx) {
-    const frameFormatted = String(frameIdx).padStart(6, '0')
+    const safeIdx = Number.isFinite(frameIdx) ? frameIdx : 0
+    const frameFormatted = String(safeIdx).padStart(6, '0')
     return `${videoName}_${frameFormatted}`
 }
 
@@ -41,7 +42,7 @@ export function getVideoFPS(metaKey) {
 }
 
 export function getFrameIdx(metaKey) {
-    return videoMetadata[metaKey]?.frame_idx || null
+    return videoMetadata[metaKey]?.frame_idx || null;
 }
 
 export function getPTStime(metaKey) {

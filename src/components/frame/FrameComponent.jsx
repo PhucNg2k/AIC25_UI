@@ -18,12 +18,16 @@ function FrameComponent({
   const { video_name, frame_idx, image_path, score } = frameData
 
   const metaKey = getMetadataKey(video_name, frame_idx)
+  
+
   const targetFrame = getFrameIdx(metaKey)
   const vidFps = getVideoFPS(metaKey)
   const targetTime = getPTStime(metaKey)
+  
 
   // Calculate approximate timestamp 
-  const frameNumber = parseInt(targetFrame)
+  const frameNumber = Number.isFinite(Number(targetFrame)) ? Math.round(Number(targetFrame)) : 0;
+
   const timestamp = targetTime;
 
 

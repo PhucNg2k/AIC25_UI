@@ -67,7 +67,9 @@ export function get_related_keyframe(
   // extract to: key_name: Videos_L28_a, video_name: L28_V023, frame_id: f007932.webp
   const parts = image_path.split("/");
 
+
   if (parts.length < 3) {
+    console.log('error: ', image_path)
     console.error("Invalid image path:", image_path);
     return null;
   }
@@ -91,7 +93,7 @@ export function get_related_keyframe(
     if (sorted) { // Submission pattern for video retrieval optimization
       const offsets = buildSubmissionPattern(step);
       for (const off of offsets) {
-        const new_id = frame_id + off;
+        const new_id = frame_id + off * step;
         if (new_id < 0) continue; // skip negatives
         result_frameList_fname.push(`f${String(new_id).padStart(6, "0")}.webp`);
       }
@@ -117,7 +119,7 @@ export function get_related_keyframe(
   } else { 
     // -------- Use precomputed keyframe list --------
     const framesList = grouped_keyframes_metadata?.[key_name]?.[video_name] || null;
-    console.log('FRAME LIST: ', framesList)
+    
     const currentIndex = framesList.findIndex((f) => f === frame_id_str);
     if (currentIndex === -1) {
       console.error("Frame ID not found in metadata:", frame_id_str);

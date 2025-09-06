@@ -93,17 +93,12 @@ function App() {
 
       // Process and display results
       if (results && results.length > 0) {
-        setSearchResults(results);
-        setCurrentFramesList(Object.values(results).flat());
+        handleUpdateSearchResult(results);
         console.log(results);
-        // Group results by video and create video list for navigation
-
-        // Spread all frames into one flat list
         //setCurrentFramesList(Object.values(groupedResults).flat())
 
       } else {
-        setSearchResults([]);
-        setCurrentFramesList([]);
+        handleClear();
       }
     } catch (error) {
       console.error("Search failed:", error);
@@ -206,10 +201,18 @@ function App() {
       let metakey = getMetadataKey(video_name, frame_idx)
       let image_path = getFramePath(metakey);
       
-      const related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
-      if (!related || related.length === 0) {
-        console.error("No related keyframes found for image:", image_path);
-        return;
+      console.log("Image path from metakey: ", image_path);
+
+      let related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
+      
+      if (!related || related.length === 0) { // fallback to interpolation
+        if ( isNaN(frame_idx)) frame_idx = 0;
+        
+        let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
+        let tmp_path = `Video/${video_name}/${fname}`;
+        related = get_related_keyframe(tmp_path, 20, true);
+        console.log("Get from interpolation: ", frame_idx);
+
       }
 
       const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
