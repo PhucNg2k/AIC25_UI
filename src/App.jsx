@@ -94,13 +94,13 @@ function App() {
       // Process and display results
       if (results && results.length > 0) {
         setSearchResults(results);
+        setCurrentFramesList(Object.values(results).flat());
         console.log(results);
         // Group results by video and create video list for navigation
 
         // Spread all frames into one flat list
         //setCurrentFramesList(Object.values(groupedResults).flat())
 
-        setCurrentFramesList(Object.values(results).flat());
       } else {
         setSearchResults([]);
         setCurrentFramesList([]);
@@ -264,6 +264,12 @@ function App() {
     }
   };
 
+
+  const handleUpdateSearchResult = (results) => {
+    setSearchResults(results);
+    setCurrentFramesList(Object.values(results).flat());
+  }
+
   return (
     <div className="main-container">
       <SearchPanel
@@ -279,7 +285,7 @@ function App() {
         onOpenFrameModal={openFrameModal}
         currentFramesList={currentFramesList}
         onSubmitFrame={handleSubmitFrame}
-        setSearchResults={setSearchResults}
+        setSearchResults={handleUpdateSearchResult}
         onOpenSliderModal={openSliderModal}
       />
 

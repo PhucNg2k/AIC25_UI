@@ -45,7 +45,7 @@ export function getFrameIdx(metaKey) {
 }
 
 export function getPTStime(metaKey) {
-    return videoMetadata[metaKey]?.pts_time || null
+    return videoMetadata[metaKey]?.pts_time || 0.0;
 }
 
 export function getVideoDuration(metaKey) {

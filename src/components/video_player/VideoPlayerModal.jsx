@@ -28,6 +28,7 @@ function VideoPlayerModal({
 
   const videoUrl = `${BASE_DATA_PATH}/video/${video_name}.mp4`
 
+
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -86,7 +87,7 @@ function VideoPlayerModal({
 
   const handleSeekToFrame = () => {
     const video = videoRef.current
-    if (video && targetTime && !isNaN(targetTime)) {
+    if (video && targetTime>=0 && !isNaN(targetTime)) {
       console.log('Seeking to target time:', targetTime)
       video.currentTime = targetTime
       video.pause()
