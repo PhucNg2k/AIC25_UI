@@ -9,6 +9,7 @@ export async function loadGroupedKeyframesMetadata() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     grouped_keyframes_metadata = data;
+    console.log("Fetched: ", grouped_keyframes_metadata)
     return grouped_keyframes_metadata;
   } catch (error) {
     console.error("Failed to load metadata:", error);
@@ -116,7 +117,7 @@ export function get_related_keyframe(
   } else { 
     // -------- Use precomputed keyframe list --------
     const framesList = grouped_keyframes_metadata?.[key_name]?.[video_name] || null;
-
+    console.log('FRAME LIST: ', framesList)
     const currentIndex = framesList.findIndex((f) => f === frame_id_str);
     if (currentIndex === -1) {
       console.error("Frame ID not found in metadata:", frame_id_str);

@@ -14,7 +14,7 @@ import {
 } from "./utils/frame_submission";
 
 import { searchMultiModalAPI } from "./utils/searching";
-
+import { getFramePath, getMetadataKey } from "./utils/metadata";
 import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
 function App() {
@@ -203,11 +203,10 @@ function App() {
 
     if (submitType === "auto") {
     
-      let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
-      let image_path = `Video/${video_name}/${fname}`;
-      let step = 5;
+      let metakey = getMetadataKey(video_name, frame_idx)
+      let image_path = getFramePath(metakey);
       
-      const related = get_related_keyframe(image_path, -1, true); // interpolate, sorted
+      const related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
       if (!related || related.length === 0) {
         console.error("No related keyframes found for image:", image_path);
         return;
