@@ -19,9 +19,12 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ query: videoName.trim().toUpperCase() })
+        body: JSON.stringify({ value: videoName.trim().toUpperCase(), top_k: -1 })
       })
       const data = await response.json()
+      
+      console.log("DATA: ", data)
+
       if (data && Array.isArray(data.results)) {
         setSearchResults(data.results)
       }
