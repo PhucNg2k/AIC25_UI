@@ -64,13 +64,73 @@
 /* Minimal styling for inline video search controls */
 .video-search-controls {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.video-search-input-group {
+  display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+}
+
+.video-exclude-input-group,
+.video-include-input-group {
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+
+.exclude-input-row,
+.include-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.exclude-preview,
+.include-preview {
+  position: static;
+  margin-top: 0;
+  color: #6c757d;
+  font-size: 0.8em;
+  width: 100%;
 }
 
 .video-search-controls label {
   color: #495057;
   font-size: 0.9em;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  display: block;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.video-search-controls label:hover {
+  color: #007bff;
+}
+
+.video-search-controls label[htmlFor="excludeInput"] {
+  color: #dc3545;
+}
+
+.video-search-controls label[htmlFor="excludeInput"]:hover {
+  color: #c82333;
+}
+
+.video-search-controls label[htmlFor="includeInput"] {
+  color: #28a745;
+}
+
+.video-search-controls label[htmlFor="includeInput"]:hover {
+  color: #218838;
 }
 
 .video-search-controls input[type="text"] {
@@ -79,6 +139,8 @@
   border-radius: 4px;
   background: #ffffff;
   color: #343a40;
+  min-width: 200px;
+  flex: 1;
 }
 
 .video-search-controls input[type="text"]::placeholder {
@@ -94,11 +156,39 @@
   font-size: 0.9em;
   cursor: pointer;
   transition: background 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
 }
 
 .video-search-controls .search-btn:hover {
   background: #0056b3;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.video-search-controls .on-btn {
+  padding: 6px 12px;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background: #28a745;
+  color: #ffffff;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.video-search-controls .on-btn:hover {
+  background: #218838;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.video-search-controls .on-btn.off {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.video-search-controls .on-btn.off:hover {
+  background: #c82333;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
 .results-summary {
@@ -120,6 +210,41 @@
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.85em;
+}
+
+.apply-filters-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.apply-btn {
+  padding: 8px 20px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: #ffffff;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.apply-btn:hover {
+  background: #0056b3;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.apply-btn.applied {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.apply-btn.applied:hover {
+  background: #c82333;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
 /* Responsive design */

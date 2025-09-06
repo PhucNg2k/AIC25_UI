@@ -10,7 +10,6 @@ function ResultsPanel({
   videoMetadata, 
   onOpenVideoPlayer, 
   onOpenFrameModal, 
-  currentFramesList,
   onSubmitFrame,
   onOpenSliderModal
 }) {
@@ -76,7 +75,7 @@ function ResultsPanel({
               videoMetadata={videoMetadata}
               onOpenVideoPlayer={onOpenVideoPlayer}
               onOpenFrameModal={onOpenFrameModal}
-              currentFramesList={currentFramesList}
+              currentFramesList={searchResults}
               onSubmitFrame={onSubmitFrame}
               displayMode={displayMode}
               onOpenSliderModal={onOpenSliderModal}
@@ -96,7 +95,7 @@ function ResultsPanel({
         videoMetadata={videoMetadata}
         onOpenVideoPlayer={onOpenVideoPlayer}
         onOpenFrameModal={onOpenFrameModal}
-        currentFramesList={currentFramesList}
+        currentFramesList={searchResults}
         onSubmitFrame={onSubmitFrame}
         displayMode={displayMode}
         onOpenSliderModal={onOpenSliderModal}

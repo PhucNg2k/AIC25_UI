@@ -21,7 +21,6 @@ function App() {
   // State management
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentFramesList, setCurrentFramesList] = useState([]);
 
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [showFrameModal, setShowFrameModal] = useState(false);
@@ -95,8 +94,6 @@ function App() {
       if (results && results.length > 0) {
         handleUpdateSearchResult(results);
         console.log(results);
-        //setCurrentFramesList(Object.values(groupedResults).flat())
-
       } else {
         handleClear();
       }
@@ -111,7 +108,6 @@ function App() {
   // Clear handler
   const handleClear = () => {
     setSearchResults([]);
-    setCurrentFramesList([]);
   };
 
   // Open video player
@@ -270,7 +266,6 @@ function App() {
 
   const handleUpdateSearchResult = (results) => {
     setSearchResults(results);
-    setCurrentFramesList(Object.values(results).flat());
   }
 
   return (
@@ -286,7 +281,6 @@ function App() {
         searchResults={searchResults}
         onOpenVideoPlayer={openVideoPlayer}
         onOpenFrameModal={openFrameModal}
-        currentFramesList={currentFramesList}
         onSubmitFrame={handleSubmitFrame}
         setSearchResults={handleUpdateSearchResult}
         onOpenSliderModal={openSliderModal}
@@ -309,7 +303,7 @@ function App() {
       {showVideoPlayer && selectedFrame && (
         <VideoPlayerPanel
           initialFrame={selectedFrame}
-          framesList={currentFramesList}
+          framesList={searchResults}
           onClose={() => setShowVideoPlayer(false)}
           onSubmitFrame={handleSubmitFrame}
         />
