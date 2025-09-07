@@ -8,6 +8,20 @@
     height: 100vh; /* Full height */
 }
 
+/* Fullscreen overlay mode: expands over the left SearchPanel area */
+.results-panel.fullscreen {
+    position: relative;
+}
+
+.results-panel.fullscreen {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 340px; /* keep SubmitPanel visible (300px + padding/border) */
+    z-index: 10;
+}
+
 .results-header {
     margin-bottom: 30px;
     padding-bottom: 20px;

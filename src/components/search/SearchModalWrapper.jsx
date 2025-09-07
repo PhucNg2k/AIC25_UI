@@ -25,6 +25,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
       <div style={{ display: isCollapsed ? 'none' : 'block' }}>
         <SearchModal
           updateInput={updateInputForStage}
+          stage_num={stage_num}
           type="text"
           title={`Text Search (Stage ${stage_num})`}
           description="Enter text to find similar video frames"
@@ -32,6 +33,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           resetTrigger={resetTrigger}
           initialValue={stageData?.text?.value || ""}
           defaultWeightValue={stageData?.weight_dict?.text || 1.0}
+          existingObjMask={stageData?.text?.obj_mask || null}
         />
 
         <ImageSearchModal
@@ -46,6 +48,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
 
         <SearchModal
           updateInput={updateInputForStage}
+          stage_num={stage_num}
           type="ocr"
           title={`OCR Search (Stage ${stage_num})`}
           description="Search for text that appears in video frames"
@@ -53,10 +56,12 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           resetTrigger={resetTrigger}
           initialValue={stageData?.ocr?.value || ""}
           defaultWeightValue={stageData?.weight_dict?.ocr || 1.0}
+          existingObjMask={stageData?.ocr?.obj_mask || null}
         />
 
         <SearchModal
           updateInput={updateInputForStage}
+          stage_num={stage_num}
           type="localized"
           title={`Location Search (Stage ${stage_num})`}
           description="Search by location or place names"
@@ -64,6 +69,7 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
           resetTrigger={resetTrigger}
           initialValue={stageData?.localized?.value || ""}
           defaultWeightValue={stageData?.weight_dict?.localized || 1.0}
+          existingObjMask={stageData?.localized?.obj_mask || null}
         />
       </div>
     </div>

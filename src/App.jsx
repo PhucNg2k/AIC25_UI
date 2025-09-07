@@ -33,6 +33,9 @@ function App() {
 
   const [submitType, setSubmitType] = useState("auto");
 
+  // Results fullscreen state (hides SearchPanel when true)
+  const [isResultsFullscreen, setIsResultsFullscreen] = useState(false);
+
   // Query and task state
   const [query, setQuery] = useState("");
   const [queryId, setQueryId] = useState("");
@@ -270,12 +273,14 @@ function App() {
 
   return (
     <div className="main-container">
-      <SearchPanel
-        isLoading={isLoading}
-        onSearch={handleSearchResults}
-        onClear={handleClear}
-        resultCount={searchResults.length}
-      />
+      {!isResultsFullscreen && (
+        <SearchPanel
+          isLoading={isLoading}
+          onSearch={handleSearchResults}
+          onClear={handleClear}
+          resultCount={searchResults.length}
+        />
+      )}
 
       <ResultsPanel
         searchResults={searchResults}
@@ -284,6 +289,8 @@ function App() {
         onSubmitFrame={handleSubmitFrame}
         setSearchResults={handleUpdateSearchResult}
         onOpenSliderModal={openSliderModal}
+        isFullscreen={isResultsFullscreen}
+        onToggleFullscreen={() => setIsResultsFullscreen((prev) => !prev)}
       />
 
       <SubmitPanel

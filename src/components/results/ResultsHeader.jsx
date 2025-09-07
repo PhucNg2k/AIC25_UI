@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { apply_blacklist, apply_include } from '../../utils/blacklist_handler'
 import '../../styles/ResultsHeader.css'
 
-function ResultsHeader({ searchResults, setSearchResults, displayMode, setDisplayMode }) {
+function ResultsHeader({ searchResults, setSearchResults, displayMode, setDisplayMode, isFullscreen, onToggleFullscreen }) {
   const [videoName, setVideoName] = useState('')
   const [excludeInput, setExcludeInput] = useState('')
   const [excludeList, setExcludeList] = useState([])
@@ -10,7 +10,7 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
   const [includeList, setIncludeList] = useState([])
   const [originalSearchResults, setOriginalSearchResults] = useState([])
   const [isFiltersApplied, setIsFiltersApplied] = useState(false)
-
+  
   // Store original search results when they change (but not when filters are applied)
   useEffect(() => {
     if (!isFiltersApplied) {
@@ -176,7 +176,7 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
           </div>
         </div>
 
-        {searchResults.length > -1 && (
+        <div className="display-controls">
           <div className="display-mode-toggle">
             <button 
               className={`mode-btn ${displayMode === 'grouped' ? 'active' : ''}`}
@@ -193,9 +193,18 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
               📊 Ranking
             </button>
           </div>
-        )}
+
+          <div>
+            <button className='mode-btn' onClick={onToggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
+              { isFullscreen ? '🗗 Minimize' : '🗖 Maximize'}
+            </button>
+          </div>
+        </div>
+        
       </div>
       
+      
+
       <div className="results-summary">
         <span>{getSummaryText()}</span>
         {searchResults.length > 0 && (

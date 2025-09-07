@@ -20,6 +20,13 @@
   font-weight: 600;
 }
 
+.display-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .display-mode-toggle {
   display: flex;
   gap: 8px;

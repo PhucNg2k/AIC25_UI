@@ -11,7 +11,9 @@ function ResultsPanel({
   onOpenVideoPlayer, 
   onOpenFrameModal, 
   onSubmitFrame,
-  onOpenSliderModal
+  onOpenSliderModal,
+  isFullscreen = false,
+  onToggleFullscreen
 }) {
   const [displayMode, setDisplayMode] = useState('grouped')
   
@@ -111,6 +113,8 @@ function ResultsPanel({
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}
         setSearchResults={setSearchResults}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={onToggleFullscreen}
       />
 
       <div className="results-container">

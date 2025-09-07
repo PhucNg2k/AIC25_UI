@@ -8,7 +8,7 @@ function SearchControls({
   // updateInput is not used here but kept for future extension
   updateInput,
   onClear, 
-  isLoading
+  isLoading,
 }) {
   const [localMaxResults, setLocalMaxResults] = useState(1000)
 
@@ -66,6 +66,7 @@ function SearchControls({
           <span className="btn-icon">🗑️</span>
           Clear
         </button>
+
       </div>
     </div>
   )

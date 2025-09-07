@@ -10,6 +10,8 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
   const [resetTrigger, setResetTrigger] = useState(0);
   const [stages, setStages] = useState([1]);
 
+  
+
   const updateInput = useCallback((stage_num, type, inputData) => {
     setSearchData((previousData) => {
       const draft = { ...previousData };

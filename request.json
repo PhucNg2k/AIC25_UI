@@ -1,0 +1,70 @@
+
+{
+    "stage_list": {
+        "1": {
+            "text": {
+                "value": "abc",
+                "obj_mask": {
+                    "class_a" : {
+                        "count_condition": ">2",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    },
+                    "class_b" : {
+                        "n_count": 2,
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    }
+                }
+            },
+            "ocr": {
+                "value": "abc",
+                "obj_mask": {
+                    "class_a" : {
+                        "count_condition": ">0",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    },
+                    "class_b" : {
+                        "n_count": 2,
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    }
+                }
+            },
+            "weight_dict" : {
+                "text": 0.7,
+                "ocr": 0.3
+            }
+        },
+        "2": {
+            "ocr": {
+                "value": "xyz",
+                "obj_mask": {
+                    "class_a" : {
+                        "count_condition": ">=3",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    },
+                    "class_b" : {
+                       "count_condition": "<=1",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    }
+                }
+            },
+            "asr": {
+                "value": "hello",
+                "obj_mask": {
+                    "class_a" : {
+                       "count_condition": "3",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    },
+                    "class_b" : {
+                        "count_condition": "<5",
+                        "bbox": [{"x": 1, "y": 2, "w": 3, "h": 4}, {"x": 1, "y": 2, "w": 3, "h": 4}]
+                    }
+                }
+            },
+            "weight_dict" : {
+                "asr": 0.7,
+                "ocr": 0.3
+            }
+        }
+    },
+    "top_k": 100
+}

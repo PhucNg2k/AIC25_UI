@@ -1,0 +1,45 @@
+.odsp-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px; /* space for scrollbar */
+}
+
+.odsp-class-card {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px;
+  width: 100%;
+  background: #fff;
+}
+
+.odsp-class-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.odsp-class-main {
+  flex: 0 0 75%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.odsp-remove-btn {
+  margin-left: 8px;
+  flex: 0 0 25%;
+  align-self: center;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.1;
+  border-radius: 6px;
+  max-height: 28px;
+  display: inline-block;
+  max-width: none;
+  text-align: right;
+}
+
