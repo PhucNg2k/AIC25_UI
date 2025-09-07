@@ -29,11 +29,14 @@ export default function DrawCanvas({ stage_num, modal, selectedClass, initialObj
                 ctx.restore();
             }
 
-            // draw preview on top
+            // draw preview on top (use current class color)
             if (previewRect) {
                 ctx.save();
-                ctx.strokeStyle = "#28a745";
-                ctx.fillStyle = "rgba(40, 167, 69, 0.25)"; // semi-transparent green
+                const activeClassName = selectedClass && selectedClass.class_name;
+                const stroke = (activeClassName && colorMap[activeClassName]) || "#007bff";
+                // create a semi-transparent fill from the stroke color (fallback to blue)
+                ctx.strokeStyle = stroke;
+                ctx.fillStyle = stroke + '40'; // add transparency if hex supports; fallback ok
                 ctx.lineWidth = 2;
                 ctx.fillRect(previewRect.x, previewRect.y, previewRect.w, previewRect.h);
                 ctx.strokeRect(previewRect.x, previewRect.y, previewRect.w, previewRect.h);
