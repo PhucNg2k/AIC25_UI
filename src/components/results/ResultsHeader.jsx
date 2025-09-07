@@ -196,7 +196,7 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
 
           <div>
             <button className='mode-btn' onClick={onToggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
-              { isFullscreen ? '🗗 Minimize' : '🗖 Maximize'}
+              { isFullscreen ? '> Minimize' : '< Maximize'}
             </button>
           </div>
         </div>

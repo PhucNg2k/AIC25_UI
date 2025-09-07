@@ -273,14 +273,14 @@ function App() {
 
   return (
     <div className="main-container">
-      {!isResultsFullscreen && (
+      <div style={{ display: isResultsFullscreen ? 'none' : 'block' }}>
         <SearchPanel
           isLoading={isLoading}
           onSearch={handleSearchResults}
           onClear={handleClear}
           resultCount={searchResults.length}
         />
-      )}
+      </div>
 
       <ResultsPanel
         searchResults={searchResults}
