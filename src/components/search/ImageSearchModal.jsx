@@ -115,7 +115,7 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
     <div className={`search-modal ${hasImage ? '' : 'dimmed'}`}>
       <div className="search-header">
         <h2>{title}</h2>
-        <p>{description}</p>
+
       </div>
 
       <div className="search-container">
@@ -156,8 +156,8 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
           </div>
         ) : null}
 
-        <div className="search-input-group" style={{ marginTop: 12 }}>
-          <label htmlFor={`weight-input-${type}`}>Weight (0–1)</label>
+        <div className="search-input-group" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor={`weight-input-${type}`} style={{ marginBottom: 0, minWidth: 'auto' }}>Weight:</label>
           <input
             id={`weight-input-${type}`}
             type="number"
@@ -166,6 +166,7 @@ function ImageSearchModal({ updateInput, type = 'img', title, description, reset
             step={0.1}
             value={weightValue}
             onChange={handleWeightChange}
+            style={{ width: '80px' }}
           />
         </div>
       </div>

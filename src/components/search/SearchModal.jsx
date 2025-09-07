@@ -86,12 +86,12 @@ function SearchModal({
   }
 
   const hasValue = !!(inputValue && inputValue.trim());
+  const hasObjMask = !!(existingObjMask && typeof existingObjMask === 'object' && Object.keys(existingObjMask).length > 0);
 
   return (
     <div className={`search-modal ${hasValue ? '' : 'dimmed'}`}>
       <div className="search-header">
         <h2>{title}</h2>
-        <p>{description}</p>
       </div>
       
       <div className="search-container">
@@ -135,8 +135,8 @@ function SearchModal({
           ) : null}
         </div>
 
-        <div className="search-input-group" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <label htmlFor={`weight-input-${type}`}>Weight (0–1)</label>
+        <div className="search-input-group" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor={`weight-input-${type}`} style={{ marginBottom: 0, minWidth: 'auto' }}>Weight:</label>
           <input
             id={`weight-input-${type}`}
             type="number"
@@ -145,12 +145,18 @@ function SearchModal({
             step={0.1}
             value={weightValue}
             onChange={handleWeightChange}
-            style={{ width: 80 }}
+            style={{ width: '80px' }}
           />
           <button
             type="button"
             className="btn-secondary"
-            style={{ padding: '6px 10px', fontSize: 12, opacity: hasValue ? 1 : 0.5, cursor: hasValue ? 'pointer' : 'not-allowed' }}
+            style={{ 
+              padding: '6px 10px', 
+              fontSize: 12, 
+              opacity: hasValue ? 1 : 0.5, 
+              cursor: hasValue ? 'pointer' : 'not-allowed',
+              border: hasObjMask ? '2px solid black' : undefined
+            }}
             onClick={handleOpenCanvas}
             title={hasValue ? "Open object mask panel" : "Enter a value first to enable object mask"}
             disabled={!hasValue}
