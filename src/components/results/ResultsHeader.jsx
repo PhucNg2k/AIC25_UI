@@ -52,7 +52,8 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
   }
 
   const handleFetchByVideoName = async () => {
-    if (!videoName.trim()) return
+    if (!videoName.trim()) return;
+    
     try {
       const response = await fetch('http://localhost:8000/es-search/video_name', {
         method: 'POST',
@@ -62,15 +63,21 @@ function ResultsHeader({ searchResults, setSearchResults, displayMode, setDispla
         body: JSON.stringify({ value: videoName.trim().toUpperCase(), top_k: -1 })
       })
       const data = await response.json()
-      
-      console.log("DATA: ", data)
+      //console.log("DATA: ", data)
 
-      if (data && Array.isArray(data.results)) {
+      if (!data.success) {
+        throw new Error(data.message || 'Video_name search failed');
+      }
+
+      if (data && data.results.length > 0 ) {
         setSearchResults(data.results)
       }
+
     } catch (error) {
-      console.error('Failed to fetch by video name:', error)
+      console.error('Failed to fetch by video name:', error);
+      alert(error.message || "Search request failed");
     }
+
     //setVideoName('');
   }
   
