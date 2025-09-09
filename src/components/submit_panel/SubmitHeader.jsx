@@ -1,14 +1,21 @@
 import { useState } from "react"
 import '../../styles/SubmitHeader.css'
+import { fetchTranslate } from '../../utils/searching'
 
 function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, queryTask, submitType, setSubmitType, submittedFramesCount = 0, onClearSubmissions }) {
     const [inputValue, setInputValue] = useState('')
     const [queryIdInput, setQueryIdInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [selectedFile, setSelectedFile] = useState(null)
+    const [lang, setLang] = useState('vi')
+    const [originalQuery, setOriginalQuery] = useState('')
+    const [isTranslating, setIsTranslating] = useState(false)
 
     const handleEdit = () => {
-        setInputValue(query || '')
+        const initial = query || ''
+        setInputValue(initial)
+        setOriginalQuery(initial)
+        setLang('vi')
         setQueryIdInput(queryId || '')
         setIsEditing(true)
         setSelectedFile(null)
@@ -29,7 +36,10 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
             const reader = new FileReader()
             reader.onload = (e) => {
                 const content = e.target.result
-                setInputValue(content.trim())
+                const trimmed = String(content || '').trim()
+                setInputValue(trimmed)
+                setOriginalQuery(trimmed)
+                setLang('vi')
             }
             reader.readAsText(file)
             
@@ -41,6 +51,32 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
             }
         } else {
             alert('Please select a valid text file (.txt)')
+        }
+    }
+
+    const handleToggleLanguage = async () => {
+        // Display-mode toggle: use current query and queryId props
+        if (lang === 'vi') {
+            if (!query || !String(query).trim() || !queryId || !String(queryId).trim()) {
+                alert('Missing query or query ID to translate.')
+                return
+            }
+            try {
+                setIsTranslating(true)
+                setOriginalQuery(query)
+                const sentences = await fetchTranslate(`${queryId}.txt`)
+                const joined = Array.isArray(sentences) ? sentences.join('\n') : String(sentences || '')
+                setQuery(joined)
+                setLang('en')
+            } catch (err) {
+                console.error('Translate failed:', err)
+                alert(err.message || 'Translate request failed')
+            } finally {
+                setIsTranslating(false)
+            }
+        } else {
+            setQuery(originalQuery)
+            setLang('vi')
         }
     }
 
@@ -96,6 +132,11 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
 
     return (
         <div className="submit-header">
+            {isTranslating && (
+                <div className="translate-progress" aria-label="Translating">
+                    <div className="translate-progress-bar" />
+                </div>
+            )}
             <div className="header-top">
                 <h3>Submitted Frames</h3>
                 <div className={`frame-counter ${getCounterClass()}`}>
@@ -160,6 +201,17 @@ function SubmitHeader({ query, setQuery, queryId, setQueryId, setQueryTask, quer
                             <label>Query:</label>
                             <div className="query-display">
                                 {query || "No query set"}
+                            </div>
+                            <div className="lang-toggle">
+                                <button
+                                    type="button"
+                                    className={`lang-toggle-btn ${lang}`}
+                                    onClick={handleToggleLanguage}
+                                    disabled={isTranslating || !query || !String(query).trim() || !queryId || !String(queryId).trim()}
+                                    title={lang === 'vi' ? 'Show English translation' : 'Show original Vietnamese'}
+                                >
+                                    {lang === 'vi' ? 'VI' : 'EN'}
+                                </button>
                             </div>
                         </div>
                         <button 

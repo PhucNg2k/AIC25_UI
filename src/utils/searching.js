@@ -135,3 +135,69 @@ function validateSearchData(searchData) {
 }
 
 export { searchMultiModalAPI, validateSearchData}
+
+// Fetch results by exact video name (server expects uppercase)
+async function fetchByVideoName(videoName) {
+  if (!videoName || !String(videoName).trim()) {
+    throw new Error('Video name must not be empty');
+  }
+
+  const response = await fetch('http://localhost:8000/es-search/video_name', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value: String(videoName).trim().toUpperCase(), top_k: -1 })
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Video name search request failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.detail || errorMessage;
+    } catch (_) {}
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(data.message || 'Video name search failed');
+  }
+
+  return data.results || [];
+}
+
+export { fetchByVideoName };
+
+// Translate a query file on the backend LLM service
+async function fetchTranslate(fileName) {
+  if (!fileName || !String(fileName).trim()) {
+    throw new Error('File name must not be empty');
+  }
+
+  const response = await fetch('http://localhost:8000/llm/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ file_name: String(fileName).trim() })
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Translation request failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.detail || errorMessage;
+    } catch (_) {}
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  // If backend returns structured response
+  if (data && Array.isArray(data.translated_text)) {
+    return data.translated_text;
+  }
+  // Fallback: if backend directly returned the sentences array
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return [];
+}
+
+export { fetchTranslate };

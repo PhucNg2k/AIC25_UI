@@ -16,8 +16,39 @@ export default function DrawCanvas({ stage_num, modal, selectedClass, initialObj
         canvas.width = 640;
         canvas.height = 360;
 
+        function drawGrid() {
+            // draw a subtle 8x8 grid
+            ctx.save();
+            ctx.strokeStyle = "rgba(0,0,0,0.15)";
+            ctx.lineWidth = 0.5;
+            const cols = 8;
+            const rows = 8;
+            const dx = canvas.width / cols;
+            const dy = canvas.height / rows;
+            // vertical lines
+            for (let i = 1; i < cols; i++) {
+                const x = Math.round(i * dx) + 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            // horizontal lines
+            for (let j = 1; j < rows; j++) {
+                const y = Math.round(j * dy) + 0.5;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
         function drawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // grid background
+            drawGrid();
 
             // draw existing boxes
             for (const b of boxes) {
@@ -208,8 +239,9 @@ export default function DrawCanvas({ stage_num, modal, selectedClass, initialObj
         // keep drawing active; global mousemove/up handle preview and finish
     };
 
-    const xTicks = [0, 480, 960, 1440, 1920];
-    const yTicks = [0, 270, 540, 810, 1080];
+    // 8x8 grid ticks (9 tick marks including 0 and max)
+    const xTicks = Array.from({ length: 9 }, (_, i) => i * 240);
+    const yTicks = Array.from({ length: 9 }, (_, i) => i * 135);
     return (
         <div style={{ display: "inline-block" }}>
             <div style={{ display: "flex", alignItems: "stretch" }}>

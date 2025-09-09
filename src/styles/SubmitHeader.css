@@ -263,6 +263,70 @@
     background: #0056b3;
 }
 
+/* Translate progress bar */
+.translate-progress {
+    position: relative;
+    height: 3px;
+    background: transparent;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.translate-progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 3px;
+    width: 40%;
+    background: linear-gradient(90deg, #00c853, #007bff);
+    border-radius: 2px;
+    animation: translateLoading 1.2s infinite ease-in-out;
+}
+
+@keyframes translateLoading {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(50%); }
+    100% { transform: translateX(200%); }
+}
+
+/* Language toggle */
+.lang-toggle {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.lang-toggle-btn {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 14px;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 0.75em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 40px;
+}
+
+.lang-toggle-btn.vi {
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+.lang-toggle-btn.en {
+    border-color: #6f42c1;
+    color: #6f42c1;
+}
+
+.lang-toggle-btn:hover:not(:disabled) {
+    background: #e9ecef;
+}
+
+.lang-toggle-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Edit mode styles */
 .query-edit-container {
     display: flex;
