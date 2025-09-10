@@ -38,10 +38,10 @@ function SearchControls({
             onChange={(e) => setLocalMaxResults(parseInt(e.target.value))}
             disabled={isLoading}
           >
+            <option value="100">100</option>
+            <option value="300">200</option>
             <option value="500">500</option>
             <option value="1000">1000</option>
-            <option value="1500">1500</option>
-            <option value="2000">2000</option>
           </select>
         </div>
         
