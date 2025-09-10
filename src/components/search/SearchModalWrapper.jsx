@@ -62,6 +62,19 @@ function SearchModalWrapper({ stage_num, updateInput, resetTrigger, stageData, o
         <SearchModal
           updateInput={updateInputForStage}
           stage_num={stage_num}
+          type="asr"
+          title={`ASR Search (Stage ${stage_num})`}
+          description="Search for text that appears in video audio"
+          placeholder="e.g., hello world"
+          resetTrigger={resetTrigger}
+          initialValue={stageData?.asr?.value || ""}
+          defaultWeightValue={stageData?.weight_dict?.asr || 1.0}
+          existingObjMask={stageData?.asr?.obj_mask || null}
+        />
+
+        <SearchModal
+          updateInput={updateInputForStage}
+          stage_num={stage_num}
           type="localized"
           title={`Location Search (Stage ${stage_num})`}
           description="Search by location or place names"
