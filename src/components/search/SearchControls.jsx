@@ -10,7 +10,7 @@ function SearchControls({
   onClear, 
   isLoading,
 }) {
-  const [localMaxResults, setLocalMaxResults] = useState(1000)
+  const [localMaxResults, setLocalMaxResults] = useState(500)
 
   const hasValidSearchData = () => {
     return validateSearchData(searchData)
