@@ -14,6 +14,12 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
     }
     // Build stage_list JSON and attach per-stage image files
     const stageList = {};
+    /**
+     * Object.entries() converts the searchData object into an array of arrays,
+     *  where each inner array contains a key-value pair from the object.
+     * searchData = { key1: 'value1', key2: 'value2' }, 
+     * Object.entries(searchData) returns [['key1', 'value1'], ['key2', 'value2']].
+     */
     Object.entries(searchData || {}).forEach(([stageKey, modalities]) => {
         if (!modalities || typeof modalities !== 'object') return;
         const stageObj = {};
@@ -23,9 +29,9 @@ async function searchMultiModalAPI(searchData, maxResults=100) {
         
         // text-like modalities
         ['text', 'ocr', 'localized', 'asr'].forEach((mod) => {
-            const entry = modalities[mod];
+            const entry = modalities[mod]; // ModalityPayload
             if (entry && entry.value && String(entry.value).trim()) {
-                stageObj[mod] = { value: String(entry.value).trim() };
+                stageObj[mod] = { value: String(entry.value).trim() }; // get text-query of this modal search
                 if (Object.prototype.hasOwnProperty.call(entry, 'obj_mask')) {
                     stageObj[mod].obj_mask = entry.obj_mask;
                 }
@@ -122,7 +128,7 @@ function validateSearchData(searchData) {
   // Validate stage keys are contiguous 1..N
   const keys = Object.keys(allStages).map((k) => Number(k)).filter((n) => Number.isInteger(n) && n > 0);
   if (keys.length > 0) {
-    const sorted = [...keys].sort((a, b) => a - b);
+    const sorted = [...keys].sort((a, b) => a - b); // ascending order
     for (let i = 0; i < sorted.length; i++) {
       if (sorted[i] !== i + 1) {
         ok = false;

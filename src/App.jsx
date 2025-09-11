@@ -22,11 +22,18 @@ const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
 
 function extractFrameNumber(relPath) {
   const fname = relPath.split("/").pop(); // f008856.webp
-  return parseInt(fname.replace(/^f/, "").replace(/\.webp$/, ""), 10);
+  return parseInt(fname.replace(/^f/, "").replace(/\.webp$/, ""), 10); // radix of 10, base 10 (decimal)
 }
 
 function toCenteredWindow(frames, currentFullPath) {
-  // Convert full path -> relative ("Videos_XX/Video_Y/fnnn.webp")
+  /**
+   * Given a list of frame paths and a current one, it filters to frames from the same video,
+   *  sorts by frame index, and finds the clicked frame’s position.
+→ Used for the slider modal, so you can browse around a selected frame.
+   */
+
+  // Convert full path -> relative ("Videos_L23_a/L23_V005/f001324.webp")
+  // string.slice(startIndex)  // Removes everything BEFORE startIndex
   const rel = currentFullPath.startsWith(BASE_DATA_PATH + "/")
     ? currentFullPath.slice(BASE_DATA_PATH.length + 1)
     : currentFullPath;
@@ -37,8 +44,8 @@ function toCenteredWindow(frames, currentFullPath) {
     f.startsWith(`${keyName}/${videoName}/`)
   );
   const sorted = sameVideo
-    .slice()
-    .sort((a, b) => extractFrameNumber(a) - extractFrameNumber(b));
+    .slice() // slice nothing, trim off nothing at the beginning
+    .sort((a, b) => extractFrameNumber(a) - extractFrameNumber(b)); // ascending order
 
   // Index of the clicked frame in the sorted window
   const idx = sorted.findIndex(
@@ -108,7 +115,7 @@ function App() {
   // Search handler - called from SearchPanel
   const handleSearchResults = async (searchData, maxResults) => {
     console.log("SEARCH REQUEST\n", searchData);
-    console.log("TOP_K: ", maxResults)
+    console.log("TOP_K: ", maxResults);
 
     // Check that at least one modality is present
     const hasSearchData = Object.keys(searchData).length > 0;
@@ -219,10 +226,12 @@ function App() {
           // Check if this frame is from the same video as existing frames
           const firstVideoEntry = currentList[0];
           if (firstVideoEntry.video_name !== video_name) {
-            alert(`❌ TRAKE Task Error!\n\nAll frames must come from the same video.\n\nYou already have frames from: ${firstVideoEntry.video_name}\nThis frame is from: ${video_name}\n\nPlease select frames only from: ${firstVideoEntry.video_name}`);
+            alert(
+              `❌ TRAKE Task Error!\n\nAll frames must come from the same video.\n\nYou already have frames from: ${firstVideoEntry.video_name}\nThis frame is from: ${video_name}\n\nPlease select frames only from: ${firstVideoEntry.video_name}`
+            );
             return;
           }
-          
+
           // Same video - add frame to existing entry
           if (!firstVideoEntry.frames.includes(frame_idx)) {
             firstVideoEntry.frames.push(frame_idx);
@@ -235,25 +244,23 @@ function App() {
     }
 
     // Auto mode: replace current submissions with 100 related keyframes from the same video
-    
 
     if (submitType === "auto") {
-    
-      let metakey = getMetadataKey(video_name, frame_idx)
+      let metakey = getMetadataKey(video_name, frame_idx);
       let image_path = getFramePath(metakey);
-      
+
       console.log("Image path from metakey: ", image_path);
 
       let related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
-      
-      if (!related || related.length === 0) { // fallback to interpolation
-        if ( isNaN(frame_idx)) frame_idx = 0;
-        
+
+      if (!related || related.length === 0) {
+        // fallback to interpolation
+        if (isNaN(frame_idx)) frame_idx = 0;
+
         let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
         let tmp_path = `Video/${video_name}/${fname}`;
         related = get_related_keyframe(tmp_path, 20, true);
         console.log("Get from interpolation: ", frame_idx);
-
       }
 
       const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
@@ -308,14 +315,13 @@ function App() {
     }
   };
 
-
   const handleUpdateSearchResult = (results) => {
     setSearchResults(results);
-  }
+  };
 
   return (
     <div className="main-container">
-      <div style={{ display: isResultsFullscreen ? 'none' : 'block' }}>
+      <div style={{ display: isResultsFullscreen ? "none" : "block" }}>
         <SearchPanel
           isLoading={isLoading}
           onSearch={handleSearchResults}
