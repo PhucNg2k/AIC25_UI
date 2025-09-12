@@ -119,7 +119,6 @@ function App() {
 
     // Check that at least one modality is present
     const hasSearchData = Object.keys(searchData).length > 0;
-
     if (!hasSearchData) {
       alert("Please enter at least one search query");
       return;
@@ -129,7 +128,9 @@ function App() {
 
     try {
       // Call the new multi-modal search API
+      console.log("BEFORE");
       const results = await searchMultiModalAPI(searchData, maxResults);
+      console.log("AFTER");
       //const results = await searchImagesMock(query, maxResults);
 
       // Process and display results
@@ -199,10 +200,12 @@ function App() {
       // Check if we've reached the 100 frame limit
 
       if (queryTask === "kis") {
+        // some will check if one of them is pass the condition
         const isAlreadySubmitted = currentList.some(
           (frame) =>
             frame.video_name === video_name && frame.frame_idx === frame_idx
         );
+        // if not added yet, proceed to do it!
         if (!isAlreadySubmitted) {
           const newFrame = { video_name, frame_idx };
           setCurrentList((prev) => [...prev, newFrame]);

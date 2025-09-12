@@ -87,7 +87,7 @@ export function get_related_keyframe(
       return null;
     }
 
-    const frame_id = parseInt(match[1], 10);
+    const frame_id = parseInt(match[1], 10); // base 10 (radix)
     result_frameList_fname = [];
 
     if (sorted) { // Submission pattern for video retrieval optimization
@@ -136,7 +136,7 @@ export function get_related_keyframe(
       
       // If you want to cap to exactly (n_before + n_after + 1), slice here:
       const targetCount = n_before + n_after + 1;
-      const chosen = inBounds.slice(0, targetCount);
+      const chosen = inBounds.slice(0, targetCount); // include 0, exclude the target count 
       
       result_frameList_fname = chosen.map((idx) => framesList[idx]);
 
