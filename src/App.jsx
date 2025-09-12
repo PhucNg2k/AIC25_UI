@@ -17,6 +17,46 @@ import { searchMultiModalAPI } from "./utils/searching";
 import { getFramePath, getMetadataKey } from "./utils/metadata";
 import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
+// Add new function
+const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+
+function extractFrameNumber(relPath) {
+  const fname = relPath.split("/").pop(); // f008856.webp
+  return parseInt(fname.replace(/^f/, "").replace(/\.webp$/, ""), 10); // radix of 10, base 10 (decimal)
+}
+
+function toCenteredWindow(frames, currentFullPath) {
+  /**
+   * Given a list of frame paths and a current one, it filters to frames from the same video,
+   *  sorts by frame index, and finds the clicked frame’s position.
+→ Used for the slider modal, so you can browse around a selected frame.
+   */
+
+  // Convert full path -> relative ("Videos_L23_a/L23_V005/f001324.webp")
+  // string.slice(startIndex)  // Removes everything BEFORE startIndex
+  const rel = currentFullPath.startsWith(BASE_DATA_PATH + "/")
+    ? currentFullPath.slice(BASE_DATA_PATH.length + 1)
+    : currentFullPath;
+
+  const [keyName, videoName, fileName] = rel.split("/");
+
+  // Keep only frames from the same video, then sort by numeric index
+  const sameVideo = frames.filter((f) =>
+    f.startsWith(`${keyName}/${videoName}/`)
+  );
+  const sorted = sameVideo
+    .slice() // slice nothing, trim off nothing at the beginning
+    .sort((a, b) => extractFrameNumber(a) - extractFrameNumber(b)); // ascending order
+
+  // Index of the clicked frame in the sorted window
+  const idx = sorted.findIndex(
+    (f) => f === `${keyName}/${videoName}/${fileName}`
+  );
+  return { frames: sorted, index: idx >= 0 ? idx : 0 };
+}
+
+//
+
 function App() {
   // State management
   const [searchResults, setSearchResults] = useState([]);
@@ -76,11 +116,10 @@ function App() {
   // Search handler - called from SearchPanel
   const handleSearchResults = async (searchData, maxResults) => {
     console.log("SEARCH REQUEST\n", searchData);
-    console.log("TOP_K: ", maxResults)
+    console.log("TOP_K: ", maxResults);
 
     // Check that at least one modality is present
     const hasSearchData = Object.keys(searchData).length > 0;
-
     if (!hasSearchData) {
       alert("Please enter at least one search query");
       return;
@@ -90,7 +129,9 @@ function App() {
 
     try {
       // Call the new multi-modal search API
+      console.log("BEFORE");
       const results = await searchMultiModalAPI(searchData, maxResults);
+      console.log("AFTER");
       //const results = await searchImagesMock(query, maxResults);
 
       // Process and display results
@@ -125,15 +166,14 @@ function App() {
     setShowFrameModal(true);
   };
 
-  // Open slider modal
   const openSliderModal = (frames, currentImagePath) => {
-    setSliderFrames(frames);
-    setShowSliderModal(true);
-    const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
-    const frameIndex = frames.findIndex(
-      (f) => `${BASE_DATA_PATH}/${f}` === currentImagePath
+    const { frames: displayFrames, index } = toCenteredWindow(
+      frames,
+      currentImagePath
     );
-    setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
+    setSliderFrames(displayFrames);
+    setShowSliderModal(true);
+    setSliderFrameIdx(index); // lands on current, so you have 19 left / 80 right
   };
 
   // Submit frame handler - handles different task types
@@ -150,10 +190,12 @@ function App() {
       // Check if we've reached the 100 frame limit
 
       if (queryTask === "kis") {
+        // some will check if one of them is pass the condition
         const isAlreadySubmitted = currentList.some(
           (frame) =>
             frame.video_name === video_name && frame.frame_idx === frame_idx
         );
+        // if not added yet, proceed to do it!
         if (!isAlreadySubmitted) {
           const newFrame = { video_name, frame_idx };
           setCurrentList((prev) => [...prev, newFrame]);
@@ -177,10 +219,12 @@ function App() {
           // Check if this frame is from the same video as existing frames
           const firstVideoEntry = currentList[0];
           if (firstVideoEntry.video_name !== video_name) {
-            alert(`❌ TRAKE Task Error!\n\nAll frames must come from the same video.\n\nYou already have frames from: ${firstVideoEntry.video_name}\nThis frame is from: ${video_name}\n\nPlease select frames only from: ${firstVideoEntry.video_name}`);
+            alert(
+              `❌ TRAKE Task Error!\n\nAll frames must come from the same video.\n\nYou already have frames from: ${firstVideoEntry.video_name}\nThis frame is from: ${video_name}\n\nPlease select frames only from: ${firstVideoEntry.video_name}`
+            );
             return;
           }
-          
+
           // Same video - add frame to existing entry
           if (!firstVideoEntry.frames.includes(frame_idx)) {
             firstVideoEntry.frames.push(frame_idx);
@@ -193,25 +237,23 @@ function App() {
     }
 
     // Auto mode: replace current submissions with 100 related keyframes from the same video
-    
 
     if (submitType === "auto") {
-    
-      let metakey = getMetadataKey(video_name, frame_idx)
+      let metakey = getMetadataKey(video_name, frame_idx);
       let image_path = getFramePath(metakey);
-      
+
       console.log("Image path from metakey: ", image_path);
 
       let related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
-      
-      if (!related || related.length === 0) { // fallback to interpolation
-        if ( isNaN(frame_idx)) frame_idx = 0;
-        
+
+      if (!related || related.length === 0) {
+        // fallback to interpolation
+        if (isNaN(frame_idx)) frame_idx = 0;
+
         let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
         let tmp_path = `Video/${video_name}/${fname}`;
         related = get_related_keyframe(tmp_path, 20, true);
         console.log("Get from interpolation: ", frame_idx);
-
       }
 
       const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
@@ -266,14 +308,13 @@ function App() {
     }
   };
 
-
   const handleUpdateSearchResult = (results) => {
     setSearchResults(results);
-  }
+  };
 
   return (
     <div className="main-container">
-      <div style={{ display: isResultsFullscreen ? 'none' : 'block' }}>
+      <div style={{ display: isResultsFullscreen ? "none" : "block" }}>
         <SearchPanel
           isLoading={isLoading}
           onSearch={handleSearchResults}

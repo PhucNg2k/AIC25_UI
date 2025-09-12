@@ -1,5 +1,4 @@
 // Metadata utilities converted from utils.js
-
 function normalizePath(relativePath) {
     // Remove leading "../" and ensure it starts with "/"
     const stripped = relativePath.replace(/^(\.\.\/)+/, '')
@@ -7,7 +6,6 @@ function normalizePath(relativePath) {
 }
 
 let videoMetadata = {}
-
 
 // Load video metadata from JSON file
 export async function loadVideoMetadata() {

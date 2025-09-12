@@ -10,21 +10,31 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
   const [resetTrigger, setResetTrigger] = useState(0);
   const [stages, setStages] = useState([1]);
 
-  
-
   const updateInput = useCallback((stage_num, type, inputData) => {
     setSearchData((previousData) => {
       const draft = { ...previousData };
-      const stageKey = String(stage_num || 1);
+      // const stageKey = String(stage_num || 1);
+      const n = Number(stage_num);
+      const stageKey = Number.isInteger(n) && n > 0 ? String(n) : "1";
       const previousStageBucket = draft[stageKey] || {};
       const nextStageBucket = { ...previousStageBucket };
 
-      const isImageModality = type === 'img';
+      const isImageModality = type === "img";
       const hasValidImagePayload =
-        inputData && (inputData.file || inputData.blob || inputData.dataUrl || inputData.url);
+        inputData &&
+        (inputData.file ||
+          inputData.blob ||
+          inputData.dataUrl ||
+          inputData.url);
       const hasValidTextLikePayload =
-        inputData && inputData.value && typeof inputData.value === 'string' && inputData.value.trim();
-      const providedWeight = inputData && typeof inputData.weight !== 'undefined' ? Number(inputData.weight) : undefined;
+        inputData &&
+        inputData.value &&
+        typeof inputData.value === "string" &&
+        inputData.value.trim();
+      const providedWeight =
+        inputData && typeof inputData.weight !== "undefined"
+          ? Number(inputData.weight)
+          : undefined;
 
       if (inputData === null) {
         delete nextStageBucket[type];
@@ -52,9 +62,12 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
       }
 
       // Build/refresh weight_dict without storing weights in modalities
-      const presentModalities = Object.keys(nextStageBucket).filter((k) => k !== 'weight_dict');
+      const presentModalities = Object.keys(nextStageBucket).filter(
+        (k) => k !== "weight_dict"
+      );
       if (presentModalities.length > 0) {
-        const prevWeightDict = (previousStageBucket && previousStageBucket.weight_dict) || {};
+        const prevWeightDict =
+          (previousStageBucket && previousStageBucket.weight_dict) || {};
         const weight_dict = { ...prevWeightDict };
 
         // If clearing a modality, ensure its weight is removed
@@ -65,13 +78,16 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
         });
 
         // If current call provided a weight, update it for this modality
-        if (typeof providedWeight !== 'undefined' && Number.isFinite(providedWeight)) {
+        if (
+          typeof providedWeight !== "undefined" &&
+          Number.isFinite(providedWeight)
+        ) {
           weight_dict[type] = Number(providedWeight);
         }
 
         // Ensure all present modalities have a weight (default 1)
         for (const mod of presentModalities) {
-          if (typeof weight_dict[mod] === 'undefined') {
+          if (typeof weight_dict[mod] === "undefined") {
             weight_dict[mod] = 1;
           }
         }
@@ -105,14 +121,15 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
     const numericKeys = Object.keys(prevSnapshot)
       .map((k) => Number(k))
       .filter((n) => Number.isInteger(n) && n > 0);
-    const maxKey = numericKeys.length > 0 ? Math.max(...numericKeys) : (stages.length || 0);
+    const maxKey =
+      numericKeys.length > 0 ? Math.max(...numericKeys) : stages.length || 0;
 
     // 1) Clear all modalities of the removed stage via updateInput(null)
     const removedKey = String(stage_num);
     const removedStage = prevSnapshot[removedKey] || {};
     if (removedStage && Object.keys(removedStage).length > 0) {
       Object.entries(removedStage).forEach(([type, payload]) => {
-        if (type === 'weight_dict') return;
+        if (type === "weight_dict") return;
         updateInput(stage_num, type, null);
       });
     }
@@ -125,11 +142,17 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
       if (!stageBucket) continue;
       const oldWeights = (stageBucket && stageBucket.weight_dict) || {};
       Object.entries(stageBucket).forEach(([type, payload]) => {
-        if (type === 'weight_dict') return;
-        const weightForType = typeof oldWeights[type] !== 'undefined' ? Number(oldWeights[type]) : undefined;
-        if (payload && typeof payload === 'object') {
+        if (type === "weight_dict") return;
+        const weightForType =
+          typeof oldWeights[type] !== "undefined"
+            ? Number(oldWeights[type])
+            : undefined;
+        if (payload && typeof payload === "object") {
           const payloadWithWeight = { ...payload };
-          if (typeof weightForType !== 'undefined' && Number.isFinite(weightForType)) {
+          if (
+            typeof weightForType !== "undefined" &&
+            Number.isFinite(weightForType)
+          ) {
             payloadWithWeight.weight = weightForType;
           }
           updateInput(newIndex, type, payloadWithWeight);
@@ -142,24 +165,36 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
     }
 
     // 3) Update stages list
-    setStages((previousStages) => Array.from({ length: Math.max(0, previousStages.length - 1) }, (_, i) => i + 1));
+    setStages((previousStages) =>
+      Array.from(
+        { length: Math.max(0, previousStages.length - 1) },
+        (_, i) => i + 1
+      )
+    );
   };
 
   return (
     <div className="search-panel">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
         <strong>Stages</strong>
         <button
           type="button"
           className="btn-primary"
           onClick={handleAddStage}
-          style={{ padding: '6px 10px', fontSize: 12 }}
+          style={{ padding: "6px 10px", fontSize: 12 }}
         >
           Add Stage
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
         {stages.map((stage_num, index) => (
           <SearchModalWrapper
             key={stage_num}
@@ -172,8 +207,6 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
           />
         ))}
       </div>
-
-      
 
       {/* Search Controls */}
       <SearchControls
@@ -188,11 +221,11 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
       {(() => {
         const replacer = (key, value) => {
           // Pretty-print File/Blob objects to show name/size/type
-          if (typeof File !== 'undefined' && value instanceof File) {
-            return { name: value.name};
+          if (typeof File !== "undefined" && value instanceof File) {
+            return { name: value.name };
           }
-          if (typeof Blob !== 'undefined' && value instanceof Blob) {
-            return { name: '(blob)' };
+          if (typeof Blob !== "undefined" && value instanceof Blob) {
+            return { name: "(blob)" };
           }
           return value;
         };
