@@ -79,7 +79,7 @@ export function get_related_keyframe(
   const video_name = parts[parts.length - 2]; // L28_V023
   const key_name = parts[parts.length - 3]; // Videos_L28_a
 
-  if (step >= 1) { // KEYFRAMES SUBMISSION - interpolate other frames id
+  if (step >= 1) { // SUBMISSION - interpolate other frames id
     // -------- Exact numeric frames with stride = step --------
     const match = frame_id_str.match(/f(\d+)\.webp/);
     if (!match) {

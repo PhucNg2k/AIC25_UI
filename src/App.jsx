@@ -90,6 +90,18 @@ function App() {
   // Derived current list + setter
   const currentList = submissions[queryTask];
 
+  /**
+   * updater can be two different kinds of values:
+   * A new array directly
+Example:
+
+setCurrentList([{ video_name: "V1", frame_idx: 123 }]);
+
+   *  A function that gets the old list and returns a new one
+Example:
+
+setCurrentList((prevList) => [...prevList, { video_name: "V1", frame_idx: 123 }]);
+   */
   const setCurrentList = (updater) => {
     setSubmissions((prev) => ({
       ...prev,
@@ -128,15 +140,15 @@ function App() {
 
     try {
       // Call the new multi-modal search API
-      console.log("BEFORE");
+      // console.log("BEFORE");
       const results = await searchMultiModalAPI(searchData, maxResults);
-      console.log("AFTER");
+      // console.log("AFTER");
       //const results = await searchImagesMock(query, maxResults);
 
       // Process and display results
       if (results && results.length > 0) {
         handleUpdateSearchResult(results);
-        console.log(results);
+        // console.log(results);
       } else {
         handleClear();
       }
@@ -165,17 +177,6 @@ function App() {
     setShowFrameModal(true);
   };
 
-  // Open slider modal
-  // const openSliderModal = (frames, currentImagePath) => {
-  //   setSliderFrames(frames);
-  //   setShowSliderModal(true);
-  //   const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
-  //   const frameIndex = frames.findIndex(
-  //     (f) => `${BASE_DATA_PATH}/${f}` === currentImagePath
-  //   );
-  //   setSliderFrameIdx(frameIndex >= 0 ? frameIndex : 0);
-
-  // };
   const openSliderModal = (frames, currentImagePath) => {
     const { frames: displayFrames, index } = toCenteredWindow(
       frames,
@@ -252,7 +253,7 @@ function App() {
       let metakey = getMetadataKey(video_name, frame_idx);
       let image_path = getFramePath(metakey);
 
-      console.log("Image path from metakey: ", image_path);
+      // console.log("Image path from metakey: ", image_path);
 
       let related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
 
@@ -262,16 +263,16 @@ function App() {
 
         let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
         let tmp_path = `Video/${video_name}/${fname}`;
-        related = get_related_keyframe(tmp_path, 20, true);
+        related = get_related_keyframe(tmp_path, 20, true); // interpolation
         console.log("Get from interpolation: ", frame_idx);
       }
 
-      const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+      // const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
       // related entries look like: "Videos_L28_a/L28_V023/f007932.webp"
       // Extract video_name and frame_idx from each
       const newListKIS = related.map((rel) => {
         const parts = rel.split("/");
-        const videoName = parts[1];
+        const videoName = parts[1]; // L28_V023
         const frameFile = parts[2]; // f007932.webp
         const frameNumber = parseInt(
           frameFile.replace(/^f/, "").replace(/\.webp$/, ""),

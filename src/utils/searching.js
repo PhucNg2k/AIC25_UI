@@ -27,7 +27,7 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
     stageObj.weight_dict = {};
 
     // text-like modalities
-    ["text", "ocr", "localized", "asr"].forEach((mod) => {
+    ["text", "ocr", "localized", "asr", "od"].forEach((mod) => {
       const entry = modalities[mod]; // ModalityPayload
       if (entry && entry.value && String(entry.value).trim()) {
         stageObj[mod] = { value: String(entry.value).trim() }; // get text-query of this modal search
@@ -119,11 +119,11 @@ function validateSearchData(searchData) {
     return false;
   }
 
-  const allStages = searchData || {};
+  const allEvents = searchData || {};
   let ok = true;
 
-  // Validate stage keys are contiguous 1..N
-  const keys = Object.keys(allStages)
+  // Validate event keys are contiguous 1..N
+  const keys = Object.keys(allEvents)
     .map((k) => Number(k))
     .filter((n) => Number.isInteger(n) && n > 0);
   if (keys.length > 0) {

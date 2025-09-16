@@ -5,8 +5,8 @@ import "../../styles/SearchModal.css";
 
 function SearchModal({
   updateInput, // callback to send updated search values to parent
-  stage_num, // identifies which stage this modal belongs to
-  type, // modality type (text, ocr, img, etc.)
+  event_num, // identifies which event this modal belongs to
+  type, // modality type (text, ocr, img, localized, etc.)
   title, // header text
   description, // extra info (not directly used in code)
   placeholder, // shown when empty
@@ -20,7 +20,16 @@ function SearchModal({
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef(null);
 
+  const [odSubmitting, setOdSubmitting] = useState(false);
   const [showODPanel, setShowODPanel] = useState(false);
+
+  const hasValue = !!(inputValue && inputValue.trim());
+  const hasObjMask = !!(
+    existingObjMask &&
+    typeof existingObjMask === "object" &&
+    Object.keys(existingObjMask).length > 0
+  );
+
   const handleOpenCanvas = () => {
     if (!hasValue) return;
     setShowODPanel(true);
@@ -29,12 +38,9 @@ function SearchModal({
   // Reset input when resetTrigger changes
   useEffect(() => {
     if (resetTrigger > 0) {
-      // Only trigger on actual reset, not initial load
       setInputValue("");
       setWeightValue("1");
-      // Only clear once per resetTrigger bump to avoid loops
-      // updateInput(type, null)
-      updateInput(stage_num, type, null);
+      updateInput(event_num, type, null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetTrigger, type]);
@@ -52,11 +58,8 @@ function SearchModal({
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-
-    // Always call updateInput, let SearchPanel decide what to do
-    // updateInput(type, { value: value, weight: Number(weightValue) || 1 })
-    updateInput(stage_num, type, {
-      value: value,
+    updateInput(event_num, type, {
+      value,
       weight: Number(weightValue) || 1,
     });
   };
@@ -66,8 +69,7 @@ function SearchModal({
     setWeightValue(raw);
     const numeric = Number(raw);
     if (inputValue && inputValue.trim()) {
-      // updateInput(type, { value: inputValue, weight: Number.isFinite(numeric) ? numeric : 1 })
-      updateInput(stage_num, type, {
+      updateInput(event_num, type, {
         value: inputValue,
         weight: Number.isFinite(numeric) ? numeric : 1,
       });
@@ -76,31 +78,18 @@ function SearchModal({
 
   const handleFocus = () => {
     setIsFocused(true);
-    // Focus the textarea after state update
     setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
+      textareaRef.current?.focus();
     }, 0);
   };
 
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
+  const handleBlur = () => setIsFocused(false);
 
   const handleClear = () => {
     setInputValue("");
     setWeightValue("1");
-    // updateInput(type, null)
-    updateInput(stage_num, type, null);
+    updateInput(event_num, type, null);
   };
-
-  const hasValue = !!(inputValue && inputValue.trim());
-  const hasObjMask = !!(
-    existingObjMask &&
-    typeof existingObjMask === "object" &&
-    Object.keys(existingObjMask).length > 0
-  );
 
   return (
     <div className={`search-modal ${hasValue ? "" : "dimmed"}`}>
@@ -113,12 +102,10 @@ function SearchModal({
           <label htmlFor={`search-input-${type}`}>Search Query</label>
 
           {!isFocused ? (
-            // Display mode - show full content in a div
             <div className="search-display" onClick={handleFocus}>
               {inputValue || placeholder}
             </div>
           ) : (
-            // Edit mode - normal textarea
             <textarea
               ref={textareaRef}
               id={`search-input-${type}`}
@@ -132,7 +119,8 @@ function SearchModal({
               className="search-textarea"
             />
           )}
-          {inputValue ? (
+
+          {hasValue ? (
             <div style={{ marginTop: 8 }}>
               <button
                 type="button"
@@ -193,6 +181,7 @@ function SearchModal({
           </button>
         </div>
       </div>
+
       {showODPanel ? (
         <div
           style={{
@@ -228,7 +217,7 @@ function SearchModal({
               }}
             >
               <h4 style={{ margin: 0 }}>
-                Object Mask - Stage {stage_num} / {type}
+                Object Mask - Event {event_num} / {type}
               </h4>
               <button
                 type="button"
@@ -240,6 +229,7 @@ function SearchModal({
                 Close
               </button>
             </div>
+
             <div
               style={{
                 padding: 12,
@@ -248,14 +238,14 @@ function SearchModal({
               }}
             >
               <ODPanel
-                stage_num={stage_num}
+                stage_num={event_num}
                 modal={type}
                 initialObjMask={existingObjMask}
                 colorMap={colorMap}
-                onUpdateInput={(sn, modal, payload) => {
-                  if (sn === stage_num && modal === type) {
+                onUpdateInput={(en, modal, payload) => {
+                  if (en === event_num && modal === type) {
                     const merged = {
-                      ...((initialValue && { value: initialValue }) || {}),
+                      value: inputValue || "",
                       ...payload,
                       weight: Number(weightValue) || 1,
                     };
@@ -266,10 +256,22 @@ function SearchModal({
                     ) {
                       delete merged.obj_mask;
                     }
-                    // updateInput(type, merged);
-                    updateInput(stage_num, type, merged);
+                    updateInput(event_num, type, merged);
                   }
                 }}
+                onSubmit={({ event_num: en, modal: m, obj_mask }) => {
+                  if (m !== type) return;
+                  setOdSubmitting(true);
+                  const merged = {
+                    value: inputValue || "",
+                    weight: Number(weightValue) || 1,
+                    obj_mask,
+                  };
+                  updateInput(en, type, merged);
+                  setShowODPanel(false);
+                  setOdSubmitting(false);
+                }}
+                isSubmitting={odSubmitting}
               />
             </div>
           </div>
