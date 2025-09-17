@@ -17,8 +17,6 @@ function ResultsPanel({
 }) {
   const [displayMode, setDisplayMode] = useState("grouped");
   // group results by video
-  const groupedResults =
-    searchResults.length > 0 ? groupResultsByVideo(searchResults) : {};
 
   // Group results by video name
   const groupResultsByVideo = (results) => {
@@ -33,6 +31,8 @@ function ResultsPanel({
 
     return grouped;
   };
+  const groupedResults =
+    searchResults.length > 0 ? groupResultsByVideo(searchResults) : {};
 
   function reparse_from_group(groupedResults) {
     let results = [];
@@ -96,9 +96,8 @@ function ResultsPanel({
 
   const renderGroupedDisplay = () => {
     return Object.entries(groupedResults).map(([videoName, frames]) => (
-      <div onClick={(e) => e.stopPropagation()}>
+      <div key={videoName} onClick={(e) => e.stopPropagation()}>
         <VideoResultRow
-          key={videoName}
           videoName={videoName}
           frames={frames}
           videoMetadata={videoMetadata}

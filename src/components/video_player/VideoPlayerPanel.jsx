@@ -1,38 +1,42 @@
-import { useState } from 'react'
-import VideoPlayerModal from './VideoPlayerModal'
+import { useState } from "react";
+import VideoPlayerModal from "./VideoPlayerModal";
 
-function VideoPlayerPanel({ 
-  initialFrame,  
-  framesList, 
+function VideoPlayerPanel({
+  initialFrame,
+  framesList,
   onClose,
-  onSubmitFrame
+  onSubmitFrame,
 }) {
   // Find the initial index of the frame in the framesList
-  const initialIndex = framesList.findIndex(f => 
-    f.video_name === initialFrame.video_name && f.frame_idx === initialFrame.frame_idx
-  )
-  
-  const [currentIndex, setCurrentIndex] = useState(initialIndex >= 0 ? initialIndex : 0)
+  const initialIndex = framesList.findIndex(
+    (f) =>
+      f.video_name === initialFrame.video_name &&
+      f.frame_idx === initialFrame.frame_idx
+  );
 
-  const currentFrame = framesList[currentIndex]
+  const [currentIndex, setCurrentIndex] = useState(
+    initialIndex >= 0 ? initialIndex : 0
+  );
+
+  const currentFrame = framesList[currentIndex];
 
   const handleNavigate = (direction) => {
-    const newIndex = currentIndex + direction
-    
+    const newIndex = currentIndex + direction;
+
     if (newIndex >= 0 && newIndex < framesList.length) {
-      setCurrentIndex(newIndex)
+      setCurrentIndex(newIndex);
     }
-  }
+  };
 
   const handleClose = () => {
-    onClose()
-  }
+    onClose();
+  };
 
   // If no current frame, close the panel
   if (!currentFrame) {
-    handleClose()
-    console.log('Close from currentFrame')
-    return null
+    handleClose();
+    console.log("Close from currentFrame");
+    return null;
   }
 
   return (
@@ -44,7 +48,7 @@ function VideoPlayerPanel({
       onNavigate={handleNavigate}
       onSubmitFrame={onSubmitFrame}
     />
-  )
+  );
 }
 
-export default VideoPlayerPanel
+export default VideoPlayerPanel;

@@ -1,5 +1,3 @@
-
-
 function VideoNavigationButton({ 
   direction, 
   onClick, 
