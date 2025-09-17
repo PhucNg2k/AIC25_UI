@@ -6,8 +6,8 @@ import { useState, useCallback, useMemo } from "react";
 import ObjectSearchModal from "./ObjectSearchModal"; // NEW
 
 const TABS = [
-  { key: "text", label: "Text" },
-  { key: "img", label: "Image" },
+  { key: "text", label: "TXT" },
+  { key: "img", label: "IMG" },
   { key: "ocr", label: "OCR" },
   { key: "asr", label: "ASR" },
   { key: "localized", label: "Localized" },
@@ -81,14 +81,14 @@ function SearchModalWrapper({
             borderBottom: "1px solid #eee",
             paddingBottom: 8,
             marginBottom: 12,
-            overflowX: "auto",
+            flexWrap: "wrap",
+            overflowX: "hidden",
           }}
         >
           {TABS.map((t) => (
             <button
               key={t.key}
               role="tab"
-              aria-selected={activeTab === t.key}
               onClick={() => setActiveTab(t.key)}
               className="btn-secondary"
               style={{
@@ -96,9 +96,20 @@ function SearchModalWrapper({
                 fontSize: 12,
                 border:
                   activeTab === t.key ? "2px solid #111" : "1px solid #ddd",
-                background: activeTab === t.key ? "#fff" : "#f8f9fa",
+                // Light green when this modality has an input/value;
+                // otherwise white if active, or light gray if idle.
+                background:
+                  (eventData?.[t.key]?.value &&
+                    eventData?.[t.key]?.value.trim() !== "") ||
+                  eventData?.[t.key]?.file ||
+                  (t.key === "od" &&
+                    eventData?.od &&
+                    Object.keys(eventData.od).length > 0)
+                    ? "lightgreen"
+                    : activeTab === t.key
+                    ? "#fff"
+                    : "#f8f9fa",
                 borderRadius: 6,
-                whiteSpace: "nowrap",
               }}
             >
               {t.label}
