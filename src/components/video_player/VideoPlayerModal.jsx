@@ -41,22 +41,26 @@ function toYouTubeEmbedUrl(input) {
 let ytApiPromise = null;
 
 function loadYouTubeIframeAPI() {
+  // server-side rendering guard (SSR)
   if (typeof window === "undefined") {
     return Promise.reject(new Error("YouTube API unavailable during SSR"));
   }
-
+  // If the YouTube API is already present, resolve right away with the API object—no script injection, no waiting.
   if (window.YT && typeof window.YT.Player === "function") {
     return Promise.resolve(window.YT);
   }
-
+  // If some earlier call already started loading the script, reuse that same promise. Prevents double-injecting the script
   if (ytApiPromise) {
     return ytApiPromise;
   }
 
+  // if youtube API is not present and no script has not been loading, we do it now
   ytApiPromise = new Promise((resolve, reject) => {
+    // save the old one
     const previousCallback = window.onYouTubeIframeAPIReady;
 
     window.onYouTubeIframeAPIReady = () => {
+      // if the old one exists, call it
       if (typeof previousCallback === "function") {
         previousCallback();
       }
@@ -67,6 +71,7 @@ function loadYouTubeIframeAPI() {
       }
     };
 
+    // inject <script> tag, like import in python
     const script = document.createElement("script");
     script.src = "https://www.youtube.com/iframe_api";
     script.async = true;
@@ -92,7 +97,10 @@ function VideoPlayerModal({
   // const videoRef = useRef(null);
   const { video_name, frame_idx, score } = frameData;
 
+  // It’s a React ref object that holds a reference to the YouTube player instance created by the YouTube IFrame API (new YT.Player(...)).
   const playerRef = useRef(null);
+
+  // It’s a React ref object that holds a reference to a DOM element (<div>) in which the YouTube player is mounted.
   const playerContainerRef = useRef(null);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -232,7 +240,7 @@ function VideoPlayerModal({
   };
 
   const handlePlayPause = () => {
-    const player = playerRef.current;
+    const player = playerRef.current; // window.YT.Player
     if (!player) return;
 
     const state = player.getPlayerState?.();
@@ -314,7 +322,11 @@ function VideoPlayerModal({
                 <div className="player-fallback">
                   <p>Video unavailable in the embedded player.</p>
                   {watchUrl && (
-                    <a href={watchUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={watchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Open in YouTube
                     </a>
                   )}
