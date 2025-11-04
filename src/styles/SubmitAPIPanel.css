@@ -1,0 +1,310 @@
+/* SubmitAPIPanel.css - Unified styles for the API submission panel */
+
+/* Panel container (match SubmitPanel.css) */
+.submit-panel {
+    flex: 0 0 300px;
+    background: #f8f9fa;
+    border-left: 1px solid #e9ecef;
+    padding: 20px 20px 28px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: relative;
+    height: 100vh;
+    box-shadow: inset 6px 0 12px -12px rgba(0,0,0,0.25);
+}
+
+/* Header wrapper */
+.submit-api-header {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Credentials section */
+.credentials-section {
+    margin-bottom: 20px;
+}
+
+.credentials-section > button {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #0d6efd 0%, #2a7fff 100%);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+}
+
+.credentials-section > button:hover {
+    filter: brightness(0.95);
+}
+
+.credentials-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.credential-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.credential-field label {
+    font-size: 0.85em;
+    color: #495057;
+    font-weight: 600;
+    margin: 0;
+}
+
+.credential-field input {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #495057;
+    background: white;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.credential-field input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Session/Evaluation sections */
+.session-section,
+.evaluation-section {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.session-info,
+.evaluation-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.session-info label,
+.evaluation-info label {
+    font-size: 0.85em;
+    color: #495057;
+    font-weight: 600;
+    margin: 0;
+}
+
+.session-value,
+.evaluation-value {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.85em;
+    color: #495057;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+}
+
+.session-value.empty,
+.evaluation-value.empty {
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+}
+
+.evaluation-name {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.session-section button,
+.evaluation-section button {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #28a745 0%, #35c155 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.18);
+}
+
+.session-section button:hover:not(:disabled),
+.evaluation-section button:hover:not(:disabled) {
+    background: #218838;
+}
+
+.session-section button:disabled,
+.evaluation-section button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Task type section */
+.header-section {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.header-section label {
+    font-size: 0.9em;
+    color: #495057;
+    font-weight: 600;
+    margin: 0;
+}
+
+.submit-option {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.submit-option-btn {
+    padding: 10px 18px;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+    background: white;
+    color: #007bff;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.submit-option-btn:not(.active):hover {
+    background: #f8f9fa;
+    border-color: #0056b3;
+    color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.submit-option-btn.active {
+    background: linear-gradient(135deg, #d4edda 0%, #eaf7ee 100%);
+    color: #155724;
+    border-color: #28a745;
+    box-shadow: inset 0 0 0 1px rgba(40,167,69,0.2), 0 2px 8px rgba(40,167,69,0.15);
+}
+
+.submit-option-btn:focus,
+.submit-option-btn:active,
+.submit-option-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.submit-option-btn:not(.active):focus,
+.submit-option-btn:not(.active):active {
+    background: white;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.submit-option-btn.active:focus,
+.submit-option-btn.active:active {
+    background: #d4edda;
+    color: #155724;
+    border-color: #28a745;
+}
+
+/* Request preview */
+.request-preview {
+    margin-top: 14px;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+.request-preview pre {
+    margin: 0;
+    padding: 10px 12px;
+    background: #0b1020;
+    color: #e9edf3;
+    border: 1px solid #20263a;
+    border-radius: 8px;
+    overflow: auto;
+    white-space: pre-wrap; /* allow wrapping */
+    word-break: break-word; /* break long tokens */
+    overflow-wrap: anywhere; /* wrap anywhere if needed */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.request-preview input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.95em;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.request-preview input[type="text"]:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+}
+
+.request-preview strong {
+    font-size: 0.95em;
+    color: #2c3e50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .submit-panel {
+        flex: 1 1 auto;
+        border-left: none;
+        border-top: 1px solid #e9ecef;
+        max-height: 300px;
+    }
+
+    .submit-option {
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .submit-option-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 12px 16px;
+        font-size: 0.85em;
+    }
+}
+
+

@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { getSessionId, getEvaluationId } from "../../utils/api_submit_utils";
-import "../../styles/SubmitAPIHeader.css";
+import "../../styles/SubmitAPIPanel.css";
 
 function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluationIdChange }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [sessionId, setSessionId] = useState("");
+  const [sessionName, setSessionName] = useState("");
+  
   const [evaluationId, setEvaluationId] = useState("");
   const [evaluationName, setEvaluationName] = useState("");
   const [showCredentials, setShowCredentials] = useState(false);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [isLoadingEvaluation, setIsLoadingEvaluation] = useState(false);
+
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
@@ -24,6 +27,7 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
       
       if (response.sessionId) {
         setSessionId(response.sessionId);
+        setSessionName(`${response.username}-${response.role}` || "");
         if (onSessionIdChange) {
           onSessionIdChange(response.sessionId);
         }
@@ -50,7 +54,7 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
       
       if (evaluation && typeof evaluation === 'object' && evaluation.id) {
         setEvaluationId(evaluation.id);
-        setEvaluationName(evaluation.name || "");
+        setEvaluationName(`${evaluation.name}-${evaluation.type}-${evaluation.status}` || "");
         if (onEvaluationIdChange) {
           onEvaluationIdChange(evaluation.id);
         }
@@ -112,6 +116,7 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
                 ) : (
                   <div className="session-value empty">Not logged in</div>
                 )}
+                {sessionName && <div className="evaluation-name">{sessionName}</div>}
               </div>
               <button
                 type="button"

@@ -2,8 +2,8 @@ const BASE_URL = "https://eventretrieval.oj.io.vn/api/v2";
 
 const DEFAULT_FPS = 25;
 
-function frameToMilliseconds(frameIdx, videoFPS=None) {
-  return Math.round((frameIdx / DEFAULT_FPS) * 1000);
+function frameToMilliseconds(frameIdx) {
+  return Math.round((Number(frameIdx) / DEFAULT_FPS) * 1000);
 }
 
 function getVideoId(videoName) {
@@ -106,7 +106,7 @@ export function prepareQABody(frame) {
   const timeMs = frameToMilliseconds(frame.frame_idx);
   const answer = frame.answer || "";
 
-  const text = `QA-${answer}-${videoId}-${timeMs}`;
+  const text = `QA-${answer.trim()}-${videoId}-${timeMs}`;
 
   return {
     answerSets: [
@@ -173,6 +173,13 @@ export async function submitAPI(evaluationId, sessionId, body) {
     const url = new URL(`${BASE_URL}/submit/${evaluationId}`);
     url.searchParams.append("session", sessionId);
 
+
+    console.log("URL: ", url.toString());
+    console.log("Body: ", JSON.stringify(body, null, 2));
+    console.log("Session ID: ", sessionId);
+    console.log("Evaluation ID: ", evaluationId);
+    console.log("--------------------------------");
+    
     const response = await fetch(url.toString(), {
       method: "POST",
       headers: {
@@ -187,6 +194,8 @@ export async function submitAPI(evaluationId, sessionId, body) {
         errorData.message || `Submission failed: ${response.status} ${response.statusText}`
       );
     }
+    
+    console.log("Response: ", response);
 
     const data = await response.json();
     return data;
