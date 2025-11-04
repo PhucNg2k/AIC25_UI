@@ -58,6 +58,8 @@ function SubmitAPIPanel ({
         return null;
     })();
 
+    let waitTime = 10000;
+
     return (
         <div className="submit-panel">
             <SubmitAPIHeader 
@@ -112,28 +114,16 @@ function SubmitAPIPanel ({
                 onSend={async () => {
                     if (!previewRequest?.body) return;
                     setSending(true);
-                    let closed = false;
-                    const timer = setTimeout(() => {
-                        if (!closed) {
-                            setIsConfirmOpen(false);
-                            closed = true;
-                        }
-                    }, 5000);
+                    // Auto-close ONLY if no response arrives within waitTime
+                    const watchdog = setTimeout(() => setIsConfirmOpen(false), waitTime);
                     try {
                         const resp = await submitAPI(evaluationId, sessionId, previewRequest.body);
-                        setResponseData(resp);
-                        if (!closed) {
-                            setIsConfirmOpen(false);
-                            closed = true;
-                        }
+                        clearTimeout(watchdog);
+                        setResponseData(resp); // Show response; user will close manually
                     } catch (err) {
-                        setResponseData({ error: err?.message || String(err) });
-                        if (!closed) {
-                            setIsConfirmOpen(false);
-                            closed = true;
-                        }
+                        clearTimeout(watchdog);
+                        setResponseData({ error: err?.message || String(err) }); // Keep open for manual close
                     } finally {
-                        clearTimeout(timer);
                         setSending(false);
                     }
                 }}

@@ -1,9 +1,13 @@
+import { getMetadataKey, getVideoFPS } from "./metadata";
+
+
 const BASE_URL = "https://eventretrieval.oj.io.vn/api/v2";
 
-const DEFAULT_FPS = 25;
 
-function frameToMilliseconds(frameIdx) {
-  return Math.round((Number(frameIdx) / DEFAULT_FPS) * 1000);
+function frameToMilliseconds(videoName, frameIdx) {
+  let metaKey = getMetadataKey(videoName, frameIdx);
+  let vidFps = getVideoFPS(metaKey);
+  return Math.round((Number(frameIdx) / vidFps) * 1000);
 }
 
 function getVideoId(videoName) {
@@ -80,7 +84,7 @@ export function prepareKISBody(frame) {
   }
 
   const videoId = getVideoId(frame.video_name);
-  const timeMs = frameToMilliseconds(frame.frame_idx);
+  const timeMs = frameToMilliseconds(frame.video_name, frame.frame_idx);
 
   const answer = {
     mediaItemName: videoId,
@@ -103,7 +107,7 @@ export function prepareQABody(frame) {
   }
 
   const videoId = getVideoId(frame.video_name);
-  const timeMs = frameToMilliseconds(frame.frame_idx);
+  const timeMs = frameToMilliseconds(frame.video_name, frame.frame_idx);
   const answer = frame.answer || "";
 
   const text = `QA-${answer.trim()}-${videoId}-${timeMs}`;
@@ -189,11 +193,17 @@ export async function submitAPI(evaluationId, sessionId, body) {
     }
 
     if (!response.ok) {
-      const message = (parsed && (parsed.detail || parsed.message)) || `Submission failed: ${response.status} ${response.statusText}`;
-      throw new Error(message);
+      return {
+        ok: false,
+        status: response.status,
+        statusText: response.statusText,
+        data: parsed,
+        description: (parsed && (parsed.description || parsed.detail || parsed.message)) || undefined,
+      };
     }
 
     return {
+      ok: true,
       status: response.status,
       statusText: response.statusText,
       data: parsed,
