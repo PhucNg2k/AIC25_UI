@@ -30,6 +30,34 @@ function SubmitAPIPanel ({
 
     const BASE_URL = "https://eventretrieval.oj.io.vn/api/v2"; // kept for consistency in file
 
+    // Build body like the preview to validate readiness
+    const previewBody = (() => {
+        if (!Array.isArray(submitFrameEntry) || submitFrameEntry.length === 0) return null;
+        const first = submitFrameEntry[0];
+        try {
+            if (queryTask === 'kis' && first) {
+                return prepareKISBody(first);
+            } else if (queryTask === 'qa' && first) {
+                const qaItem = { ...first };
+                if (!qaItem.answer) qaItem.answer = placeholderValue;
+                return prepareQABody(qaItem);
+            } else if (queryTask === 'trake') {
+                const videoName = submitFrameEntry[0]?.video_name || first?.video_name;
+                const merged = new Set();
+                submitFrameEntry.forEach((entry) => {
+                    if (entry && Array.isArray(entry.frames)) {
+                        entry.frames.forEach((f) => merged.add(Number(f)));
+                    }
+                });
+                const mergedEntry = { video_name: videoName, frames: Array.from(merged).sort((a, b) => a - b) };
+                return prepareTRAKEBody(mergedEntry);
+            }
+        } catch (_) {
+            return null;
+        }
+        return null;
+    })();
+
     return (
         <div className="submit-panel">
             <SubmitAPIHeader 
@@ -58,32 +86,7 @@ function SubmitAPIPanel ({
                     type="button"
                     className="export-btn"
                     onClick={() => {
-                        // Build the same request shape shown in preview
-                        let body = null;
-                        if (Array.isArray(submitFrameEntry) && submitFrameEntry.length > 0) {
-                            const first = submitFrameEntry[0];
-                            try {
-                                if (queryTask === 'kis' && first) {
-                                    body = prepareKISBody(first);
-                                } else if (queryTask === 'qa' && first) {
-                                    const qaItem = { ...first };
-                                    if (!qaItem.answer) qaItem.answer = placeholderValue;
-                                    body = prepareQABody(qaItem);
-                                } else if (queryTask === 'trake') {
-                                    const videoName = submitFrameEntry[0]?.video_name || first?.video_name;
-                                    const merged = new Set();
-                                    submitFrameEntry.forEach((entry) => {
-                                        if (entry && Array.isArray(entry.frames)) {
-                                            entry.frames.forEach((f) => merged.add(Number(f)));
-                                        }
-                                    });
-                                    const mergedEntry = { video_name: videoName, frames: Array.from(merged).sort((a, b) => a - b) };
-                                    body = prepareTRAKEBody(mergedEntry);
-                                }
-                            } catch (_) {
-                                body = null;
-                            }
-                        }
+                        const body = previewBody;
                         const url = `${BASE_URL}/submit/${evaluationId || '<evaluationId>'}`;
                         const method = 'POST';
                         const params = { session: sessionId || '<sessionId>' };
@@ -91,8 +94,8 @@ function SubmitAPIPanel ({
                         setResponseData(null);
                         setIsConfirmOpen(true);
                     }}
-                    disabled={!evaluationId || !sessionId}
-                    title={!evaluationId || !sessionId ? 'Login and fetch evaluation ID first' : 'Open confirmation'}
+                    disabled={!evaluationId || !sessionId || !previewBody}
+                    title={!evaluationId || !sessionId ? 'Login and fetch evaluation ID first' : (!previewBody ? 'Provide a valid body' : 'Open confirmation')}
                 >
                     Open Confirmation
                 </button>
