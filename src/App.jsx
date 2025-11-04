@@ -6,6 +6,7 @@ import ResultsPanel from "./components/results/ResultsPanel";
 import VideoPlayerPanel from "./components/video_player/VideoPlayerPanel";
 import FrameModal from "./components/frame/FrameModal";
 import FrameSliderModal from "./components/frame/FrameSliderModal";
+import SubmitAPIPanel from "./components/submit_api_panel/SubmitAPIPanel"
 
 import { loadVideoMetadata } from "./utils/metadata";
 import {
@@ -344,7 +345,18 @@ setCurrentList((prevList) => [...prevList, { video_name: "V1", frame_idx: 123 }]
         isFullscreen={isResultsFullscreen}
         onToggleFullscreen={() => setIsResultsFullscreen((prev) => !prev)}
       />
+      
+      
+      <SubmitAPIPanel
+        queryTask={queryTask}
+        setQueryTask={setQueryTask}
+        submitFrameEntry={currentList}
+        setSubmittedFrames={setCurrentList}
+        onClearSubmissions={handleClearSubmissions}
+      />
+      
 
+      {/*
       <SubmitPanel
         query={query}
         setQuery={setQuery}
@@ -358,6 +370,8 @@ setCurrentList((prevList) => [...prevList, { video_name: "V1", frame_idx: 123 }]
         setSubmittedFrames={setCurrentList}
         onClearSubmissions={handleClearSubmissions}
       />
+       */}
+      
 
       {showVideoPlayer && selectedFrame && (
         <VideoPlayerPanel
