@@ -173,13 +173,6 @@ export async function submitAPI(evaluationId, sessionId, body) {
     const url = new URL(`${BASE_URL}/submit/${evaluationId}`);
     url.searchParams.append("session", sessionId);
 
-
-    console.log("URL: ", url.toString());
-    console.log("Body: ", JSON.stringify(body, null, 2));
-    console.log("Session ID: ", sessionId);
-    console.log("Evaluation ID: ", evaluationId);
-    console.log("--------------------------------");
-    
     const response = await fetch(url.toString(), {
       method: "POST",
       headers: {
@@ -188,17 +181,23 @@ export async function submitAPI(evaluationId, sessionId, body) {
       body: JSON.stringify(body),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || `Submission failed: ${response.status} ${response.statusText}`
-      );
+    let parsed;
+    try {
+      parsed = await response.json();
+    } catch (_) {
+      parsed = null;
     }
-    
-    console.log("Response: ", response);
 
-    const data = await response.json();
-    return data;
+    if (!response.ok) {
+      const message = (parsed && (parsed.detail || parsed.message)) || `Submission failed: ${response.status} ${response.statusText}`;
+      throw new Error(message);
+    }
+
+    return {
+      status: response.status,
+      statusText: response.statusText,
+      data: parsed,
+    };
 
   } catch (error) {
     console.error("Submit API error:", error);

@@ -35,7 +35,9 @@ function SubmitAPIConfirmModal({
           {responseData && (
             <div className="request-preview" style={{ width: '100%' }}>
               <strong>Response</strong>
-              <pre>{JSON.stringify(responseData, null, 2)}</pre>
+              <div><b>Status</b>: {`${responseData.status || ''} ${responseData.statusText || ''}`.trim()}</div>
+              <div><b>Body</b>:</div>
+              <pre>{JSON.stringify(responseData.data ?? responseData, null, 2)}</pre>
             </div>
           )}
         </div>
