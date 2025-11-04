@@ -2,7 +2,7 @@ import { useState } from "react";
 import { getSessionId, getEvaluationId } from "../../utils/api_submit_utils";
 import "../../styles/SubmitAPIPanel.css";
 
-function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluationIdChange }) {
+function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluationIdChange, onResetSelection }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [sessionId, setSessionId] = useState("");
@@ -157,21 +157,21 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
           <button
             type="button"
             className={`submit-option-btn ${queryTask === "kis" ? "active" : ""}`}
-            onClick={() => setQueryTask("kis")}
+            onClick={() => { onResetSelection && onResetSelection(); setQueryTask("kis"); }}
           >
             KIS
           </button>
           <button
             type="button"
             className={`submit-option-btn ${queryTask === "qa" ? "active" : ""}`}
-            onClick={() => setQueryTask("qa")}
+            onClick={() => { onResetSelection && onResetSelection(); setQueryTask("qa"); }}
           >
             QA
           </button>
           <button
             type="button"
             className={`submit-option-btn ${queryTask === "trake" ? "active" : ""}`}
-            onClick={() => setQueryTask("trake")}
+            onClick={() => { onResetSelection && onResetSelection(); setQueryTask("trake"); }}
           >
             TRAKE
           </button>

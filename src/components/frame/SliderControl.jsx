@@ -133,13 +133,13 @@ export default function SliderControl({
               : "Submit Moment From This Frame"}
           </button>
 
-          <button
+          {/* <button
             className="submit-all-frames-btn"
             onClick={handleSubmitAllFrames}
             disabled={isAutoScanning}
           >
             Submit Frameset
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

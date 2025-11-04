@@ -65,6 +65,7 @@ function SubmitAPIPanel ({
                 setQueryTask={setQueryTask}
                 onSessionIdChange={handleSessionIdChange}
                 onEvaluationIdChange={handleEvaluationIdChange}
+                onResetSelection={() => onClearSubmissions()}
             />
 
 
@@ -81,25 +82,26 @@ function SubmitAPIPanel ({
             />
 
             {/*Submit Button */}
-            <div style={{ marginTop: 12 }}>
-                <button
-                    type="button"
-                    className="export-btn"
-                    onClick={() => {
-                        const body = previewBody;
-                        const url = `${BASE_URL}/submit/${evaluationId || '<evaluationId>'}`;
-                        const method = 'POST';
-                        const params = { session: sessionId || '<sessionId>' };
-                        setPreviewRequest({ url, method, params, body });
-                        setResponseData(null);
-                        setIsConfirmOpen(true);
-                    }}
-                    disabled={!evaluationId || !sessionId || !previewBody}
-                    title={!evaluationId || !sessionId ? 'Login and fetch evaluation ID first' : (!previewBody ? 'Provide a valid body' : 'Open confirmation')}
-                >
-                    Open Confirmation
-                </button>
-            </div>
+            {(evaluationId && sessionId && previewBody) ? (
+                <div style={{ marginTop: 12 }}>
+                    <button
+                        type="button"
+                        className="export-btn"
+                        onClick={() => {
+                            const body = previewBody;
+                            const url = `${BASE_URL}/submit/${evaluationId || '<evaluationId>'}`;
+                            const method = 'POST';
+                            const params = { session: sessionId || '<sessionId>' };
+                            setPreviewRequest({ url, method, params, body });
+                            setResponseData(null);
+                            setIsConfirmOpen(true);
+                        }}
+                        title={'Open confirmation'}
+                    >
+                        Open Confirmation
+                    </button>
+                </div>
+            ) : null}
 
             <SubmitAPIConfirmModal
                 isOpen={isConfirmOpen}

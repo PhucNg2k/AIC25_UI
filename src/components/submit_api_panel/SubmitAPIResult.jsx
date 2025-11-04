@@ -70,26 +70,24 @@ function SubmitAPIResult({
     <div className="request-preview">
       <strong>Request Preview</strong>
       <div>
-        {queryTask === "trake" && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
-            <button
-              type="button"
-              onClick={() => onResetTrake && onResetTrake()}
-              title="Clear TRAKE frames"
-              style={{
-                padding: '6px 10px',
-                fontSize: 12,
-                borderRadius: 6,
-                border: '1px solid #dc3545',
-                background: '#fff',
-                color: '#dc3545',
-                cursor: 'pointer'
-              }}
-            >
-              Reset
-            </button>
-          </div>
-        )}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+          <button
+            type="button"
+            onClick={() => onResetTrake && onResetTrake()}
+            title="Clear current selection"
+            style={{
+              padding: '6px 10px',
+              fontSize: 12,
+              borderRadius: 6,
+              border: '1px solid #dc3545',
+              background: '#fff',
+              color: '#dc3545',
+              cursor: 'pointer'
+            }}
+          >
+            Reset
+          </button>
+        </div>
         <div>
           <b>URL</b>: <span style={{ wordBreak: "break-all" }}>{url}</span>
         </div>
