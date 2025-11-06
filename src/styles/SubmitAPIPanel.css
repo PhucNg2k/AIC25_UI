@@ -109,8 +109,8 @@
     margin: 0;
 }
 
-.session-value,
-.evaluation-value {
+.session-input,
+.evaluation-input {
     padding: 8px 12px;
     border: 1px solid #ced4da;
     border-radius: 6px;
@@ -119,13 +119,21 @@
     color: #495057;
     word-break: break-all;
     font-family: 'Courier New', monospace;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.session-value.empty,
-.evaluation-value.empty {
+.session-input:focus,
+.evaluation-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.session-input::placeholder,
+.evaluation-input::placeholder {
     color: #6c757d;
     font-style: italic;
-    background: #f8f9fa;
 }
 
 .evaluation-name {

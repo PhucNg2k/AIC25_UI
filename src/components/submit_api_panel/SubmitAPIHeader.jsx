@@ -110,12 +110,21 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
 
             <div className="session-section">
               <div className="session-info">
-                <label>Session ID</label>
-                {sessionId ? (
-                  <div className="session-value">{sessionId}</div>
-                ) : (
-                  <div className="session-value empty">Not logged in</div>
-                )}
+                <label htmlFor="session-id-input">Session ID</label>
+                <input
+                  id="session-id-input"
+                  type="text"
+                  value={sessionId}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setSessionId(newValue);
+                    if (onSessionIdChange) {
+                      onSessionIdChange(newValue);
+                    }
+                  }}
+                  placeholder="Enter or auto-fill session ID"
+                  className="session-input"
+                />
                 {sessionName && <div className="evaluation-name">{sessionName}</div>}
               </div>
               <button
@@ -123,28 +132,35 @@ function SubmitAPIHeader({ queryTask, setQueryTask, onSessionIdChange, onEvaluat
                 onClick={handleLogin}
                 disabled={isLoadingSession || !username.trim() || !password}
               >
-                {isLoadingSession ? "Logging in..." : "Refresh session ID"}
+                {isLoadingSession ? "Logging in..." : "Auto-fill session ID"}
               </button>
             </div>
 
             <div className="evaluation-section">
               <div className="evaluation-info">
-                <label>Evaluation ID</label>
-                {evaluationId ? (
-                  <div className="evaluation-value">
-                    <div>{evaluationId}</div>
-                    {evaluationName && <div className="evaluation-name">{evaluationName}</div>}
-                  </div>
-                ) : (
-                  <div className="evaluation-value empty">Not loaded</div>
-                )}
+                <label htmlFor="evaluation-id-input">Evaluation ID</label>
+                <input
+                  id="evaluation-id-input"
+                  type="text"
+                  value={evaluationId}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setEvaluationId(newValue);
+                    if (onEvaluationIdChange) {
+                      onEvaluationIdChange(newValue);
+                    }
+                  }}
+                  placeholder="Enter or auto-fill evaluation ID"
+                  className="evaluation-input"
+                />
+                {evaluationName && <div className="evaluation-name">{evaluationName}</div>}
               </div>
               <button
                 type="button"
                 onClick={handleGetEvaluationId}
                 disabled={isLoadingEvaluation || !sessionId}
               >
-                {isLoadingEvaluation ? "Loading..." : "Refresh evaluation ID"}
+                {isLoadingEvaluation ? "Loading..." : "Auto-fill evaluation ID"}
               </button>
             </div>
           </>

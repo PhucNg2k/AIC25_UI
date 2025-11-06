@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { prepareKISBody, prepareQABody, prepareTRAKEBody } from "../../utils/api_submit_utils";
 
 function SubmitAPIResult({
@@ -9,8 +9,19 @@ function SubmitAPIResult({
   placeholderValue,
   onPlaceholderChange,
   onResetTrake,
+  onBodyChange,
 }) {
+  const [manualBodyOverride, setManualBodyOverride] = useState(null);
+  const [isEditingBody, setIsEditingBody] = useState(false);
   const BASE_URL = "https://eventretrieval.oj.io.vn/api/v2";
+
+  const firstEntrySignature = useMemo(() => {
+    try {
+      return JSON.stringify(submitFrameEntry?.[0] || null);
+    } catch (_) {
+      return String(submitFrameEntry?.length || 0);
+    }
+  }, [submitFrameEntry]);
 
   useEffect(() => {
     if (queryTask === "qa") {
@@ -21,18 +32,30 @@ function SubmitAPIResult({
     }
   }, [queryTask, submitFrameEntry, onPlaceholderChange]);
 
-  const firstEntrySignature = useMemo(() => {
-    try {
-      return JSON.stringify(submitFrameEntry?.[0] || null);
-    } catch (_) {
-      return String(submitFrameEntry?.length || 0);
-    }
-  }, [submitFrameEntry]);
+  // Ensure edit mode never blocks new submit/reset: when input set changes, clear edit state
+  useEffect(() => {
+    setIsEditingBody(false);
+    setManualBodyOverride(null);
+  }, [firstEntrySignature, queryTask]);
+
+  
 
   const { url, method, params, body } = useMemo(() => {
     const method = "POST";
     const url = `${BASE_URL}/submit/${evaluationId || "<evaluationId>"}`;
     const params = { session: sessionId || "<sessionId>" };
+
+    // Use manual override if provided (and saved)
+    if (manualBodyOverride !== null && !isEditingBody) {
+      try {
+        const parsed = typeof manualBodyOverride === 'string' 
+          ? JSON.parse(manualBodyOverride) 
+          : manualBodyOverride;
+        return { url, method, params, body: parsed };
+      } catch (_) {
+        // Invalid JSON, fall through to auto-generate
+      }
+    }
 
     let body = null;
     if (Array.isArray(submitFrameEntry) && submitFrameEntry.length > 0) {
@@ -64,7 +87,18 @@ function SubmitAPIResult({
     }
 
     return { url, method, params, body };
-  }, [BASE_URL, evaluationId, sessionId, firstEntrySignature, queryTask, placeholderValue, submitFrameEntry]);
+  }, [BASE_URL, evaluationId, sessionId, firstEntrySignature, queryTask, placeholderValue, submitFrameEntry, manualBodyOverride, isEditingBody]);
+
+  // Reset manual override when frames change (unless actively editing)
+  useEffect(() => {
+    if (!isEditingBody && manualBodyOverride !== null) {
+      // Keep manual override, don't reset
+      return;
+    }
+    if (!isEditingBody) {
+      setManualBodyOverride(null);
+    }
+  }, [firstEntrySignature, isEditingBody]);
 
   return (
     <div className="request-preview">
@@ -73,7 +107,13 @@ function SubmitAPIResult({
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
           <button
             type="button"
-            onClick={() => onResetTrake && onResetTrake()}
+            onClick={() => {
+              // Local clear so edit mode doesn't block resets
+              setIsEditingBody(false);
+              setManualBodyOverride(null);
+              if (onPlaceholderChange) onPlaceholderChange("");
+              onResetTrake && onResetTrake();
+            }}
             title="Clear current selection"
             style={{
               padding: '6px 10px',
@@ -112,10 +152,105 @@ function SubmitAPIResult({
             />
           </div>
         )}
-        <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
           <b>Body</b>:
+          {!isEditingBody && body && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditingBody(true);
+                setManualBodyOverride(JSON.stringify(body, null, 2));
+              }}
+              style={{
+                padding: '4px 8px',
+                fontSize: 11,
+                borderRadius: 4,
+                border: '1px solid #007bff',
+                background: '#fff',
+                color: '#007bff',
+                cursor: 'pointer'
+              }}
+            >
+              Edit
+            </button>
+          )}
+          {isEditingBody && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditingBody(false);
+                try {
+                  const parsed = typeof manualBodyOverride === 'string' 
+                    ? JSON.parse(manualBodyOverride) 
+                    : manualBodyOverride;
+                  if (onBodyChange) {
+                    onBodyChange(parsed);
+                  }
+                  // Keep the parsed value for display
+                  setManualBodyOverride(parsed);
+                } catch (e) {
+                  alert("Invalid JSON. Please fix the syntax.");
+                  console.error("JSON parse error:", e);
+                  setIsEditingBody(true); // Stay in edit mode
+                }
+              }}
+              style={{
+                padding: '4px 8px',
+                fontSize: 11,
+                borderRadius: 4,
+                border: '1px solid #28a745',
+                background: '#fff',
+                color: '#28a745',
+                cursor: 'pointer',
+                marginRight: 4
+              }}
+            >
+              Save
+            </button>
+          )}
+          {isEditingBody && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditingBody(false);
+                setManualBodyOverride(null);
+              }}
+              style={{
+                padding: '4px 8px',
+                fontSize: 11,
+                borderRadius: 4,
+                border: '1px solid #dc3545',
+                background: '#fff',
+                color: '#dc3545',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </div>
-        <pre>{body ? JSON.stringify(body, null, 2) : "// Select a frame/group to preview body"}</pre>
+        {isEditingBody ? (
+          <textarea
+            value={typeof manualBodyOverride === 'string' ? manualBodyOverride : JSON.stringify(manualBodyOverride || body || {}, null, 2)}
+            onChange={(e) => setManualBodyOverride(e.target.value)}
+            placeholder='{"answerSets": [...]}'
+            style={{
+              width: '100%',
+              minHeight: '200px',
+              fontFamily: 'monospace',
+              fontSize: 12,
+              padding: 8,
+              border: '1px solid #ced4da',
+              borderRadius: 4,
+              whiteSpace: 'pre',
+              overflowWrap: 'normal',
+              overflowX: 'auto'
+            }}
+            onFocus={() => setIsEditingBody(true)}
+          />
+        ) : (
+          <pre>{body ? JSON.stringify(body, null, 2) : "// Select a frame/group to preview body"}</pre>
+        )}
       </div>
     </div>
   );

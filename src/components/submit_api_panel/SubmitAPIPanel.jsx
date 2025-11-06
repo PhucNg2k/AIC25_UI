@@ -15,6 +15,7 @@ function SubmitAPIPanel ({
     const [sessionId, setSessionId] = useState("");
     const [evaluationId, setEvaluationId] = useState("");
     const [placeholderValue, setPlaceholderValue] = useState("");
+    const [manualBodyOverride, setManualBodyOverride] = useState(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [sending, setSending] = useState(false);
     const [responseData, setResponseData] = useState(null);
@@ -32,6 +33,11 @@ function SubmitAPIPanel ({
 
     // Build body like the preview to validate readiness
     const previewBody = (() => {
+        // Use manual override if provided
+        if (manualBodyOverride !== null) {
+            return manualBodyOverride;
+        }
+        
         if (!Array.isArray(submitFrameEntry) || submitFrameEntry.length === 0) return null;
         const first = submitFrameEntry[0];
         try {
@@ -81,6 +87,7 @@ function SubmitAPIPanel ({
                 placeholderValue={placeholderValue}
                 onPlaceholderChange={setPlaceholderValue}
                 onResetTrake={() => onClearSubmissions()}
+                onBodyChange={setManualBodyOverride}
             />
 
             {/*Submit Button */}
