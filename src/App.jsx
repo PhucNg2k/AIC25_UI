@@ -3,7 +3,9 @@ import "./App.css";
 import "./styles.css";
 import SearchPanel from "./components/search/SearchPanel";
 import ResultsPanel from "./components/results/ResultsPanel";
+
 import VideoPlayerPanel from "./components/video_player/VideoPlayerPanel";
+
 import FrameModal from "./components/frame/FrameModal";
 import FrameSliderModal from "./components/frame/FrameSliderModal";
 import SubmitAPIPanel from "./components/submit_api_panel/SubmitAPIPanel"

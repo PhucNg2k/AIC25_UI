@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import VideoPlayerModal from "./VideoPlayerModal";
+import VideoPlayerModalOG from "./VideoPlayerModal_og";
 
 function VideoPlayerPanel({
   initialFrame,
@@ -40,7 +42,7 @@ function VideoPlayerPanel({
   }
 
   return (
-    <VideoPlayerModal
+    <VideoPlayerModalOG
       frameData={currentFrame}
       currentIndex={currentIndex}
       currentFramesList={framesList}
