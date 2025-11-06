@@ -1,11 +1,12 @@
 import KeyframePreview from "./KeyframePreview";
+import { BASE_DATA_PATH } from "../../utils/metadata";
 
 export default function FrameSlider({ frames, currentIndex, onIndexChange }) {
   if (!frames || frames.length === 0) {
     return <div className="no-frames">No keyframes available</div>;
   }
 
-  const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+  //const BASE_DATA_PATH = "/REAL_DATA/Data/keyframes_beit3";
   const currentFrame = frames[currentIndex];
   const image_src = `${BASE_DATA_PATH}/${currentFrame}`;
 

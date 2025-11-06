@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { BASE_DATA_PATH } from '../../utils/metadata';
 export default function KeyframePreview({ relatedFrames, currentIndex }) {
   // Indices around current
   const hasPrev = currentIndex > 0;
@@ -8,7 +8,7 @@ export default function KeyframePreview({ relatedFrames, currentIndex }) {
   const prevIndex = hasPrev ? currentIndex - 1 : currentIndex;
   const nextIndex = hasNext ? currentIndex + 1 : currentIndex;
 
-  const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+  //const BASE_DATA_PATH = "/REAL_DATA/Data/keyframes_beit3";
 
   const prevSrc = `${BASE_DATA_PATH}/${relatedFrames[prevIndex]}`;
   const currentSrc = `${BASE_DATA_PATH}/${relatedFrames[currentIndex]}`;

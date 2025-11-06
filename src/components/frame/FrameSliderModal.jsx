@@ -28,7 +28,6 @@ export default function FrameSliderModal({
   if (!isOpen) return null;
 
   const image_path = relatedFrames[currentSliderIndex];
-
   const parts = image_path.split("/");
   const frame_id = parts[parts.length - 1]; // f007932.webp
   const video_name = parts[parts.length - 2]; // L28_V023

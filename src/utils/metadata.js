@@ -55,4 +55,7 @@ export function getFramePath(metaKey) {
     return videoMetadata[metaKey]?.frame_path || "";
 }
 
-export { normalizePath }
+
+const BASE_DATA_PATH = "/REAL_DATA/Data/keyframes_beit3";
+
+export { normalizePath, BASE_DATA_PATH }

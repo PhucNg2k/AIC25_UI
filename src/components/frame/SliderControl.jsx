@@ -61,12 +61,17 @@ export default function SliderControl({
   const handleSubmitFrames = () => {
     // Currently both manual and auto modes submit the current frame
     // Auto mode can be enhanced later to interpolate around current frame
+    const image_path = relatedFrames[currentIndex];
+    const parts = image_path.split("/");
+    const frame_id = parts[parts.length - 1]; // f007932.webp
+    const video_name = parts[parts.length - 2]; // L28_V023
+    
+    const match = frame_id.match(/f(\d+)\.webp/);
+    const frameNumber = match ? parseInt(match[1], 10) : 0;
+    
     const currentFrameData = {
-      video_name: relatedFrames[currentIndex].split("/")[1],
-      frame_idx: parseInt(
-        relatedFrames[currentIndex].split("/")[2].match(/f(\d+)\.webp/)[1],
-        10
-      ),
+      video_name: video_name,
+      frame_idx: frameNumber,
     };
     onSubmitFrame(currentFrameData);
   };
@@ -77,8 +82,12 @@ export default function SliderControl({
       onClearSubmissions(() => {
         const allFramesData = relatedFrames.map((framePath) => {
           const parts = framePath.split("/");
-          const video_name = parts[1];
-          const frame_idx = parseInt(parts[2].match(/f(\d+)\.webp/)[1], 10);
+          const frame_id = parts[parts.length - 1]; // f007932.webp
+          const video_name = parts[parts.length - 2]; // L28_V023
+          
+          const match = frame_id.match(/f(\d+)\.webp/);
+          const frame_idx = match ? parseInt(match[1], 10) : 0;
+          
           return { video_name, frame_idx, image_path: framePath };
         });
 

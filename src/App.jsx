@@ -8,7 +8,7 @@ import FrameModal from "./components/frame/FrameModal";
 import FrameSliderModal from "./components/frame/FrameSliderModal";
 import SubmitAPIPanel from "./components/submit_api_panel/SubmitAPIPanel"
 
-import { loadVideoMetadata } from "./utils/metadata";
+import { loadVideoMetadata, BASE_DATA_PATH } from "./utils/metadata";
 import {
   loadGroupedKeyframesMetadata,
   get_related_keyframe,
@@ -19,7 +19,7 @@ import { getFramePath, getMetadataKey } from "./utils/metadata";
 import SubmitPanel from "./components/submit_panel/SubmitPanel";
 
 // Add new function
-const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
+//const BASE_DATA_PATH = "/REAL_DATA/Data/keyframes_beit3";
 
 function extractFrameNumber(relPath) {
   const fname = relPath.split("/").pop(); // f008856.webp
@@ -29,9 +29,15 @@ function extractFrameNumber(relPath) {
 function toCenteredWindow(frames, currentFullPath) {
   /**
    * Given a list of frame paths and a current one, it filters to frames from the same video,
-   *  sorts by frame index, and finds the clicked frame’s position.
+   *  sorts by frame index, and finds the clicked frame's position.
 → Used for the slider modal, so you can browse around a selected frame.
    */
+
+  // Handle null/empty frames
+  if (!frames || !Array.isArray(frames) || frames.length === 0) {
+    console.warn("toCenteredWindow: frames is null or empty", frames);
+    return { frames: [], index: 0 };
+  }
 
   // Convert full path -> relative ("Videos_L23_a/L23_V005/f001324.webp")
   // string.slice(startIndex)  // Removes everything BEFORE startIndex
@@ -42,7 +48,7 @@ function toCenteredWindow(frames, currentFullPath) {
 
   // Keep only frames from the same video, then sort by numeric index
   const sameVideo = frames.filter((f) =>
-    f.startsWith(`${keyName}/${videoName}/`)
+    f && f.startsWith(`${keyName}/${videoName}/`)
   );
   const sorted = sameVideo
     .slice() // slice nothing, trim off nothing at the beginning
@@ -173,10 +179,20 @@ setCurrentList((prevList) => [...prevList, { video_name: "V1", frame_idx: 123 }]
   };
 
   const openSliderModal = (frames, currentImagePath) => {
+    if (!frames || !Array.isArray(frames) || frames.length === 0) {
+      console.error("openSliderModal: frames is null or empty", frames);
+      alert("No frames available for this image. Please try again.");
+      return;
+    }
     const { frames: displayFrames, index } = toCenteredWindow(
       frames,
       currentImagePath
     );
+    if (displayFrames.length === 0) {
+      console.error("openSliderModal: displayFrames is empty after filtering", { frames, currentImagePath });
+      alert("No frames found for this video. Please try again.");
+      return;
+    }
     setSliderFrames(displayFrames);
     setShowSliderModal(true);
     setSliderFrameIdx(index); // lands on current, so you have 19 left / 80 right

@@ -11,6 +11,11 @@ export default function FrameControls({
   const openSliderModal = () => {
     // image_path, step=null, sorted=false
     const frames = get_related_keyframe(image_path, null, false); // grouped keyframes, no sort
+    if (!frames || !Array.isArray(frames) || frames.length === 0) {
+      console.error("FrameControls: get_related_keyframe returned null or empty", { image_path, frames });
+      alert("No frames available for this image. The metadata may not be loaded yet.");
+      return;
+    }
     onOpenSliderModal(frames, image_path);
   };
 
