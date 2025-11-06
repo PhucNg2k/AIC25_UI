@@ -1,5 +1,10 @@
 // New multi-stage multi-modal search API (multipart/form-data)
 // Sends 'stage_list' (JSON) and 'top_k'. Image files are attached as img_{stage}.
+
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? ""; 
+// Leave empty when using Vite proxy
+// Example for production: VITE_API_URL="http://your-server-ip:8000"
+
 async function searchMultiModalAPI(searchData, maxResults = 100) {
   if (!searchData) {
     alert("Form request must not be empty!");
@@ -11,14 +16,10 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
   if (typeof maxResults !== "undefined" && maxResults !== null) {
     formData.append("top_k", String(maxResults));
   }
+
   // Build stage_list JSON and attach per-stage image files
   const stageList = {};
-  /**
-   * Object.entries() converts the searchData object into an array of arrays,
-   *  where each inner array contains a key-value pair from the object.
-   * searchData = { key1: 'value1', key2: 'value2' },
-   * Object.entries(searchData) returns [['key1', 'value1'], ['key2', 'value2']].
-   */
+
   Object.entries(searchData || {}).forEach(([stageKey, modalities]) => {
     if (!modalities || typeof modalities !== "object") return;
     const stageObj = {};
@@ -28,9 +29,9 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
 
     // text-like modalities
     ["text", "ocr", "localized", "asr", "od"].forEach((mod) => {
-      const entry = modalities[mod]; // ModalityPayload
+      const entry = modalities[mod];
       if (entry && entry.value && String(entry.value).trim()) {
-        stageObj[mod] = { value: String(entry.value).trim() }; // get text-query of this modal search
+        stageObj[mod] = { value: String(entry.value).trim() };
         if (Object.prototype.hasOwnProperty.call(entry, "obj_mask")) {
           stageObj[mod].obj_mask = entry.obj_mask;
         }
@@ -46,7 +47,6 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
         const filename = file.name || "image.jpg";
         formData.append(fieldName, file, filename);
         stageObj.img = { value: fieldName };
-        // Add weight for image modality
       } else if (img instanceof File || img instanceof Blob) {
         const filename = img.name || "image.jpg";
         formData.append(fieldName, img, filename);
@@ -60,28 +60,21 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
       stageList[stageKey] = stageObj;
     }
   });
+
   formData.append("stage_list", JSON.stringify(stageList));
 
-  // Debug: log form-data contents (direct console.log on FormData appears empty)
-  /*
-    try {
-        // eslint-disable-next-line no-console
-        console.log("FORM DATA ENTRIES:");
-        for (const [key, value] of formData.entries()) {
-            if (value instanceof File) {
-                console.log(`${key}: <File name=${value.name} size=${value.size}>`);
-            } else {
-                console.log(`${key}:`, value);
-            }
-        }
-    } catch (_) {}
-    */
-  console.log("SEARCH-ENTRY");
-  const response = await fetch("http://localhost:8000/search-entry", {
+  console.log("SEARCH-ENTRY: Sending form-data...");
+
+  // ✅ Define URL correctly for proxy or env-based use
+  const url = API_BASE_URL ? `${API_BASE_URL}/search-entry` : "/search-entry";
+
+  const response = await fetch(url, {
     method: "POST",
     body: formData,
   });
-  console.log("AFTER SEARCH-ENTRY");
+
+  console.log("SEARCH-ENTRY: Received response");
+
   if (!response.ok) {
     let errorMessage = "Multi-modal search request failed";
     try {
@@ -96,8 +89,13 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
   if (!data.success) {
     throw new Error(data.message || "Multi-modal search failed");
   }
+
   return data.results;
 }
+
+// -------------------------
+// Utility functions
+// -------------------------
 
 function dataURLToBlob(dataUrl) {
   const parts = dataUrl.split(",");
@@ -113,7 +111,6 @@ function dataURLToBlob(dataUrl) {
   return new Blob([uint8Array], { type: mime });
 }
 
-// Validation function to check if search data is valid
 function validateSearchData(searchData) {
   if (!searchData || Object.keys(searchData).length === 0) {
     return false;
@@ -122,12 +119,11 @@ function validateSearchData(searchData) {
   const allEvents = searchData || {};
   let ok = true;
 
-  // Validate event keys are contiguous 1..N
   const keys = Object.keys(allEvents)
     .map((k) => Number(k))
     .filter((n) => Number.isInteger(n) && n > 0);
   if (keys.length > 0) {
-    const sorted = [...keys].sort((a, b) => a - b); // ascending order
+    const sorted = [...keys].sort((a, b) => a - b);
     for (let i = 0; i < sorted.length; i++) {
       if (sorted[i] !== i + 1) {
         ok = false;
@@ -139,15 +135,18 @@ function validateSearchData(searchData) {
   return ok;
 }
 
-export { searchMultiModalAPI, validateSearchData };
+// -------------------------
+// Other Backend Endpoints
+// -------------------------
 
-// Fetch results by exact video name (server expects uppercase)
 async function fetchByVideoName(videoName) {
   if (!videoName || !String(videoName).trim()) {
     throw new Error("Video name must not be empty");
   }
 
-  const response = await fetch("http://localhost:8000/es-search/video_name", {
+  const url = API_BASE_URL ? `${API_BASE_URL}/es-search/video_name` : "/es-search/video_name";
+
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -173,15 +172,14 @@ async function fetchByVideoName(videoName) {
   return data.results || [];
 }
 
-export { fetchByVideoName };
-
-// Translate a query file on the backend LLM service
 async function fetchTranslate(fileName) {
   if (!fileName || !String(fileName).trim()) {
     throw new Error("File name must not be empty");
   }
 
-  const response = await fetch("http://localhost:8000/llm/translate", {
+  const url = API_BASE_URL ? `${API_BASE_URL}/llm/translate` : "/llm/translate";
+
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ file_name: String(fileName).trim() }),
@@ -197,15 +195,19 @@ async function fetchTranslate(fileName) {
   }
 
   const data = await response.json();
-  // If backend returns structured response
   if (data && Array.isArray(data.translated_text)) {
     return data.translated_text;
   }
-  // Fallback: if backend directly returned the sentences array
   if (Array.isArray(data)) {
     return data;
   }
   return [];
 }
 
-export { fetchTranslate };
+export {
+  searchMultiModalAPI,
+  validateSearchData,
+  fetchByVideoName,
+  fetchTranslate,
+  dataURLToBlob,
+};
