@@ -42,7 +42,7 @@ function VideoPlayerPanel({
   }
 
   return (
-    <VideoPlayerModalOG
+    <VideoPlayerModal
       frameData={currentFrame}
       currentIndex={currentIndex}
       currentFramesList={framesList}

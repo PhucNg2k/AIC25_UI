@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SubmitAPIHeader from './SubmitAPIHeader';
 import '../../styles/SubmitAPIPanel.css';
 import SubmitAPIResult from './SubmitAPIResult';
@@ -31,8 +31,8 @@ function SubmitAPIPanel ({
 
     const BASE_URL = "https://eventretrieval.oj.io.vn/api/v2"; // kept for consistency in file
 
-    // Build body like the preview to validate readiness
-    const previewBody = (() => {
+    // Build body like the preview to validate readiness - memoized to prevent unnecessary recalculations
+    const previewBody = useMemo(() => {
         // Use manual override if provided
         if (manualBodyOverride !== null) {
             return manualBodyOverride;
@@ -62,7 +62,37 @@ function SubmitAPIPanel ({
             return null;
         }
         return null;
-    })();
+    }, [queryTask, submitFrameEntry, placeholderValue, manualBodyOverride]);
+
+    // Create previewRequest object - memoized to prevent unnecessary recreations
+    const currentPreviewRequest = useMemo(() => {
+        if (evaluationId && sessionId && previewBody) {
+            const url = `${BASE_URL}/submit/${evaluationId}`;
+            const method = 'POST';
+            const params = { session: sessionId };
+            return { url, method, params, body: previewBody };
+        }
+        return null;
+    }, [evaluationId, sessionId, previewBody, BASE_URL]);
+
+    // Update previewRequest state when the memoized value changes
+    useEffect(() => {
+        setPreviewRequest(currentPreviewRequest);
+    }, [currentPreviewRequest]);
+
+    // Clear manual body override when task changes or submissions are cleared
+    useEffect(() => {
+        setManualBodyOverride(null);
+    }, [queryTask, submitFrameEntry]);
+
+    // Clear response data when previewRequest changes (new data)
+    useEffect(() => {
+        setResponseData(null);
+        // Close modal if preview request becomes invalid
+        if (!currentPreviewRequest && isConfirmOpen) {
+            setIsConfirmOpen(false);
+        }
+    }, [currentPreviewRequest, isConfirmOpen]);
 
     let waitTime = 10000;
 
@@ -91,17 +121,12 @@ function SubmitAPIPanel ({
             />
 
             {/*Submit Button */}
-            {(evaluationId && sessionId && previewBody) ? (
+            {currentPreviewRequest ? (
                 <div style={{ marginTop: 12 }}>
                     <button
                         type="button"
                         className="export-btn"
                         onClick={() => {
-                            const body = previewBody;
-                            const url = `${BASE_URL}/submit/${evaluationId || '<evaluationId>'}`;
-                            const method = 'POST';
-                            const params = { session: sessionId || '<sessionId>' };
-                            setPreviewRequest({ url, method, params, body });
                             setResponseData(null);
                             setIsConfirmOpen(true);
                         }}
