@@ -56,6 +56,6 @@ export function getFramePath(metaKey) {
 }
 
 
-const BASE_DATA_PATH = "/REAL_DATA/Data/keyframes_beit3";
+const BASE_DATA_PATH = "/REAL_DATA/keyframes_beit3";
 
 export { normalizePath, BASE_DATA_PATH }

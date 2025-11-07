@@ -1,5 +1,7 @@
 // New multi-stage multi-modal search API (multipart/form-data)
 // Sends 'stage_list' (JSON) and 'top_k'. Image files are attached as img_{stage}.
+const API_URL = import.meta.env.VITE_API_URL;
+
 async function searchMultiModalAPI(searchData, maxResults = 100) {
   if (!searchData) {
     alert("Form request must not be empty!");
@@ -77,10 +79,14 @@ async function searchMultiModalAPI(searchData, maxResults = 100) {
     } catch (_) {}
     */
   console.log("SEARCH-ENTRY");
-  const response = await fetch("http://localhost:8000/search-entry", {
+  const response = await fetch(`${API_URL}/search-entry`, {
     method: "POST",
     body: formData,
-  });
+   });
+  // const response = await fetch("http://localhost:8000/search-entry", {
+  //   method: "POST",
+  //   body: formData,
+  // });
   console.log("AFTER SEARCH-ENTRY");
   if (!response.ok) {
     let errorMessage = "Multi-modal search request failed";
@@ -146,8 +152,8 @@ async function fetchByVideoName(videoName) {
   if (!videoName || !String(videoName).trim()) {
     throw new Error("Video name must not be empty");
   }
-
-  const response = await fetch("http://localhost:8000/es-search/video_name", {
+  
+  const response = await fetch(`${API_URL}/es-search/video_name`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -155,6 +161,15 @@ async function fetchByVideoName(videoName) {
       top_k: -1,
     }),
   });
+
+  // const response = await fetch("http://localhost:8000/es-search/video_name", {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({
+  //     value: String(videoName).trim().toUpperCase(),
+  //     top_k: -1,
+  //   }),
+  // });
 
   if (!response.ok) {
     let errorMessage = "Video name search request failed";
@@ -181,11 +196,16 @@ async function fetchTranslate(fileName) {
     throw new Error("File name must not be empty");
   }
 
-  const response = await fetch("http://localhost:8000/llm/translate", {
+  const response = await fetch(`${API_URL}/llm/translate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ file_name: String(fileName).trim() }),
   });
+  // const response = await fetch("http://localhost:8000/llm/translate", {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({ file_name: String(fileName).trim() }),
+  // });
 
   if (!response.ok) {
     let errorMessage = "Translation request failed";
@@ -209,3 +229,4 @@ async function fetchTranslate(fileName) {
 }
 
 export { fetchTranslate };
+
