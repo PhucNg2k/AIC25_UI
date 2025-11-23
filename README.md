@@ -1,7 +1,15 @@
 
+
 # AIC25 Retrieval System UI
 
 This project is a modern web-based User Interface for the AIC25 Multimedia Retrieval System, built with React.js. It provides an intuitive and interactive platform for searching, browsing, and visualizing multimedia data, such as videos and images, using advanced retrieval techniques.
+
+## Demo
+
+The retrieval system UI in action:
+
+![AIC25 Retrieval System UI Demo](./UI_demo.png)
+
 
 ## Features
 
