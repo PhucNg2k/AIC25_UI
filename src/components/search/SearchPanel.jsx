@@ -8,16 +8,19 @@ import { useState, useCallback } from "react";
 function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
   const [searchData, setSearchData] = useState({});
   const [resetTrigger, setResetTrigger] = useState(0);
-  const [stages, setStages] = useState([1]);
+  const [events, setEvents] = useState([1]);
 
-  const updateInput = useCallback((stage_num, type, inputData) => {
+  const updateInput = useCallback((event_num, type, inputData) => {
     setSearchData((previousData) => {
       const draft = { ...previousData };
-      // const stageKey = String(stage_num || 1);
-      const n = Number(stage_num);
-      const stageKey = Number.isInteger(n) && n > 0 ? String(n) : "1";
-      const previousStageBucket = draft[stageKey] || {};
-      const nextStageBucket = { ...previousStageBucket };
+      const n = Number(event_num);
+      const eventKey = Number.isInteger(n) && n > 0 ? String(n) : "1";
+      // This gets the current modalities and weights for the stage, as stored in the previous state.
+      // if you're updating a new stage, you start with an empty obj
+      // if youre updating an existing stage, you retrieve its current data
+      const previousEventBucket = draft[eventKey] || {};
+      // shallow copy that can be modify without mutatiing the previous state directly
+      const nextEventBucket = { ...previousEventBucket };
 
       const isImageModality = type === "img";
       const hasValidImagePayload =
@@ -37,14 +40,14 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
           : undefined;
 
       if (inputData === null) {
-        delete nextStageBucket[type];
+        delete nextEventBucket[type];
       } else if (isImageModality) {
         if (hasValidImagePayload) {
           // Do not persist weight on modality payload
           const { weight, ...rest } = inputData || {};
-          nextStageBucket[type] = rest;
+          nextEventBucket[type] = rest;
         } else {
-          delete nextStageBucket[type];
+          delete nextEventBucket[type];
         }
       } else {
         if (hasValidTextLikePayload) {
@@ -55,19 +58,19 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
             sanitized.obj_mask = inputData.obj_mask;
           }
           // Do not persist weight on modality payload
-          nextStageBucket[type] = sanitized;
+          nextEventBucket[type] = sanitized;
         } else {
-          delete nextStageBucket[type];
+          delete nextEventBucket[type];
         }
       }
 
       // Build/refresh weight_dict without storing weights in modalities
-      const presentModalities = Object.keys(nextStageBucket).filter(
+      const presentModalities = Object.keys(nextEventBucket).filter(
         (k) => k !== "weight_dict"
       );
       if (presentModalities.length > 0) {
         const prevWeightDict =
-          (previousStageBucket && previousStageBucket.weight_dict) || {};
+          (previousEventBucket && previousEventBucket.weight_dict) || {};
         const weight_dict = { ...prevWeightDict };
 
         // If clearing a modality, ensure its weight is removed
@@ -92,10 +95,10 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
           }
         }
 
-        nextStageBucket.weight_dict = weight_dict;
-        draft[stageKey] = nextStageBucket;
+        nextEventBucket.weight_dict = weight_dict;
+        draft[eventKey] = nextEventBucket;
       } else {
-        delete draft[stageKey];
+        delete draft[eventKey];
       }
 
       return draft;
@@ -105,43 +108,43 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
   function handleClear() {
     setSearchData({});
     setResetTrigger((prev) => prev + 1);
-    setStages([1]);
+    setEvents([1]);
     onClear();
   }
 
-  const handleAddStage = () => {
-    setStages((previousStages) => {
-      const next = previousStages.length + 1;
-      return [...previousStages, next];
+  const handleAddEvent = () => {
+    setEvents((previousEvents) => {
+      const next = previousEvents.length + 1;
+      return [...previousEvents, next];
     });
   };
 
-  const handleRemoveStage = (stage_num) => {
+  const handleRemoveEvent = (event_num) => {
     const prevSnapshot = searchData || {};
     const numericKeys = Object.keys(prevSnapshot)
       .map((k) => Number(k))
       .filter((n) => Number.isInteger(n) && n > 0);
     const maxKey =
-      numericKeys.length > 0 ? Math.max(...numericKeys) : stages.length || 0;
+      numericKeys.length > 0 ? Math.max(...numericKeys) : events.length || 0;
 
     // 1) Clear all modalities of the removed stage via updateInput(null)
-    const removedKey = String(stage_num);
-    const removedStage = prevSnapshot[removedKey] || {};
-    if (removedStage && Object.keys(removedStage).length > 0) {
-      Object.entries(removedStage).forEach(([type, payload]) => {
+    const removedKey = String(event_num);
+    const removedEvent = prevSnapshot[removedKey] || {};
+    if (removedEvent && Object.keys(removedEvent).length > 0) {
+      Object.entries(removedEvent).forEach(([type, payload]) => {
         if (type === "weight_dict") return;
-        updateInput(stage_num, type, null);
+        updateInput(event_num, type, null);
       });
     }
 
     // 2) Shift later stages down by 1 by re-emitting their payloads
-    for (let i = stage_num + 1; i <= maxKey; i++) {
+    for (let i = event_num + 1; i <= maxKey; i++) {
       const oldKey = String(i);
       const newIndex = i - 1;
-      const stageBucket = prevSnapshot[oldKey];
-      if (!stageBucket) continue;
-      const oldWeights = (stageBucket && stageBucket.weight_dict) || {};
-      Object.entries(stageBucket).forEach(([type, payload]) => {
+      const eventBucket = prevSnapshot[oldKey];
+      if (!eventBucket) continue;
+      const oldWeights = (eventBucket && eventBucket.weight_dict) || {};
+      Object.entries(eventBucket).forEach(([type, payload]) => {
         if (type === "weight_dict") return;
         const weightForType =
           typeof oldWeights[type] !== "undefined"
@@ -165,9 +168,10 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
     }
 
     // 3) Update stages list
-    setStages((previousStages) =>
+    setEvents((previousEvents) =>
+      // Array.from(arrayLike, mapFn)
       Array.from(
-        { length: Math.max(0, previousStages.length - 1) },
+        { length: Math.max(0, previousEvents.length - 1) },
         (_, i) => i + 1
       )
     );
@@ -183,27 +187,27 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
           marginBottom: 12,
         }}
       >
-        <strong>Stages</strong>
+        <strong>Event</strong>
         <button
           type="button"
           className="btn-primary"
-          onClick={handleAddStage}
+          onClick={handleAddEvent}
           style={{ padding: "6px 10px", fontSize: 12 }}
         >
-          Add Stage
+          Add Event Search
         </button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-        {stages.map((stage_num, index) => (
+        {events.map((event_num, index) => (
           <SearchModalWrapper
-            key={stage_num}
-            stage_num={stage_num}
+            key={event_num}
+            event_num={event_num}
             updateInput={updateInput}
             resetTrigger={resetTrigger}
-            stageData={searchData[String(stage_num)] || {}}
-            onRemove={handleRemoveStage}
-            disableRemove={stages.length === 1}
+            eventData={searchData[String(event_num)] || {}}
+            onRemove={handleRemoveEvent}
+            disableRemove={events.length === 1}
           />
         ))}
       </div>
@@ -241,8 +245,8 @@ function SearchPanel({ isLoading, onSearch, onClear, resultCount }) {
               border: "1px solid #c3e6cb",
             }}
           >
-            <strong>Current Search Data (stage_list):</strong>
-            <pre>{JSON.stringify({ stage_list: searchData }, replacer, 2)}</pre>
+            <strong>Current Search Data (event_list):</strong>
+            <pre>{JSON.stringify({ event_list: searchData }, replacer, 2)}</pre>
           </div>
         );
       })()}

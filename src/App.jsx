@@ -6,6 +6,7 @@ import ResultsPanel from "./components/results/ResultsPanel";
 import VideoPlayerPanel from "./components/video_player/VideoPlayerPanel";
 import FrameModal from "./components/frame/FrameModal";
 import FrameSliderModal from "./components/frame/FrameSliderModal";
+import SubmitAPIPanel from "./components/submit_api_panel/SubmitAPIPanel"
 
 import { loadVideoMetadata } from "./utils/metadata";
 import {
@@ -71,7 +72,7 @@ function App() {
   const [sliderFrames, setSliderFrames] = useState([]);
   const [sliderFrameIdx, setSliderFrameIdx] = useState(0);
 
-  const [submitType, setSubmitType] = useState("auto");
+  // Submission mode removed; always use manual behavior
 
   // Results fullscreen state (hides SearchPanel when true)
   const [isResultsFullscreen, setIsResultsFullscreen] = useState(false);
@@ -91,6 +92,18 @@ function App() {
   // Derived current list + setter
   const currentList = submissions[queryTask];
 
+  /**
+   * updater can be two different kinds of values:
+   * A new array directly
+Example:
+
+setCurrentList([{ video_name: "V1", frame_idx: 123 }]);
+
+   *  A function that gets the old list and returns a new one
+Example:
+
+setCurrentList((prevList) => [...prevList, { video_name: "V1", frame_idx: 123 }]);
+   */
   const setCurrentList = (updater) => {
     setSubmissions((prev) => ({
       ...prev,
@@ -99,13 +112,7 @@ function App() {
     }));
   };
 
-  // Handle submit type change - clear frames when switching modes
-  const handleSubmitTypeChange = (newSubmitType) => {
-    if (submitType !== newSubmitType) {
-      setCurrentList([]);
-      setSubmitType(newSubmitType);
-    }
-  };
+  // Submission mode removed
 
   // Load video metadata on component mount
   useEffect(() => {
@@ -129,15 +136,15 @@ function App() {
 
     try {
       // Call the new multi-modal search API
-      console.log("BEFORE");
+      // console.log("BEFORE");
       const results = await searchMultiModalAPI(searchData, maxResults);
-      console.log("AFTER");
+      // console.log("AFTER");
       //const results = await searchImagesMock(query, maxResults);
 
       // Process and display results
       if (results && results.length > 0) {
         handleUpdateSearchResult(results);
-        console.log(results);
+        // console.log(results);
       } else {
         handleClear();
       }
@@ -176,39 +183,25 @@ function App() {
     setSliderFrameIdx(index); // lands on current, so you have 19 left / 80 right
   };
 
-  // Submit frame handler - handles different task types
+  // Submit frame handler - handles different task types (manual only)
   const handleSubmitFrame = (frameData, isFrameset = false) => {
     let { video_name, frame_idx } = frameData;
-
+    console.log(video_name, frame_idx);
     if (currentList.length >= 100) {
       //alert('❌ Maximum limit reached!\n\nYou can only submit up to 100 frames. Please remove some frames before adding new ones.')
       return;
     }
 
-    // Manual mode: behave as before, append single frame if not duplicate
-    if (submitType === "manual" || isFrameset) {
-      // Check if we've reached the 100 frame limit
-
+    // Manual behavior
+    {
       if (queryTask === "kis") {
-        // some will check if one of them is pass the condition
-        const isAlreadySubmitted = currentList.some(
-          (frame) =>
-            frame.video_name === video_name && frame.frame_idx === frame_idx
-        );
-        // if not added yet, proceed to do it!
-        if (!isAlreadySubmitted) {
-          const newFrame = { video_name, frame_idx };
-          setCurrentList((prev) => [...prev, newFrame]);
-        }
+        // Reset list to a single selected frame
+        const newFrame = { video_name, frame_idx };
+        setCurrentList([newFrame]);
       } else if (queryTask === "qa") {
-        const isAlreadySubmitted = currentList.some(
-          (frame) =>
-            frame.video_name === video_name && frame.frame_idx === frame_idx
-        );
-        if (!isAlreadySubmitted) {
-          const newFrame = { video_name, frame_idx, answer: "" };
-          setCurrentList((prev) => [...prev, newFrame]);
-        }
+        // Reset list to a single selected frame (answer set later)
+        const newFrame = { video_name, frame_idx, answer: "" };
+        setCurrentList([newFrame]);
       } else if (queryTask === "trake") {
         // For TRAKE task, all frames must come from the same video
         if (currentList.length === 0) {
@@ -233,68 +226,7 @@ function App() {
           }
         }
       }
-      return;
-    }
 
-    // Auto mode: replace current submissions with 100 related keyframes from the same video
-
-    if (submitType === "auto") {
-      let metakey = getMetadataKey(video_name, frame_idx);
-      let image_path = getFramePath(metakey);
-
-      console.log("Image path from metakey: ", image_path);
-
-      let related = get_related_keyframe(image_path, -1, true); // keyframes, sorted
-
-      if (!related || related.length === 0) {
-        // fallback to interpolation
-        if (isNaN(frame_idx)) frame_idx = 0;
-
-        let fname = `f${String(frame_idx).padStart(6, "0")}.webp`;
-        let tmp_path = `Video/${video_name}/${fname}`;
-        related = get_related_keyframe(tmp_path, 20, true);
-        console.log("Get from interpolation: ", frame_idx);
-      }
-
-      const BASE_DATA_PATH = "/REAL_DATA/keyframes_b1/keyframes";
-      // related entries look like: "Videos_L28_a/L28_V023/f007932.webp"
-      // Extract video_name and frame_idx from each
-      const newListKIS = related.map((rel) => {
-        const parts = rel.split("/");
-        const videoName = parts[1];
-        const frameFile = parts[2]; // f007932.webp
-        const frameNumber = parseInt(
-          frameFile.replace(/^f/, "").replace(/\.webp$/, ""),
-          10
-        ); // 7932
-        return { video_name: videoName, frame_idx: frameNumber };
-      });
-
-      if (queryTask === "kis") {
-        setCurrentList(newListKIS);
-      } else if (queryTask === "qa") {
-        const newListQA = newListKIS.map(({ video_name, frame_idx }) => ({
-          video_name,
-          frame_idx,
-          answer: "",
-        })); //!!!!
-        setCurrentList(newListQA);
-      } else if (queryTask === "trake") {
-        // need redesign logic
-        // Group frames by video and store as { video_name, frames: [...] }
-        const videoToFrames = {};
-        newListKIS.forEach(({ video_name, frame_idx }) => {
-          if (!videoToFrames[video_name]) videoToFrames[video_name] = [];
-          videoToFrames[video_name].push(frame_idx);
-        });
-        const newTrakeList = Object.entries(videoToFrames).map(
-          ([video, frames]) => ({
-            video_name: video,
-            frames: frames.sort((a, b) => a - b),
-          })
-        );
-        setCurrentList(newTrakeList);
-      }
       return;
     }
   };
@@ -333,7 +265,18 @@ function App() {
         isFullscreen={isResultsFullscreen}
         onToggleFullscreen={() => setIsResultsFullscreen((prev) => !prev)}
       />
+      
+      
+      <SubmitAPIPanel
+        queryTask={queryTask}
+        setQueryTask={setQueryTask}
+        submitFrameEntry={currentList}
+        setSubmittedFrames={setCurrentList}
+        onClearSubmissions={handleClearSubmissions}
+      />
+      
 
+      {/*
       <SubmitPanel
         query={query}
         setQuery={setQuery}
@@ -341,12 +284,12 @@ function App() {
         setQueryId={setQueryId}
         queryTask={queryTask}
         setQueryTask={setQueryTask}
-        submitType={submitType}
-        setSubmitType={handleSubmitTypeChange}
         submittedFrames={currentList}
         setSubmittedFrames={setCurrentList}
         onClearSubmissions={handleClearSubmissions}
       />
+       */}
+      
 
       {showVideoPlayer && selectedFrame && (
         <VideoPlayerPanel
@@ -371,7 +314,7 @@ function App() {
           relatedFrames={sliderFrames}
           currentIndex={sliderFrameIdx}
           onSubmitFrame={handleSubmitFrame}
-          submitMode={submitType}
+          submitMode={"manual"}
           onClearSubmissions={handleClearSubmissions}
         />
       )}

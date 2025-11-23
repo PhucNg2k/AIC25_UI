@@ -1,3 +1,13 @@
 /* App.css - Main application styles */
 
 /* This file is kept minimal - all component styles are in styles.css */
+
+/* App.css */
+/* App.css */
+.main-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;  /* ⬅ wider than 480px */
+}
+.main-container > div:first-child {
+  min-width: 300px;
+}

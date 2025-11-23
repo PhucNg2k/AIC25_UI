@@ -1,47 +1,50 @@
-import { useState } from 'react'
-import VideoResultRow from '../video_player/VideoResultRow'
-import FrameComponent from '../frame/FrameComponent'
-import ResultsHeader from './ResultsHeader'
-import '../../styles/ResultsPanel.css'
+import { useState } from "react";
+import VideoResultRow from "../video_player/VideoResultRow";
+import FrameComponent from "../frame/FrameComponent";
+import ResultsHeader from "./ResultsHeader";
+import "../../styles/ResultsPanel.css";
 
-function ResultsPanel({ 
-  searchResults, 
-  setSearchResults,
-  videoMetadata, 
-  onOpenVideoPlayer, 
-  onOpenFrameModal, 
-  onSubmitFrame,
-  onOpenSliderModal,
-  isFullscreen = false,
-  onToggleFullscreen
+function ResultsPanel({
+  searchResults, // array of results to display
+  setSearchResults, // update results
+  videoMetadata, // extra info about videos
+  onOpenVideoPlayer, // event handler for opening player
+  onOpenFrameModal, // event handler
+  onSubmitFrame, // event handler
+  onOpenSliderModal, // event handler
+  isFullscreen = false, // control fullscreen state
+  onToggleFullscreen, // control fullscreen state
 }) {
-  const [displayMode, setDisplayMode] = useState('grouped')
-  
+  const [displayMode, setDisplayMode] = useState("grouped");
+  // group results by video
+
   // Group results by video name
   const groupResultsByVideo = (results) => {
-    const grouped = {}
-    
-    results.forEach(result => {
+    const grouped = {};
+
+    results.forEach((result) => {
       if (!grouped[result.video_name]) {
-        grouped[result.video_name] = []
+        grouped[result.video_name] = [];
       }
-      grouped[result.video_name].push(result)
-    })
-    
-    return grouped
-  }
+      grouped[result.video_name].push(result);
+    });
+
+    return grouped;
+  };
+  const groupedResults =
+    searchResults.length > 0 ? groupResultsByVideo(searchResults) : {};
 
   function reparse_from_group(groupedResults) {
     let results = [];
-    
+
     // Iterate through each video group
     Object.entries(groupedResults).forEach(([videoName, frames]) => {
       // Add each frame from this video group to the results array
-      frames.forEach(frame => {
+      frames.forEach((frame) => {
         results.push(frame);
       });
     });
-    
+
     return results;
   }
 
@@ -49,13 +52,12 @@ function ResultsPanel({
     // Remove the video from groupedResults
     const updatedGroupedResults = { ...groupedResults };
     delete updatedGroupedResults[videoName];
-    
+
     // Convert back to flat array and re-sort by score to maintain correct ranking
     const results = reparse_from_group(updatedGroupedResults);
-    const sortedResults = results.sort((a, b) => b.score - a.score);
+    const sortedResults = results.sort((a, b) => b.score - a.score); // sort in descending order
     setSearchResults(sortedResults);
-  }
-  
+  };
 
   const renderNoResults = () => {
     return (
@@ -64,14 +66,18 @@ function ResultsPanel({
         <h3>No search performed yet</h3>
         <p>Use the search panel on the left to find video frames</p>
       </div>
-    )
-  }
+    );
+  };
 
   const renderRankingDisplay = () => {
     return (
       <div className="ranking-grid">
         {searchResults.map((result, index) => (
-          <div key={`ranking_${result.video_name}_${result.frame_idx}_${index}`} className="ranking-frame-wrapper">
+          <div
+            key={`ranking_${result.video_name}_${result.frame_idx}_${index}`}
+            className="ranking-frame-wrapper"
+            onClick={(e) => e.stopPropagation()} // ⬅ stop bubbling
+          >
             <FrameComponent
               frameData={result}
               videoMetadata={videoMetadata}
@@ -85,30 +91,31 @@ function ResultsPanel({
           </div>
         ))}
       </div>
-    )
-  }
-  const groupedResults = searchResults.length > 0 ? groupResultsByVideo(searchResults) : {}
+    );
+  };
+
   const renderGroupedDisplay = () => {
     return Object.entries(groupedResults).map(([videoName, frames]) => (
-      <VideoResultRow
-        key={videoName}
-        videoName={videoName}
-        frames={frames}
-        videoMetadata={videoMetadata}
-        onOpenVideoPlayer={onOpenVideoPlayer}
-        onOpenFrameModal={onOpenFrameModal}
-        currentFramesList={searchResults}
-        onSubmitFrame={onSubmitFrame}
-        displayMode={displayMode}
-        onOpenSliderModal={onOpenSliderModal}
-        onDeleteVideo={handleDeleteVideo}
-      />
-    ))
-  }
+      <div key={videoName} onClick={(e) => e.stopPropagation()}>
+        <VideoResultRow
+          videoName={videoName}
+          frames={frames}
+          videoMetadata={videoMetadata}
+          onOpenVideoPlayer={onOpenVideoPlayer}
+          onOpenFrameModal={onOpenFrameModal}
+          currentFramesList={searchResults}
+          onSubmitFrame={onSubmitFrame}
+          displayMode={displayMode}
+          onOpenSliderModal={onOpenSliderModal}
+          onDeleteVideo={handleDeleteVideo}
+        />
+      </div>
+    ));
+  };
 
   return (
     <div className="results-panel">
-      <ResultsHeader 
+      <ResultsHeader
         searchResults={searchResults}
         displayMode={displayMode}
         setDisplayMode={setDisplayMode}
@@ -118,14 +125,14 @@ function ResultsPanel({
       />
 
       <div className="results-container">
-        {searchResults.length > 0 ? (
-          displayMode === 'grouped' ? renderGroupedDisplay() : renderRankingDisplay()
-        ) : (
-          renderNoResults()
-        )}
+        {searchResults.length > 0
+          ? displayMode === "grouped"
+            ? renderGroupedDisplay()
+            : renderRankingDisplay()
+          : renderNoResults()}
       </div>
     </div>
-  )
+  );
 }
 
-export default ResultsPanel
+export default ResultsPanel;

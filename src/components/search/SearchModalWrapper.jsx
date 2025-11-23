@@ -1,38 +1,55 @@
+// components/search/SearchModalWrapper.jsx
 import SearchModal from "./SearchModal";
 import ImageSearchModal from "./ImageSearchModal";
 import SearchModalWrapperHeader from "./SearchModalWrapperHeader";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import ObjectSearchModal from "./ObjectSearchModal"; // NEW
+
+const TABS = [
+  { key: "text", label: "TXT" },
+  { key: "img", label: "IMG" },
+  { key: "ocr", label: "OCR" },
+  { key: "asr", label: "ASR" },
+  { key: "localized", label: "Localized" },
+  { key: "od", label: "OD" }, // Object Detection filter
+];
 
 function SearchModalWrapper({
-  stage_num,
+  event_num,
   updateInput,
   resetTrigger,
-  stageData,
+  eventData,
   onRemove,
   disableRemove,
 }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const updateInputForStage = useCallback(
+  const [activeTab, setActiveTab] = useState("text");
+
+  const updateInputForEvent = useCallback(
     (...args) => {
-      // New API: updateInput(stage, type, data)
       if (args.length === 3) {
-        const [s, t, data] = args;
-        const sn = Number.isInteger(s) || typeof s === "string" ? s : stage_num;
-        return updateInput(sn, t, data);
+        const [e, t, data] = args;
+        const en = Number.isInteger(e) || typeof e === "string" ? e : event_num;
+        return updateInput(en, t, data);
       }
-      // Legacy API: updateInput(type, data) -> inject stage_num
       if (args.length === 2) {
         const [t, data] = args;
-        return updateInput(stage_num, t, data);
+        return updateInput(event_num, t, data);
       }
-      console.warn("updateInputForStage called with unexpected args:", args);
+      console.warn("updateInputForEvent called with unexpected args:", args);
     },
-    [stage_num, updateInput]
+    [event_num, updateInput]
   );
 
   const handleRemove = useCallback(() => {
-    if (onRemove) onRemove(stage_num);
-  }, [onRemove, stage_num]);
+    if (onRemove) onRemove(event_num);
+  }, [onRemove, event_num]);
+
+  // read weights & existing values for each tab from eventData (unchanged data model)
+  const weights = useMemo(
+    () => eventData?.weight_dict || {},
+    [eventData?.weight_dict]
+  );
 
   return (
     <div
@@ -46,74 +63,142 @@ function SearchModalWrapper({
       }}
     >
       <SearchModalWrapperHeader
-        stage_num={stage_num}
+        event_num={event_num}
         onToggle={() => setIsCollapsed((v) => !v)}
         isCollapsed={isCollapsed}
         onRemove={handleRemove}
         disableRemove={disableRemove}
       />
+
+      {/* Tab strip */}
       <div style={{ display: isCollapsed ? "none" : "block" }}>
-        <SearchModal
-          updateInput={updateInputForStage}
-          stage_num={stage_num}
-          type="text"
-          title={`Text Search (Stage ${stage_num})`}
-          description="Enter text to find similar video frames"
-          placeholder="e.g., a running horse"
-          resetTrigger={resetTrigger}
-          initialValue={stageData?.text?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.text || 1.0}
-          existingObjMask={stageData?.text?.obj_mask || null}
-        />
+        <div
+          role="tablist"
+          aria-label={`Search types for Event ${event_num}`}
+          style={{
+            display: "flex",
+            gap: 8,
+            borderBottom: "1px solid #eee",
+            paddingBottom: 8,
+            marginBottom: 12,
+            flexWrap: "wrap",
+            overflowX: "hidden",
+          }}
+        >
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              onClick={() => setActiveTab(t.key)}
+              className="btn-secondary"
+              style={{
+                padding: "6px 10px",
+                fontSize: 12,
+                border:
+                  activeTab === t.key ? "2px solid #111" : "1px solid #ddd",
+                // Light green when this modality has an input/value;
+                // otherwise white if active, or light gray if idle.
+                background:
+                  (eventData?.[t.key]?.value &&
+                    eventData?.[t.key]?.value.trim() !== "") ||
+                  eventData?.[t.key]?.file ||
+                  (t.key === "od" &&
+                    eventData?.od &&
+                    Object.keys(eventData.od).length > 0)
+                    ? "lightgreen"
+                    : activeTab === t.key
+                    ? "#fff"
+                    : "#f8f9fa",
+                borderRadius: 6,
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-        <ImageSearchModal
-          updateInput={updateInputForStage}
-          type="img"
-          title={`Image Search (Stage ${stage_num})`}
-          description="Upload a reference image"
-          resetTrigger={resetTrigger}
-          initialFile={stageData?.img?.file || null}
-          defaultWeightValue={stageData?.weight_dict?.img || 1.0}
-        />
+        {/* Active panel */}
+        {activeTab === "text" && (
+          <SearchModal
+            updateInput={updateInputForEvent}
+            event_num={event_num}
+            type="text"
+            title={`Text Search (Event ${event_num})`}
+            description="Enter text to find similar video frames"
+            placeholder="e.g., a running horse"
+            resetTrigger={resetTrigger}
+            initialValue={eventData?.text?.value || ""}
+            defaultWeightValue={weights?.text ?? 1.0}
+            existingObjMask={eventData?.text?.obj_mask || null}
+          />
+        )}
 
-        <SearchModal
-          updateInput={updateInputForStage}
-          stage_num={stage_num}
-          type="ocr"
-          title={`OCR Search (Stage ${stage_num})`}
-          description="Search for text that appears in video frames"
-          placeholder="e.g., green farm village"
-          resetTrigger={resetTrigger}
-          initialValue={stageData?.ocr?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.ocr || 1.0}
-          existingObjMask={stageData?.ocr?.obj_mask || null}
-        />
+        {activeTab === "img" && (
+          <ImageSearchModal
+            updateInput={updateInputForEvent}
+            type="img"
+            title={`Image Search (Event ${event_num})`}
+            description="Upload a reference image"
+            resetTrigger={resetTrigger}
+            initialFile={eventData?.img?.file || null}
+            defaultWeightValue={weights?.img ?? 1.0}
+          />
+        )}
 
-        <SearchModal
-          updateInput={updateInputForStage}
-          stage_num={stage_num}
-          type="asr"
-          title={`ASR Search (Stage ${stage_num})`}
-          description="Search for text that appears in video audio"
-          placeholder="e.g., hello world"
-          resetTrigger={resetTrigger}
-          initialValue={stageData?.asr?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.asr || 1.0}
-          existingObjMask={stageData?.asr?.obj_mask || null}
-        />
+        {activeTab === "ocr" && (
+          <SearchModal
+            updateInput={updateInputForEvent}
+            event_num={event_num}
+            type="ocr"
+            title={`OCR Search (Event ${event_num})`}
+            description="Search for text visible in frames"
+            placeholder="e.g., green farm village"
+            resetTrigger={resetTrigger}
+            initialValue={eventData?.ocr?.value || ""}
+            defaultWeightValue={weights?.ocr ?? 1.0}
+            existingObjMask={eventData?.ocr?.obj_mask || null}
+          />
+        )}
 
-        <SearchModal
-          updateInput={updateInputForStage}
-          stage_num={stage_num}
-          type="localized"
-          title={`Location Search (Stage ${stage_num})`}
-          description="Search by location or place names"
-          placeholder="e.g., vietnam"
-          resetTrigger={resetTrigger}
-          initialValue={stageData?.localized?.value || ""}
-          defaultWeightValue={stageData?.weight_dict?.localized || 1.0}
-          existingObjMask={stageData?.localized?.obj_mask || null}
-        />
+        {activeTab === "asr" && (
+          <SearchModal
+            updateInput={updateInputForEvent}
+            event_num={event_num}
+            type="asr"
+            title={`ASR Search (Event ${event_num})`}
+            description="Search by spoken words (transcripts)"
+            placeholder="e.g., 'the mayor announced...'"
+            resetTrigger={resetTrigger}
+            initialValue={eventData?.asr?.value || ""}
+            defaultWeightValue={weights?.asr ?? 1.0}
+            existingObjMask={eventData?.asr?.obj_mask || null}
+          />
+        )}
+
+        {activeTab === "localized" && (
+          <SearchModal
+            updateInput={updateInputForEvent}
+            event_num={event_num}
+            type="localized"
+            title={`Localized Search (Event ${event_num})`}
+            description="Search by localized region features"
+            placeholder="e.g., vietnam"
+            resetTrigger={resetTrigger}
+            initialValue={eventData?.localized?.value || ""}
+            defaultWeightValue={weights?.localized ?? 1.0}
+            existingObjMask={eventData?.localized?.obj_mask || null}
+          />
+        )}
+
+        {activeTab === "od" && (
+          <ObjectSearchModal
+            event_num={event_num}
+            updateInput={updateInputForEvent}
+            resetTrigger={resetTrigger}
+            initialValue={eventData?.od || { classes: [], count: "", pos: "" }}
+            defaultWeightValue={weights?.od ?? 1.0}
+          />
+        )}
       </div>
     </div>
   );

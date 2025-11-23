@@ -27,6 +27,8 @@ function apply_blacklist(blacklistCondition, results) {
         if (normalizedCondition.includes('*')) {
             // Convert wildcard pattern to regex
             // Escape special regex characters except *
+            // These characters have special meaning in regex, so we escape them to treat them as normal text.
+            // /g is the global flag: it means "replace all occurrences in the string," not just the first one
             const escapedCondition = normalizedCondition.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
             const regexPattern = escapedCondition.replace(/\*/g, '.*');
             const regex = new RegExp('^' + regexPattern + '$');
@@ -36,6 +38,7 @@ function apply_blacklist(blacklistCondition, results) {
             shouldRemove = videoName.startsWith(normalizedCondition);
         }
         
+        // filter keeps an item if callback returns true, so we have to use !shouldRemove
         return !shouldRemove; // Keep if not matching the blacklist condition
     });
     

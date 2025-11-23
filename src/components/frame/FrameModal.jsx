@@ -1,40 +1,40 @@
-import { useEffect } from 'react'
-import '../../styles/FrameModal.css'
+import { useEffect } from "react";
+import "../../styles/FrameModal.css";
 
 function FrameModal({ frameData, onClose }) {
-  const { image_path } = frameData
+  const { image_path } = frameData;
 
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose()
+      if (e.key === "Escape") {
+        onClose();
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [onClose])
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   return (
     <div className="frame-modal" onClick={handleBackdropClick}>
-      <img 
+      <img
         src={image_path}
         alt="Full size frame"
         style={{
-          maxWidth: '90vw',
-          maxHeight: '90vh',
-          objectFit: 'contain',
-          borderRadius: '8px'
+          maxWidth: "90vw",
+          maxHeight: "90vh",
+          objectFit: "contain",
+          borderRadius: "8px",
         }}
       />
     </div>
-  )
+  );
 }
 
-export default FrameModal
+export default FrameModal;

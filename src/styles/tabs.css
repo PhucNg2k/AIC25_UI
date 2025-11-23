@@ -1,0 +1,5 @@
+/* styles/tabs.css (optional) */
+[role="tablist"] .btn-secondary[aria-selected="true"] {
+  background: #fff;
+  border-color: #111;
+}
